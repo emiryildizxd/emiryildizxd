@@ -1,0 +1,4 @@
+- 👋 Hi, I’m @emiryildizxd
+- 👀 I’m interested in Computers
+- 🌱 I’m currently learning Front-End
+- 📫 How to reach me on discord @emirrrxd

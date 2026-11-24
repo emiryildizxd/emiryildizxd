@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bir Vuruş Daha</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="reel.css">
+</head>
+<body>
+<script src="engine.js"></script>
+<script>
+/* REEL 04 — "BİR VURUŞ DAHA."
+   Mesaj: İki madenci aynı duvarı kazar. Hızlı başlayan yavaşlar ve elmasa
+   bir vuruş kala bırakır. Sabit tempoda devam eden duvarı yıkar. */
+(function () {
+  const { rng, lerp, clamp, E } = F;
+  const N = 24, STEP = 26, X0 = 260;                 // 24 vuruş × 26px; elmas X0+N*STEP'te başlar
+  const WALL = X0 + N * STEP;
+  const LANES = [{ top: 640, h: 230 }, { top: 1050, h: 230 }];
+  const ROCK0 = 520, ROCK1 = 1350;
+
+  // vuruş programları
+  const sched = (start, periods) => { let s = start; return periods.map((p) => { const o = { s, p, hit: s + 0.7 * p }; s += p; return o; }); };
+  const A = sched(2.2, Array.from({ length: N - 1 }, (_, j) => lerp(0.27, 0.6, Math.pow(j / (N - 2), 1.3))));   // hızlı başlar, yavaşlar, 23'te bırakır
+  const B = sched(2.2, Array.from({ length: N }, () => 0.47));                                                // sabit tempo, 24 vuruş
+  const tQuit = A[A.length - 1].s + A[A.length - 1].p + 0.35;
+  const tBreak = B[N - 1].hit;
+
+  // kaya dokusu (bir kez üretilir)
+  const r = rng(42);
+  const stones = Array.from({ length: 170 }, () => ({ x: r() * 1080, y: lerp(ROCK0, ROCK1, r()), rx: 6 + r() * 22, ry: 4 + r() * 14, a: r() * Math.PI, l: 0.03 + r() * 0.06 }));
+  const jag = Array.from({ length: 12 }, () => (r() - 0.5) * 18);
+  const gems = [0, 1].map((li) => {
+    const rr = rng(7 + li), L = LANES[li], out = [];
+    for (let i = 0; i < 26; i++) out.push({ x: WALL + 30 + rr() * 170, y: L.top - 20 + rr() * (L.h + 40), s: 14 + rr() * 26, a: rr() * Math.PI, tw: rr() * 6 });
+    return out;
+  });
+
+  function swingState(list, t) {
+    let n = 0, u = -1;
+    for (const w of list) { if (t >= w.hit) n++; if (t >= w.s && t < w.s + w.p) u = (t - w.s) / w.p; }
+    return { n, u };
+  }
+  function swingPose(k) { // k=0 yukarıda (kalkmış), k=1 vurmuş
+    return { lean: lerp(0.0, 0.32, k), hipL: 0.38, kneeL: 0.32, hipR: -0.28, kneeR: 0.1,
+      shR: lerp(-2.5, 1.15, k), elR: lerp(-0.4, 0.25, k), shL: lerp(-2.35, 1.25, k), elL: lerp(-0.45, 0.2, k), head: lerp(-0.25, 0.15, k) };
+  }
+  function kOf(u) {
+    if (u < 0) return 1;
+    if (u < 0.62) return 1 - E.outCubic(u / 0.62);
+    if (u < 0.72) return E.inCubic((u - 0.62) / 0.1);
+    return 1;
+  }
+  function pickaxe(ctx, hand, ang, dir, s, alpha = 1) {
+    const vx = Math.sin(ang) * dir, vy = Math.cos(ang);
+    const a = [hand[0] - vx * 12 * s, hand[1] - vy * 12 * s], b = [hand[0] + vx * 74 * s, hand[1] + vy * 74 * s];
+    const nx = -vy, ny = vx;
+    ctx.save(); ctx.globalAlpha *= alpha; ctx.lineCap = 'round';
+    ctx.strokeStyle = '#9a7650'; ctx.lineWidth = 7 * s;
+    ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
+    ctx.strokeStyle = '#d4d7de'; ctx.lineWidth = 8 * s; ctx.shadowColor = '#ffffff'; ctx.shadowBlur = 6;
+    ctx.beginPath(); ctx.moveTo(b[0] + nx * 38 * s, b[1] + ny * 38 * s);
+    ctx.quadraticCurveTo(b[0] + vx * 14 * s, b[1] + vy * 14 * s, b[0] - nx * 38 * s, b[1] - ny * 38 * s); ctx.stroke();
+    ctx.restore();
+    return b;
+  }
+  function gem(ctx, g, a, t, glow) {
+    ctx.save(); ctx.translate(g.x, g.y); ctx.rotate(g.a); ctx.globalAlpha *= a;
+    const s = g.s;
+    ctx.beginPath(); ctx.moveTo(0, -s); ctx.lineTo(s * 0.62, -s * 0.15); ctx.lineTo(0, s); ctx.lineTo(-s * 0.62, -s * 0.15); ctx.closePath();
+    const gr = ctx.createLinearGradient(-s, -s, s, s);
+    gr.addColorStop(0, '#d9f7ff'); gr.addColorStop(0.5, '#4fc8ff'); gr.addColorStop(1, '#1b5fd1');
+    ctx.fillStyle = gr; if (glow) { ctx.shadowColor = '#5fd4ff'; ctx.shadowBlur = glow; } ctx.fill();
+    ctx.shadowBlur = 0; ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(-s * 0.62, -s * 0.15); ctx.lineTo(s * 0.62, -s * 0.15); ctx.moveTo(0, -s); ctx.lineTo(0, s); ctx.stroke();
+    // pırıltı
+    const tw = Math.max(0, Math.sin(t * 3 + g.tw * 5)) ** 8;
+    if (tw > 0.05 && glow) {
+      ctx.rotate(-g.a); ctx.strokeStyle = `rgba(255,255,255,${tw})`; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(-s * 0.7, -s * 0.4); ctx.lineTo(s * 0.7, -s * 0.4); ctx.moveTo(0, -s * 1.1); ctx.lineTo(0, s * 0.3); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  Reel({
+    title: 'Bir Vuruş Daha',
+    duration: 23,
+    draw(ctx, t, F) {
+      const { W, H, CONFIG: C, prog } = F;
+      const SA = swingState(A, t), SB = swingState(B, t);
+      const broke = clamp((t - tBreak) / 0.5);
+      const flash = t > tBreak ? Math.max(0, 1 - (t - tBreak) / 0.35) : 0;
+
+      // kamera sarsıntısı
+      let sx = 0, sy = 0;
+      for (const w of [...A, ...B]) { const d = t - w.hit; if (d >= 0 && d < 0.12) { const m = (1 - d / 0.12) * 4; sx += Math.sin(d * 140) * m; sy += Math.cos(d * 170) * m; } }
+      if (t > tBreak && t < tBreak + 0.6) { const m = (1 - (t - tBreak) / 0.6) * 16; sx += Math.sin(t * 90) * m; sy += Math.cos(t * 110) * m; }
+
+      F.background(ctx, t, { tint: F.hexA('#4fc8ff', 0.02 + 0.1 * broke), tintY: LANES[1].top + 100 });
+
+      // ---- başlık ----
+      const kT = E.outBack(prog(t, 0, 0.6));
+      ctx.save(); ctx.translate(W / 2, 290); ctx.scale(lerp(0.85, 1, kT), lerp(0.85, 1, kT));
+      F.revealLine(ctx, 'BİR VURUŞ *DAHA.*', 0, 0, prog(t, 0, 0.7), { size: 90, weight: 900, stagger: 0.3, accent: C.cyan });
+      ctx.restore();
+      F.text(ctx, 'İKİSİ DE AYNI DUVARI KAZIYOR.', W / 2, 372, { size: 28, weight: 700, color: C.dim, ls: 5, alpha: prog(t, 0.5, 1.1) });
+
+      ctx.save(); ctx.translate(sx, sy);
+      const kr = E.outCubic(prog(t, 0.7, 1.5));
+      ctx.globalAlpha = kr;
+
+      // ---- kaya ----
+      const rg = ctx.createLinearGradient(0, ROCK0, 0, ROCK1);
+      rg.addColorStop(0, '#17181d'); rg.addColorStop(1, '#0f1014');
+      ctx.fillStyle = rg; ctx.fillRect(-20, ROCK0, W + 40, ROCK1 - ROCK0);
+      for (const s of stones) { ctx.fillStyle = `rgba(255,255,255,${s.l})`; ctx.beginPath(); ctx.ellipse(s.x, s.y, s.rx, s.ry, s.a, 0, Math.PI * 2); ctx.fill(); }
+      ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(-20, ROCK0); ctx.lineTo(W + 20, ROCK0); ctx.stroke();
+
+      // ---- elmaslar (kaya içinde, ipucu → açığa çıkma) ----
+      const hint = 0.22 * prog(t, 6.4, 7.4);
+      gems[0].forEach((g) => gem(ctx, g, hint * (1 - 0.4 * prog(t, tQuit, tQuit + 1)), t, 0));
+      gems[1].forEach((g) => gem(ctx, g, Math.max(hint, broke), t, broke > 0 ? 26 : 0));
+
+      // ---- tüneller ----
+      LANES.forEach((L, li) => {
+        const S = li === 0 ? SA : SB;
+        const isB = li === 1;
+        let dig = X0 + S.n * STEP;
+        const open = isB && t > tBreak;
+        ctx.save();
+        ctx.beginPath(); ctx.moveTo(-20, L.top);
+        if (open) { ctx.lineTo(W + 20, L.top); ctx.lineTo(W + 20, L.top + L.h); }
+        else {
+          ctx.lineTo(dig, L.top);
+          jag.forEach((j, i) => ctx.lineTo(dig + j * (i % 2 ? 1 : 0.6), L.top + ((i + 1) / (jag.length + 1)) * L.h));
+          ctx.lineTo(dig, L.top + L.h);
+        }
+        ctx.lineTo(-20, L.top + L.h); ctx.closePath();
+        const tg = ctx.createLinearGradient(0, L.top, 0, L.top + L.h);
+        tg.addColorStop(0, '#060709'); tg.addColorStop(1, '#0b0c10');
+        ctx.fillStyle = tg; ctx.fill();
+        ctx.restore();
+        // zemin çizgisi
+        ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(-20, L.top + L.h); ctx.lineTo(open ? W + 20 : dig, L.top + L.h); ctx.stroke();
+        // destek kirişi + fener
+        ctx.strokeStyle = '#3a2c1e'; ctx.lineWidth = 12;
+        ctx.beginPath(); ctx.moveTo(50, L.top + L.h); ctx.lineTo(50, L.top + 8); ctx.lineTo(120, L.top + 8); ctx.lineTo(120, L.top + L.h); ctx.stroke();
+        const flick = 0.85 + 0.15 * Math.sin(t * 13 + li * 2) * Math.sin(t * 7.3);
+        F.glowCircle(ctx, 85, L.top + 52, 150, '#ffb347', 0.55 * flick);
+        ctx.fillStyle = '#ffcf7a'; ctx.shadowColor = '#ffb347'; ctx.shadowBlur = 16;
+        F.rrect(ctx, 77, L.top + 36, 16, 24, 4); ctx.fill(); ctx.shadowBlur = 0;
+      });
+
+      // ---- B: duvar yıkılınca elmas ışığı ----
+      if (broke > 0) {
+        const L = LANES[1];
+        const lg = ctx.createLinearGradient(W, 0, 200, 0);
+        lg.addColorStop(0, F.hexA('#5fd4ff', 0.45 * broke)); lg.addColorStop(1, F.hexA('#5fd4ff', 0));
+        ctx.fillStyle = lg; ctx.fillRect(0, L.top, W, L.h);
+        gems[1].forEach((g) => gem(ctx, g, 1, t, 30));
+        // patlama parçaları
+        const rp = rng(3);
+        for (let i = 0; i < 40; i++) {
+          const ang = (rp() - 0.5) * 2.4 + Math.PI, sp = 200 + rp() * 600, d = t - tBreak;
+          if (d > 1.4) break;
+          const x = WALL + Math.cos(ang) * sp * d * -1 * -1, y = L.top + L.h / 2 + Math.sin(ang) * sp * d + 500 * d * d;
+          ctx.fillStyle = i % 3 ? `rgba(160,170,185,${1 - d / 1.4})` : `rgba(140,220,255,${1 - d / 1.4})`;
+          ctx.fillRect(x, y, 6 + (i % 4) * 3, 6 + (i % 3) * 3);
+        }
+      }
+
+      // ---- HUD (her tünelin üstünde) ----
+      const kh = E.outCubic(prog(t, 1.1, 1.7));
+      LANES.forEach((L, li) => {
+        const S = li === 0 ? SA : SB, col = li === 0 ? C.red : C.gold;
+        const y = L.top - 52;
+        F.text(ctx, li === 0 ? 'HIZLI BAŞLAYAN' : 'DURMAYAN', 60, y, { size: 24, weight: 800, align: 'left', color: col, ls: 3, alpha: kh });
+        F.text(ctx, 'VURUŞ', 470, y, { size: 20, weight: 500, font: C.mono, color: C.dim, align: 'left', alpha: kh });
+        F.text(ctx, String(S.n).padStart(2, '0'), 560, y + 2, { size: 34, weight: 700, font: C.mono, align: 'left', alpha: kh });
+        // sonuç
+        let res = '???', rc = C.dim, glow = 0;
+        if (li === 0 && t > tQuit + 0.3) { res = 'BIRAKTI'; rc = C.red; glow = 14; }
+        if (li === 1 && t > tBreak + 0.2) { res = 'ELMAS'; rc = '#7fdcff'; glow = 22; }
+        F.panel(ctx, 800, y - 28, 220, 56, { r: 28, alpha: kh, stroke: res === '???' ? undefined : F.hexA(rc === C.red ? C.red : '#7fdcff', 0.6) });
+        F.text(ctx, res, 910, y + 1, { size: 26, weight: 800, font: C.mono, color: rc, alpha: kh, glow, ls: 2 });
+      });
+
+      // ---- madenciler ----
+      const s = 0.9;
+      // A: pes eden
+      {
+        const L = LANES[0], floor = L.top + L.h, dig = X0 + SA.n * STEP;
+        const baseX = dig - 128;
+        if (t < tQuit) {
+          const k = t < 2.2 ? 1 : kOf(SA.u);
+          const pose = t < 2.2 ? { ...F.P.stand(t), shR: 0.9, elR: 0.5 } : swingPose(k);
+          const tired = prog(SA.n, 10, 23);
+          const res = F.stickman(ctx, { x: baseX, y: floor, s, pose, glow: lerp(16, 4, tired), glowColor: C.red });
+          pickaxe(ctx, res.handR, pose.shR + pose.elR, 1, s);
+          if (SA.n < 8 && t > 2.2) F.embers(ctx, t, { x: baseX, y: floor - 60, w: 50, h: 120, n: 10, color: C.red, seed: 9, alpha: 1 - SA.n / 8 });
+        } else {
+          const d = t - tQuit;
+          const fall = E.outCubic(clamp(d / 0.5));
+          // yere düşen kazma
+          const hx = baseX + 70, hy = lerp(floor - 90, floor - 8, fall);
+          pickaxe(ctx, [hx, hy], lerp(1.4, Math.PI / 2 + 0.05, fall), 1, s, 1);
+          const walk = clamp((d - 0.9) / 3.5);
+          const x = baseX - walk * 520;
+          const pose = d < 0.9 ? F.P.slump(t) : F.mixPose(F.P.walk(t * 6, 0.55), F.P.slump(t), 0.5);
+          F.stickman(ctx, { x, y: floor, s, dir: d < 0.9 ? 1 : -1, pose, color: F.mixHex('#f4f2ee', '#6e6a66', clamp(d / 1.5)), alpha: 1 - prog(d, 3.0, 4.2) });
+        }
+      }
+      // B: durmayan
+      {
+        const L = LANES[1], floor = L.top + L.h, dig = X0 + SB.n * STEP;
+        const baseX = Math.min(dig, WALL) - 128;
+        if (t < tBreak + 0.25) {
+          const k = t < 2.2 ? 1 : kOf(SB.u);
+          const pose = t < 2.2 ? { ...F.P.stand(t), shR: 0.9, elR: 0.5 } : swingPose(k);
+          const res = F.stickman(ctx, { x: baseX, y: floor, s, pose, glow: lerp(12, 30, SB.n / N), glowColor: C.gold });
+          pickaxe(ctx, res.handR, pose.shR + pose.elR, 1, s);
+          if (SB.n > 12) F.embers(ctx, t, { x: baseX, y: floor - 60, w: 50, h: 140, n: 14, color: C.gold, seed: 4 });
+        } else {
+          const pose = F.P.celebrate(t);
+          F.stickman(ctx, { x: baseX + 40 * clamp((t - tBreak - 0.25) / 0.6), y: floor, s, pose, glow: 36, glowColor: '#7fdcff' });
+          F.embers(ctx, t, { x: baseX + 40, y: floor - 60, w: 90, h: 200, n: 26, color: '#7fdcff', seed: 8 });
+        }
+      }
+      // vuruş kıvılcımları
+      [[A, 0], [B, 1]].forEach(([list, li]) => {
+        const L = LANES[li];
+        list.forEach((w, i) => {
+          const d = t - w.hit; if (d < 0 || d > 0.45) return;
+          const rp = rng(100 + i + li * 50), x = X0 + (i + 1) * STEP - 4, y = L.top + L.h - 96;
+          for (let j = 0; j < 9; j++) {
+            const a = Math.PI + (rp() - 0.5) * 2.2, v = 180 + rp() * 260;
+            ctx.fillStyle = `rgba(255,${200 + (j % 3) * 20},140,${1 - d / 0.45})`;
+            ctx.beginPath(); ctx.arc(x + Math.cos(a) * v * d, y + Math.sin(a) * v * d + 300 * d * d, 3.5, 0, Math.PI * 2); ctx.fill();
+          }
+        });
+      });
+      ctx.restore();
+
+      if (flash > 0) { ctx.fillStyle = `rgba(200,240,255,${0.28 * flash})`; ctx.fillRect(0, 0, W, H); }
+
+      // ---- ara yazılar ----
+      const cap = (str, a, b, col) => { const k = prog(t, a, a + 0.4) * (1 - prog(t, b - 0.4, b)); if (k > 0) F.revealLine(ctx, str, W / 2, 1440, prog(t, a, a + 0.7), { size: 34, weight: 700, color: col || C.ink, alpha: k, accent: col }); };
+      cap('Biri *hızlı* başladı...', 2.4, 5.8, C.red);
+      cap('İkisi de duvarın arkasını *göremiyor.*', 6.6, 10.2, C.cyan);
+      cap('...ve bir vuruş kala *bıraktı.*', tQuit, tBreak - 0.35, C.red);
+      cap('Diğeri bir kez *daha* vurdu.', tBreak - 0.3, 16.0, C.gold);
+
+      // ---- final ----
+      if (t > 16.2) {
+        const k = E.outCubic(prog(t, 16.2, 17.0));
+        ctx.save(); ctx.fillStyle = `rgba(5,6,8,${0.82 * k})`; ctx.fillRect(0, 0, W, H); ctx.restore();
+        F.revealLine(ctx, 'Vazgeçtiğin an,', W / 2, 900, prog(t, 16.5, 17.3), { size: 74, weight: 800 });
+        F.revealLine(ctx, 'belki *son vuruştu.*', W / 2, 1030, prog(t, 17.7, 18.7), { size: 90, weight: 900, accent: C.cyan, hiGlow: 40, stagger: 0.4 });
+      }
+      F.handleTag(ctx, 1 - prog(t, 19.6, 20));
+      F.endCard(ctx, t, 20.2);
+    },
+  });
+})();
+</script>
+</body>
+</html>

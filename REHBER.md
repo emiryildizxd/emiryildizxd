@@ -76,6 +76,7 @@ Gönderdiğin 4 reels'ten çıkardığım "formül", sayfanın görsel kimliği,
 | 01 | `reels/01-yuzde-bir.html` | Her gün %1 daha iyi ya da daha kötü. 365 gün sonra ×37,8 ve ×0,03. | "Bugün fark etmez. Bir yıl sonra **37 kat** fark eder." |
 | 02 | `reels/02-yarin.html` | Biri her gün bir basamak çıkar, diğeri telefonda "yarın" der. | "'Yarın' bir gün değil. Bir **bahane.**" |
 | 03 | `reels/03-dort-saat.html` | Günde 4 saat = yılda 1.460 saat ≈ 61 gün. Biri kaydırır, diğeri kule inşa eder. | "Aynı 24 saat. **Farklı** hayatlar." |
+| 04 | `reels/04-bir-vurus.html` | İki madenci aynı duvarı kazar. Hızlı başlayan yavaşlar ve elmasa 1 vuruş kala bırakır, sabit tempoda giden duvarı yıkar. | "Vazgeçtiğin an, belki **son vuruştu.**" |
 
 Render edilmiş videolar: `reels/out/*.mp4` (1080×1920, 30 fps, sessiz. Müziği Instagram'da trend bir sesten ekle).
 

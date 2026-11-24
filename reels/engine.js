@@ -9,7 +9,7 @@
 
   // ---------- AYARLAR: sayfa adını burada değiştir ----------
   const CONFIG = {
-    handle: '@seninsayfan',
+    handle: '@saplantisaldisiplin',
     bg: '#07080b',
     ink: '#f4f2ee',
     dim: 'rgba(244,242,238,0.38)',
@@ -293,7 +293,7 @@
   function endCard(ctx, t, t0) { // t0'dan itibaren kararıp hesap adı gelir
     const k = prog(t, t0, t0 + 0.7);
     if (k <= 0) return;
-    ctx.save(); ctx.fillStyle = `rgba(4,5,7,${0.97 * E.outCubic(k)})`; ctx.fillRect(0, 0, W, H); ctx.restore();
+    ctx.save(); ctx.fillStyle = `rgba(4,5,7,${E.outCubic(k)})`; ctx.fillRect(0, 0, W, H); ctx.restore();
     const k2 = E.outBack(prog(t, t0 + 0.25, t0 + 1.0));
     const cy = H / 2 - 40;
     ctx.save(); ctx.translate(W / 2, cy); ctx.scale(lerp(0.6, 1, k2), lerp(0.6, 1, k2)); ctx.globalAlpha = clamp(k2);

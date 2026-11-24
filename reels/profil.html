@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Profil Resmi</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>html,body{margin:0;background:#000;display:flex;align-items:center;justify-content:center;height:100%}canvas{max-width:100vmin;max-height:100vmin}</style>
+</head>
+<body>
+<canvas id="reel" width="1080" height="1080"></canvas>
+<script src="engine.js"></script>
+<script>
+/* PROFİL RESMİ — 1080×1080 (Instagram yuvarlak keser, önemli her şey merkez dairede)
+   Varyasyonlar: render.cjs profil.html --snap 0,1,2  (t = varyasyon numarası)
+   0: Kazmalı çöp adam + altın halka   1: SD monogram   2: Kazmalı adam + elmas ışığı */
+(function () {
+  const S = 1080, cx = S / 2, cy = S / 2;
+  const ctx = document.getElementById('reel').getContext('2d');
+  const { lerp, hexA, glowCircle, stickman, embers, rng, CONFIG: C } = F;
+
+  function bg(tint) {
+    ctx.fillStyle = '#060709'; ctx.fillRect(0, 0, S, S);
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, S * 0.6);
+    g.addColorStop(0, hexA(tint, 0.16)); g.addColorStop(0.55, hexA(tint, 0.04)); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, S, S);
+  }
+  function ring(col, r = 430, w = 16) {
+    ctx.save(); ctx.lineWidth = w; ctx.strokeStyle = col; ctx.shadowColor = col; ctx.shadowBlur = 40;
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke(); ctx.stroke(); ctx.restore();
+  }
+  function swingPose(k) {
+    return { lean: lerp(0.0, 0.32, k), hipL: 0.42, kneeL: 0.34, hipR: -0.32, kneeR: 0.1,
+      shR: lerp(-2.5, 1.15, k), elR: lerp(-0.4, 0.25, k), shL: lerp(-2.35, 1.25, k), elL: lerp(-0.45, 0.2, k), head: lerp(-0.25, 0.15, k) };
+  }
+  function pickaxe(hand, ang, s) {
+    const vx = Math.sin(ang), vy = Math.cos(ang), nx = -vy, ny = vx;
+    const a = [hand[0] - vx * 12 * s, hand[1] - vy * 12 * s], b = [hand[0] + vx * 74 * s, hand[1] + vy * 74 * s];
+    ctx.save(); ctx.lineCap = 'round';
+    ctx.strokeStyle = '#a07a50'; ctx.lineWidth = 7 * s;
+    ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
+    ctx.strokeStyle = '#e4e7ee'; ctx.lineWidth = 8.5 * s; ctx.shadowColor = '#fff'; ctx.shadowBlur = 18;
+    ctx.beginPath(); ctx.moveTo(b[0] + nx * 38 * s, b[1] + ny * 38 * s);
+    ctx.quadraticCurveTo(b[0] + vx * 14 * s, b[1] + vy * 14 * s, b[0] - nx * 38 * s, b[1] - ny * 38 * s); ctx.stroke();
+    ctx.restore();
+  }
+  function miner(glowCol, s = 2.2, k = 0.04) {
+    const groundY = cy + 285, x = cx - 10;
+    // zemin çizgisi (halka içinde)
+    ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,0.28)'; ctx.lineWidth = 6; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(cx - 250, groundY); ctx.lineTo(cx + 250, groundY); ctx.stroke(); ctx.restore();
+    const pose = swingPose(k);
+    embers(ctx, 1.7, { x: x + 20, y: groundY - 100, w: 300, h: 480, n: 46, color: glowCol, seed: 12, size: 8 });
+    const res = stickman(ctx, { x, y: groundY, s, pose, glow: 26, glowColor: glowCol, lw: 10 });
+    pickaxe(res.handR, pose.shR + pose.elR, s);
+  }
+  function grainVignette() {
+    const v = ctx.createRadialGradient(cx, cy, S * 0.3, cx, cy, S * 0.72);
+    v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,0.65)');
+    ctx.fillStyle = v; ctx.fillRect(0, 0, S, S);
+  }
+
+  const variants = [
+    () => { bg(C.gold); ring(C.gold); miner(C.gold); grainVignette(); },
+    () => {
+      bg(C.gold); ring(C.gold, 430, 14);
+      ctx.save(); ctx.font = `900 400px ${C.sans}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      if ('letterSpacing' in ctx) ctx.letterSpacing = '-18px';
+      ctx.shadowColor = '#ffffff'; ctx.shadowBlur = 30; ctx.fillStyle = C.ink; ctx.fillText('S', cx - 112, cy + 20);
+      ctx.shadowColor = C.gold; ctx.shadowBlur = 50; ctx.fillStyle = C.gold; ctx.fillText('D', cx + 118, cy + 20);
+      ctx.restore();
+      grainVignette();
+    },
+    () => {
+      bg('#4fc8ff');
+      // sağda elmas damarı
+      const r = rng(4);
+      for (let i = 0; i < 16; i++) {
+        const gx = cx + 190 + r() * 130, gy = cy - 180 + r() * 360, s = 18 + r() * 26, a = r() * Math.PI;
+        ctx.save(); ctx.translate(gx, gy); ctx.rotate(a);
+        ctx.beginPath(); ctx.moveTo(0, -s); ctx.lineTo(s * 0.62, -s * 0.15); ctx.lineTo(0, s); ctx.lineTo(-s * 0.62, -s * 0.15); ctx.closePath();
+        const g = ctx.createLinearGradient(-s, -s, s, s); g.addColorStop(0, '#e0f8ff'); g.addColorStop(0.5, '#4fc8ff'); g.addColorStop(1, '#1b5fd1');
+        ctx.fillStyle = g; ctx.shadowColor = '#5fd4ff'; ctx.shadowBlur = 30; ctx.fill(); ctx.restore();
+      }
+      ring(C.gold); miner(C.gold); grainVignette();
+    },
+  ];
+
+  window.__reel = { duration: 3, fps: 1, cues: null };
+  window.__render = (t) => { ctx.save(); ctx.clearRect(0, 0, S, S); variants[Math.min(2, Math.floor(t))](); ctx.restore(); };
+  const v = +(new URLSearchParams(location.search).get('v') || 0);
+  document.fonts.load(`900 400px Inter`, 'SD').then(() => { window.__render(v); window.__ready = true; });
+})();
+</script>
+</body>
+</html>

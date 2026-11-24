@@ -1,4 +1,6 @@
-# Sayfa Rehberi — Minimal Çöp Adam Animasyonlarıyla Kişisel Gelişim Reels'leri
+# @saplantisaldisiplin — Sayfa Rehberi
+
+Minimal çöp adam animasyonlarıyla sert, agresif kişisel gelişim reels'leri.
 
 Gönderdiğin 4 reels'ten çıkardığım "formül", sayfanın görsel kimliği, içerik planı ve bu repodaki animasyon motorunun kullanımı.
 
@@ -97,6 +99,15 @@ Referanslardaki gibi: **kısa, kesik, büyük harf, nokta ile biten** cümleler.
 - Reel 04'te müzik temposu kazma vuruşlarına kilitli (127,7 BPM), vuruşlar ritme oturuyor.
 - Sadece sesi yenilemek için: `node render.cjs 04-bir-vurus.html --audio-only`
 - Trend bir ses kullanmak istersen: `--no-audio` ile sessiz video al, sesi Instagram'da ekle.
+
+## 3d. Profil resmi
+
+`reels/profil/` klasöründe 1080×1080 PNG olarak 3 varyasyon var. Instagram yuvarlak keser; tasarımın tamamı merkezdeki dairede.
+- `profil-3-elmas.png` ⭐: kazmasını kaldırmış adam, arkada elmas damarı. "Son vuruş" hikâyesini anlatıyor ve en dikkat çekeni bu.
+- `profil-1-kazma.png`: aynı sahne, elmassız ve sade.
+- `profil-2-monogram.png`: SD monogramı. En küçük boyutta en net okunan bu.
+
+Yeniden üretmek için: `node render.cjs profil.html --snap 0,1,2`
 
 ## 4. Sonraki 30 fikir
 

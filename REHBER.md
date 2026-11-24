@@ -80,6 +80,9 @@ Gönderdiğin 4 reels'ten çıkardığım "formül", sayfanın görsel kimliği,
 | 04 | `reels/04-bir-vurus.html` | İki madenci aynı duvarı kazar. Hızlı başlayan yavaşlar ve elmasa 1 vuruş kala bırakır, sabit tempoda giden duvarı yıkar. | "1 VURUŞ UZAKTAYDI. **VE SEN BIRAKTIN.**" |
 | 05 | `reels/05-sarj.html` | Gece. Adamın kafasından dev telefona kablo uzanır; telefon şarj oldukça adam söner. 23:47 → 04:12. | "TELEFONUN %100. **SEN %3.**" |
 | 06 | `reels/06-ipler.html` | Kukla adam: BEĞENİ, ONAY, BİLDİRİM, KONFOR ipleri. Tek tek koparır, düşer, kendi ayağıyla kalkar. | "İPLERİNİ KİM TUTUYOR? **KES.**" |
+| 07 | `reels/07-golge.html` | Dev altın gölge (potansiyel) adamla koşar. Adam durur, telefona dalar; gölge bekler, geriye bakar, gider. | "POTANSİYELİN **SENİ BEKLEMEZ.**" |
+| 08 | `reels/08-acik-kafes.html` | Altın kafeste 5 yıl, koltuk ve telefon; dışarıda hayat koşar. Kapı hep açık; kalkar, bir adım atar, geri oturur. | "KİLİT YOKTU. **SEN KALDIN.**" |
+| 09 | `reels/09-zincir.html` | Her gün bir halka. "Bugün olmaz" deyince zincir kırılır, seri sıfırlanır. Diğerininki 100 gün. | "ZİNCİRİ KİMSE KIRMADI. **SEN KIRDIN.**" |
 
 **Giriş kuralı:** Hiçbir video siyah ekranda yazıyla açılmaz. İlk kare doğrudan sahne ve hareket. Eski reel'lerde girişi `skip: 2.0` atlıyor (motor sesi ve müziği de kaydırıyor), yeni reel'ler zaten 0. saniyede aksiyonla başlıyor.
 
@@ -118,9 +121,9 @@ Yeniden üretmek için: `node render.cjs profil.html --snap 0,1,2`
 |---|---|---|---|
 | ✅ | **ŞARJ** | Kafadan telefona kablo; telefon dolar, adam söner. | TELEFONUN %100. SEN %3. |
 | ✅ | **İPLER** | Kukla adam; BEĞENİ/ONAY/BİLDİRİM/KONFOR iplerini koparır. | İPLERİNİ KİM TUTUYOR? KES. |
-| 1 | **GÖLGE** | Adamın gölgesi onun potansiyeli. Adam durunca gölge koşmaya devam eder ve onu terk eder. | POTANSİYELİN SENİ BEKLEMEZ. |
-| 2 | **AÇIK KAFES** | Altın kafes: koltuk, telefon, cips. Kapı baştan beri açık. Takvim 365 gün döner, adam hiç çıkmaz. | KİLİT YOKTU. HİÇ OLMADI. |
-| 3 | **ZİNCİR** | Seri sayacı 1→6, sonra "bugün olmaz" → 0. Tekrar tekrar. Diğeri 100'e ulaşır. | ZİNCİRİ KIRAN SENSİN. |
+| ✅ | **GÖLGE** | Adamın gölgesi onun potansiyeli. Adam durunca gölge koşmaya devam eder ve onu terk eder. | POTANSİYELİN SENİ BEKLEMEZ. |
+| ✅ | **AÇIK KAFES** | Altın kafes: koltuk, telefon, cips. Kapı baştan beri açık. Takvim 365 gün döner, adam hiç çıkmaz. | KİLİT YOKTU. HİÇ OLMADI. |
+| ✅ | **ZİNCİR** | Seri sayacı 1→6, sonra "bugün olmaz" → 0. Tekrar tekrar. Diğeri 100'e ulaşır. | ZİNCİRİ KIRAN SENSİN. |
 | 4 | **%99** | Hayalinin yükleme çubuğu %99'da takılı, adam bekliyor. Diğeri son %1'i kendi eliyle itiyor. | KİMSE SENİN YERİNE YÜKLEMEYECEK. |
 | 5 | **ALKIŞ** | Sahnede çalışan adam alkış gelince hızlanır, alkış bitince durur. Diğeri boş salonda çalışır. | ALKIŞLA DURUYORSAN OYUNCUSUN. |
 | 6 | **FAİZ** | Ertelenen her iş sırta taş olur. Taşlar faiz gibi büyür, adam ezilir. | ERTELEDİĞİN HER ŞEY FAİZİYLE GELİR. |

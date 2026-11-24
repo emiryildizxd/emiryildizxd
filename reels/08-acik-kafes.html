@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Açık Kafes</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="reel.css">
+</head>
+<body>
+<script src="engine.js"></script>
+<script>
+/* REEL 08 — "AÇIK KAFES"
+   Altın bir kafes: koltuk, telefon, cips. Günler, yıllar akar; dışarıda hayat koşarak geçer.
+   Kamera kapıya yaklaşır: kapı baştan beri açık. Adam kalkar, bir adım atar... ve geri oturur.
+   Giriş yok: ilk karede gün sayacı akıyor. */
+(function () {
+  const { lerp, clamp, E, prog, rng } = F;
+  const ground = 1460, CX = 540, CL = 230, CR = 850, CTOP = 760, DOOR_Y = 1120;
+  const TD = 10.0;                                       // gün akışı biter
+  const dayAt = (t) => Math.floor(1 + 1824 * (0.35 * clamp(t / TD) + 0.65 * E.inQuad(clamp(t / TD))));
+  const r = rng(8);
+  const runners = Array.from({ length: 7 }, (_, i) => ({ t0: 0.4 + i * 1.35 + r() * 0.4, s: 0.55 + r() * 0.2, y: ground - 4 - r() * 30 }));
+  const wrappers = Array.from({ length: 26 }, () => ({ x: 640 + r() * 150, y: ground - 6 - r() * 40, a: r() * 3, c: ['#ff4d5e', '#f4b740', '#3d8bff', '#3ee08f'][Math.floor(r() * 4)] }));
+
+  Reel({
+    title: 'Açık Kafes',
+    duration: 21.5,
+    cues() {
+      const c = [{ t: 0, type: 'hit' }];
+      let last = 0;
+      for (let t = 0; t < TD; t += 1 / 60) { const y = Math.floor(dayAt(t) / 60); if (y !== last) { c.push({ t, type: 'tick', p: t / TD }); last = y; } }
+      for (let t = 0.2; t < 11; t += 0.5) c.push({ t, type: 'swipe' });
+      runners.forEach((ru) => c.push({ t: ru.t0 + 0.6, type: 'whoosh' }));
+      c.push({ t: 10.0, type: 'door' }, { t: 10.3, type: 'whoosh' }, { t: 12.6, type: 'step', p: 0.3 }, { t: 12.95, type: 'step', p: 0.4 },
+        { t: 13.6, type: 'sad' }, { t: 13.9, type: 'block', p: 0 },
+        { t: 14.5, type: 'drop' }, { t: 14.8, type: 'punch' }, { t: 16.0, type: 'hit' }, { t: 18.8, type: 'end' });
+      return { music: { bpm: 118, grid0: 0.0, climax: 10.0, punch: 14.8, end: 18.8, prog: 'am', drums: 'full' }, cues: c };
+    },
+    draw(ctx, t, F) {
+      const { W, H, CONFIG: C } = F;
+      const day = dayAt(t), year = Math.min(5, Math.floor((day - 1) / 365) + 1);
+      const age = clamp(t / TD);
+      F.background(ctx, t, { tint: F.hexA(C.gold, 0.05), tintY: 1100 });
+
+      // ---- takvim HUD ----
+      F.text(ctx, 'YIL ' + year, W / 2, 250, { size: 30, weight: 800, color: C.gold, ls: 6 });
+      F.text(ctx, 'GÜN ' + String(day).padStart(4, '0'), W / 2, 320, { size: 76, weight: 700, font: C.mono, color: C.ink, glow: 14, glowColor: C.gold });
+
+      // kamera: kapıya yaklaş (10–11.5) ve geri dön (14–14.6)
+      const zin = E.inOutCubic(prog(t, 10.0, 11.4)) * (1 - E.inOutCubic(prog(t, 13.9, 14.6)));
+      const zx = lerp(CX, 690, zin), zy = lerp(1100, 1200, zin), zs = 1 + 0.25 * zin;
+      ctx.save(); ctx.translate(W / 2, 1100); ctx.scale(zs, zs); ctx.translate(-zx, -zy);
+
+      // ---- dış dünya: ufuk ışığı + koşup geçen insanlar ----
+      F.glowCircle(ctx, 1020, ground - 160, 380, C.gold, 0.5 + 0.3 * Math.sin(t * 1.3));
+      ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(-200, ground); ctx.lineTo(W + 200, ground); ctx.stroke();
+      runners.forEach((ru, i) => {
+        const k = (t - ru.t0) / 2.4;
+        if (k < 0 || k > 1) return;
+        const x = lerp(-120, W + 120, k);
+        F.stickman(ctx, { x, y: ru.y, s: ru.s, dir: 1, pose: F.P.run(t * 13 + i, 1), color: '#cfc8bb', glow: 12, glowColor: C.gold, alpha: 0.45 });
+      });
+
+      // ---- kafes içi: koltuk ----
+      ctx.save();
+      ctx.fillStyle = '#1d1820'; ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 3;
+      F.rrect(ctx, 330, 1300, 320, 120, 22); ctx.fill(); ctx.stroke();          // sırt
+      F.rrect(ctx, 312, 1370, 356, 80, 18); ctx.fill(); ctx.stroke();           // oturak
+      F.rrect(ctx, 300, 1340, 50, 110, 16); ctx.fill(); ctx.stroke();           // kolçak
+      F.rrect(ctx, 630, 1340, 50, 110, 16); ctx.fill(); ctx.stroke();
+      ctx.restore();
+      // çöpler birikir
+      const nW = Math.floor(age * wrappers.length);
+      for (let i = 0; i < nW; i++) {
+        const w = wrappers[i];
+        ctx.save(); ctx.translate(w.x + 60, w.y); ctx.rotate(w.a); ctx.fillStyle = F.hexA(w.c, 0.55);
+        F.rrect(ctx, -14, -9, 28, 18, 4); ctx.fill(); ctx.restore();
+      }
+
+      // ---- adam ----
+      {
+        const phoneCols = ['#ff3fa4', '#3d8bff', '#3ee08f', '#ff8a3d', '#9b7bff'];
+        const seatY = 1372, homeX = 470;
+        const sitP = { ...F.P.sitPhone(t), lean: lerp(0.3, 0.55, age), head: lerp(0.5, 0.75, age) };
+        let pose = sitP, x = homeX, y = seatY, sit = true;
+        const look = E.inOutCubic(prog(t, 11.2, 11.8));
+        const up = E.inOutCubic(prog(t, 11.9, 12.5));
+        const back = E.inOutCubic(prog(t, 13.3, 13.9));
+        if (look > 0) pose = F.mixPose(pose, { ...sitP, head: -0.2, lean: 0.15, shR: 0.3, elR: 0.6 }, look);
+        let phone = look < 0.5 || back > 0.5;
+        // ayağa kalkma ve iki adım (ayakta çizilir)
+        if (up > 0 && back < 1) {
+          sit = false;
+          const step = E.inOutQuad(prog(t, 12.5, 13.2));
+          const stand = F.mixPose({ ...F.P.stand(t), head: -0.15 }, F.P.walk(t * 8, 0.8), step > 0 && step < 1 ? 1 : 0);
+          pose = F.mixPose(stand, sitP, back);
+          x = homeX + step * 90 - back * 90;
+          y = lerp(ground, seatY, back);
+          sit = back > 0.5;
+          phone = back > 0.5;
+        }
+        const col = F.mixHex('#f4f2ee', '#77726c', age);
+        if (!sit && up < 1) { // kalkış geçişi: oturuştan ayağa
+          pose = F.mixPose(sitP, { ...F.P.stand(t), head: -0.15 }, up);
+          y = lerp(seatY, ground, up); sit = up < 0.5;
+        }
+        F.stickman(ctx, { x, y, s: 1.15, dir: 1, pose: { ...pose, phone, sit }, phoneColor: phoneCols[Math.floor(t / 0.5) % 5],
+          phoneGlow: 1, color: col, glow: lerp(8, 0, age) });
+      }
+
+      // ---- kafes ----
+      ctx.save();
+      ctx.strokeStyle = C.gold; ctx.shadowColor = C.gold; ctx.shadowBlur = 14; ctx.lineWidth = 5; ctx.lineCap = 'round';
+      const dome = (x) => { const u = (x - CL) / (CR - CL); return CTOP - Math.sin(Math.PI * u) * 150; };
+      for (let x = CL; x <= CR + 0.1; x += 44) {
+        if (x > CR - 1 && x < CR + 1) { ctx.beginPath(); ctx.moveTo(x, dome(x)); ctx.lineTo(x, DOOR_Y); ctx.stroke(); continue; }
+        ctx.beginPath(); ctx.moveTo(x, dome(x)); ctx.lineTo(x, ground); ctx.stroke();
+      }
+      ctx.lineWidth = 8;
+      ctx.beginPath(); for (let x = CL; x <= CR; x += 4) { const y = dome(x); x === CL ? ctx.moveTo(x, y) : ctx.lineTo(x, y); } ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(CL - 20, ground); ctx.lineTo(CR + 20, ground); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(CL, CTOP + 100); ctx.lineTo(CR, CTOP + 100); ctx.stroke();
+      ctx.beginPath(); ctx.arc(CX, CTOP - 175, 22, 0, Math.PI * 2); ctx.stroke();
+      ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(CX, CTOP - 153); ctx.lineTo(CX, CTOP - 150); ctx.stroke();
+      // açık kapı: sağ kenarda dışarı açılmış panel
+      const dg = 0.4 + 0.6 * E.inOutQuad(prog(t, 10.0, 10.8));
+      ctx.shadowBlur = 14 + 30 * prog(t, 10.0, 10.8);
+      ctx.lineWidth = 5; ctx.globalAlpha = dg;
+      const dx0 = CR, dx1 = CR + 150, dyT = DOOR_Y, dyB = ground;
+      ctx.beginPath(); ctx.moveTo(dx0, dyT); ctx.lineTo(dx1, dyT + 34); ctx.lineTo(dx1, dyB - 10); ctx.lineTo(dx0, dyB); ctx.stroke();
+      for (let k = 1; k < 4; k++) { const x = lerp(dx0, dx1, k / 4); ctx.beginPath(); ctx.moveTo(x, dyT + 34 * k / 4); ctx.lineTo(x, dyB - 10 * k / 4); ctx.stroke(); }
+      ctx.restore();
+      // örümcek ağı (zaman geçtikçe)
+      const web = prog(t, 3, 9);
+      if (web > 0) {
+        ctx.save(); ctx.globalAlpha = 0.35 * web; ctx.strokeStyle = '#d8d8d8'; ctx.lineWidth = 1.5;
+        const wx = CL + 4, wy = dome(CL + 60) + 10;
+        for (let i = 0; i < 5; i++) { const a = i / 4 * Math.PI / 2; ctx.beginPath(); ctx.moveTo(wx, wy); ctx.lineTo(wx + Math.cos(a) * 90, wy + Math.sin(a) * 90); ctx.stroke(); }
+        for (let rr = 25; rr <= 90; rr += 22) { ctx.beginPath(); ctx.arc(wx, wy, rr, 0, Math.PI / 2); ctx.stroke(); }
+        ctx.restore();
+      }
+      // kapı etiketi
+      const kt = E.outBack(prog(t, 10.6, 11.1)) * (1 - prog(t, 13.9, 14.3));
+      if (kt > 0) {
+        ctx.save(); ctx.translate(CR + 75, DOOR_Y - 70); ctx.scale(kt, kt);
+        F.panel(ctx, -112, -26, 224, 52, { r: 26, fill: F.hexA(C.gold, 0.16), stroke: F.hexA(C.gold, 0.7) });
+        F.text(ctx, 'KİLİT: YOK', 0, 1, { size: 24, weight: 800, color: C.gold, ls: 3, glow: 12 });
+        ctx.restore();
+      }
+      ctx.restore();
+
+      // ---- ara yazılar ----
+      const cap = (str, a, b, col) => { const k = prog(t, a, a + 0.4) * (1 - prog(t, b - 0.4, b)); if (k > 0) F.revealLine(ctx, str, W / 2, 1600, prog(t, a, a + 0.6), { size: 38, weight: 800, alpha: k, accent: col }); };
+      cap('DIŞARIDA *HAYAT* AKIYOR.', 1.2, 5.0, C.gold);
+      cap('5 YIL. AYNI *KOLTUK.*', 5.6, 9.8, C.red);
+      cap('KAPI HEP *AÇIKTI.*', 10.4, 12.4, C.gold);
+      cap('...VE *GERİ OTURDU.*', 13.2, 14.5, C.red);
+
+      // ---- final ----
+      if (t > 14.5) {
+        const k = E.outCubic(prog(t, 14.5, 15.2));
+        ctx.save(); ctx.fillStyle = `rgba(5,6,8,${0.84 * k})`; ctx.fillRect(0, 0, W, H); ctx.restore();
+        F.revealLine(ctx, 'KİLİT YOKTU.', W / 2, 870, prog(t, 14.8, 15.4), { size: 100, weight: 900 });
+        F.revealLine(ctx, '*SEN KALDIN.*', W / 2, 1020, prog(t, 16.0, 16.6), { size: 120, weight: 900, accent: C.red, hiGlow: 46, stagger: 0.3 });
+      }
+      F.handleTag(ctx, 1 - prog(t, 18.2, 18.6));
+      F.endCard(ctx, t, 18.8);
+    },
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gölge</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="reel.css">
+</head>
+<body>
+<script src="engine.js"></script>
+<script>
+/* REEL 07 — "GÖLGE"
+   Adamın arkasındaki dev altın gölge onun potansiyeli. Birlikte koşarlar.
+   Adam yavaşlar, telefonu çıkarır, oturur. Gölge bir süre bekler, geriye bakar... sonra gider.
+   Giriş yok: ilk karede ikisi birlikte koşuyor. */
+(function () {
+  const { lerp, clamp, E, prog } = F;
+  const ground = 1420, MX = 330;
+  // adamın hızı: 1 → 0 (4–7 sn)
+  const vMan = (t) => 1 - E.inOutQuad(prog(t, 4.0, 7.0));
+  const vSh = (t) => (t >= 9.0 && t < 10.6 ? 0 : 1);
+  // hız integralleri (faz ve km) önceden hesaplanır
+  const DT = 1 / 240, N = Math.ceil(22 / DT);
+  const phM = new Float32Array(N), kmM = new Float32Array(N), kmS = new Float32Array(N);
+  for (let i = 1; i < N; i++) {
+    const t = i * DT;
+    phM[i] = phM[i - 1] + 12.5 * vMan(t) * DT;
+    kmM[i] = kmM[i - 1] + 0.065 * vMan(t) * DT;
+    kmS[i] = kmS[i - 1] + 0.065 * vSh(t) * DT;
+  }
+  const at = (arr, t) => arr[Math.max(0, Math.min(N - 1, Math.round(t / DT)))];
+  const shX = (t) => t < 4 ? MX + 40 : t < 9 ? MX + 40 + E.inQuad(prog(t, 4, 9)) * 420 : t < 10.6 ? MX + 460 : MX + 460 + E.inCubic(prog(t, 10.6, 12.4)) * 900;
+
+  Reel({
+    title: 'Gölge',
+    duration: 21,
+    cues() {
+      const c = [{ t: 0, type: 'hit' }];
+      // adamın ayak sesleri (faz her π geçtiğinde)
+      let last = 0;
+      for (let t = 0; t < 7.2; t += 1 / 120) { const k = Math.floor(at(phM, t) / Math.PI); if (k !== last) { c.push({ t, type: 'step', p: 0.2 }); last = k; } }
+      for (let t = 7.6; t < 12.6; t += 0.45) c.push({ t, type: 'swipe' });
+      c.push({ t: 1.0, type: 'whoosh' }, { t: 4.5, type: 'whoosh' }, { t: 8.8, type: 'whoosh' }, { t: 9.2, type: 'sad' },
+        { t: 10.6, type: 'whoosh' }, { t: 10.8, type: 'hit' }, { t: 12.6, type: 'sad' },
+        { t: 14.0, type: 'drop' }, { t: 14.3, type: 'punch' }, { t: 15.5, type: 'hit' }, { t: 18.3, type: 'end' });
+      return { music: { bpm: 126, grid0: 0.0, climax: 7.0, punch: 14.3, end: 18.3, prog: 'em', drums: 'full' }, cues: c };
+    },
+    draw(ctx, t, F) {
+      const { W, H, CONFIG: C } = F;
+      const gone = prog(t, 10.6, 12.4);
+      F.background(ctx, t, { tint: F.hexA(C.gold, 0.07 * (1 - gone)), tintY: 1000 });
+
+      // ---- KM HUD (sahnenin parçası) ----
+      const km1 = at(kmM, t), km2 = at(kmS, t);
+      F.panel(ctx, 80, 250, 440, 140);
+      F.panel(ctx, 560, 250, 440, 140, { stroke: F.hexA(C.gold, 0.35) });
+      F.text(ctx, 'SEN', 112, 290, { size: 24, weight: 800, align: 'left', color: C.ink, ls: 4 });
+      F.text(ctx, 'GÖLGEN', 592, 290, { size: 24, weight: 800, align: 'left', color: C.gold, ls: 4 });
+      F.text(ctx, km1.toFixed(2).replace('.', ',') + ' KM', 488, 345, { size: 42, weight: 700, font: C.mono, align: 'right', color: vMan(t) < 0.05 ? C.red : C.ink });
+      F.text(ctx, km2.toFixed(2).replace('.', ',') + ' KM', 968, 345, { size: 42, weight: 700, font: C.mono, align: 'right', color: C.gold, glow: 16 });
+
+      // ---- zemin: kamera adamı takip eder, adam durunca zemin durur ----
+      const scroll = at(phM, t) / 12.5 * 520;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(0, ground); ctx.lineTo(W, ground); ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 4;
+      for (let i = -1; i < 12; i++) {
+        const x = ((i * 120 - scroll) % 1440 + 1440) % 1440 - 120;
+        ctx.beginPath(); ctx.moveTo(x, ground + 40); ctx.lineTo(x + 60, ground + 40); ctx.stroke();
+      }
+      // hız çizgileri
+      const v = vMan(t);
+      if (v > 0.2) for (let i = 0; i < 7; i++) {
+        const y = 700 + i * 95, x = ((i * 337 - scroll * 2.2) % 1300 + 1300) % 1300 - 100;
+        ctx.strokeStyle = `rgba(255,255,255,${0.05 * v})`; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 140, y); ctx.stroke();
+      }
+      ctx.restore();
+
+      // ---- GÖLGE (potansiyel): dev, yarı saydam altın siluet ----
+      {
+        const x = shX(t);
+        const turned = t >= 9.2 && t < 10.5;
+        let pose = F.P.run(t * 12.5, 1);
+        if (t >= 9.0 && t < 10.6) pose = F.mixPose(F.P.run(t * 12.5, 1), { ...F.P.stand(t), head: 0.15 }, E.outCubic(prog(t, 9.0, 9.35)) * (1 - prog(t, 10.4, 10.6)));
+        const a = 1 - prog(t, 11.6, 12.4);
+        if (a > 0) {
+          F.glowCircle(ctx, x, ground - 330, 520, C.gold, 0.35 * a);
+          F.stickman(ctx, { x, y: ground, s: 2.7, dir: turned ? -1 : 1, pose, color: F.hexA(C.gold, 0.30), glow: 34, glowColor: C.gold, lw: 11, alpha: a });
+          F.embers(ctx, t, { x, y: ground - 200, w: 260, h: 520, n: 26, color: C.gold, seed: 77, alpha: a * 0.8 });
+        }
+      }
+
+      // ---- ADAM ----
+      {
+        const ph = at(phM, t);
+        let pose = F.mixPose(F.P.walk(ph, 1), F.P.run(ph, 1), clamp((v - 0.35) / 0.4));
+        pose = F.mixPose(F.P.stand(t), pose, clamp(v * 1.6));
+        const sitPh = { lean: 0.55, hipL: 2.1, kneeL: 1.95, hipR: 1.95, kneeR: 1.85, shL: 0.55, elL: 1.75, shR: 0.45, elR: 1.9, head: 0.65, phone: true };
+        if (t > 6.8) pose = F.mixPose(pose, { ...F.P.standPhone(t), phone: true }, E.inOutQuad(prog(t, 6.8, 7.4)));
+        if (t > 7.9) pose = F.mixPose(pose, sitPh, E.inOutCubic(prog(t, 7.9, 8.6)));
+        // farkına varış: başını kaldırır, telefonu bırakır, ele uzanır
+        const realize = E.inOutCubic(prog(t, 12.5, 13.3));
+        if (realize > 0) pose = F.mixPose(pose, { ...sitPh, phone: false, head: -0.35, lean: 0.25, shR: 1.45, elR: 0.1, shL: 0.3, elL: 0.4 }, realize);
+        const phoneCols = ['#ff3fa4', '#3d8bff', '#3ee08f', '#ff8a3d', '#9b7bff'];
+        const col = F.mixHex('#f4f2ee', '#6a6662', gone);
+        F.stickman(ctx, { x: MX, y: ground, s: 1.25, dir: 1, pose: { ...pose, phone: t > 7.1 && realize < 0.5 },
+          phoneColor: phoneCols[Math.floor(t / 0.45) % 5], color: col, glow: lerp(18, 0, clamp(1 - v + gone)), glowColor: C.gold });
+      }
+
+      // ---- ara yazılar ----
+      const cap = (str, a, b, col) => { const k = prog(t, a, a + 0.4) * (1 - prog(t, b - 0.4, b)); if (k > 0) F.revealLine(ctx, str, W / 2, 1560, prog(t, a, a + 0.6), { size: 38, weight: 800, alpha: k, accent: col }); };
+      cap('HER ADIMINDA *SENİNLE* KOŞAR.', 1.0, 4.2, C.gold);
+      cap('SEN YAVAŞLARSIN. O *YAVAŞLAMAZ.*', 4.5, 8.4, C.gold);
+      cap('BİR SÜRE *BEKLER...*', 8.8, 10.5, C.gold);
+      cap('SONRA *GİDER.*', 10.6, 12.4, C.red);
+      cap('VE SEN *SADECE SEN* KALIRSIN.', 12.6, 14.0, C.red);
+
+      // ---- final ----
+      if (t > 14.0) {
+        const k = E.outCubic(prog(t, 14.0, 14.7));
+        ctx.save(); ctx.fillStyle = `rgba(5,6,8,${0.84 * k})`; ctx.fillRect(0, 0, W, H); ctx.restore();
+        F.revealLine(ctx, 'POTANSİYELİN', W / 2, 870, prog(t, 14.3, 14.9), { size: 96, weight: 900 });
+        F.revealLine(ctx, '*SENİ BEKLEMEZ.*', W / 2, 1010, prog(t, 15.5, 16.1), { size: 104, weight: 900, accent: C.gold, hiGlow: 44, stagger: 0.3 });
+      }
+      F.handleTag(ctx, 1 - prog(t, 17.7, 18.1));
+      F.endCard(ctx, t, 18.3);
+    },
+  });
+})();
+</script>
+</body>
+</html>

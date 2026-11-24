@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zincir</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="reel.css">
+</head>
+<body>
+<script src="engine.js"></script>
+<script>
+/* REEL 09 — "ZİNCİR"
+   İki adam her gün çalışır; her gün zincire bir halka eklenir.
+   Biri "bugün olmaz" der, zinciri kırılır, seri sıfırlanır. Tekrar tekrar.
+   Diğerinin zinciri 100 güne yükselir. Giriş yok: ilk karede ikisi de çalışıyor. */
+(function () {
+  const { lerp, clamp, E, prog } = F;
+  const TE = 13.0, ground = 1450, LX = 290, RX = 790, SP = 34, TOPY = 560;
+  const dayF = (t) => 1 + 99 * (0.45 * clamp(t / TE) + 0.55 * clamp(t / TE) ** 2);
+  const dayAt = (t) => Math.floor(dayF(t));
+  const BREAKS = [7, 13, 22, 27, 38, 45, 58, 66, 79, 88, 100];
+  const tOf = (d) => { for (let t = 0; t <= TE + 0.01; t += 1 / 240) if (dayF(t) >= d) return t; return TE; };
+  const TB = BREAKS.map(tOf);
+  const lastBreak = (d) => BREAKS.filter((b) => b <= d).pop() || 0;
+  const best = (d) => { let b = 0, prev = 0; for (const k of BREAKS) { if (k > d) break; b = Math.max(b, k - prev - 1); prev = k; } return Math.max(b, d - prev); };
+
+  function link(ctx, x, y, i, col, glow, a = 1, rot = 0, sc = 1) {
+    ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.scale(sc, sc); ctx.globalAlpha *= a;
+    ctx.strokeStyle = col; ctx.lineWidth = 7; ctx.shadowColor = col; ctx.shadowBlur = glow;
+    if (i % 2 === 0) { ctx.beginPath(); ctx.ellipse(0, 0, 15, 22, 0, 0, Math.PI * 2); ctx.stroke(); }
+    else { F.rrect(ctx, -4, -22, 8, 44, 4); ctx.stroke(); }
+    ctx.restore();
+  }
+  function chain(ctx, cx, n, col, glow, t, tLast) {
+    const vis = Math.min(n, 30);
+    for (let j = 0; j < vis; j++) {
+      const y = ground - 40 - j * SP;                    // j=0 en altta, en yeni
+      if (y < TOPY - 40) break;
+      const fade = clamp((y - (TOPY - 40)) / 120);
+      const sc = j === 0 ? E.outBack(clamp((t - tLast) / 0.18)) : 1;
+      link(ctx, cx, y, n - j, col, glow, fade, 0, sc);
+    }
+  }
+
+  Reel({
+    title: 'Zincir',
+    duration: 21,
+    cues() {
+      const c = [{ t: 0, type: 'hit' }];
+      let last = 1;
+      for (let t = 0; t <= TE; t += 1 / 120) { const d = dayAt(t); if (d !== last) { c.push({ t, type: 'tick', p: d / 100 }); last = d; } }
+      TB.forEach((t, i) => c.push({ t, type: 'snap' }));
+      c.push({ t: TB[0] + 0.1, type: 'sad' }, { t: 1.0, type: 'whoosh' }, { t: 4.2, type: 'whoosh' }, { t: 7.5, type: 'whoosh' }, { t: 10.8, type: 'whoosh' },
+        { t: TE, type: 'climax' }, { t: TE + 0.1, type: 'sad' },
+        { t: 13.9, type: 'drop' }, { t: 14.2, type: 'punch' }, { t: 15.4, type: 'hit' }, { t: 18.2, type: 'end' });
+      return { music: { bpm: 140, grid0: 0.0, climax: TE, punch: 14.2, end: 18.2, prog: 'am', drums: 'full' }, cues: c };
+    },
+    draw(ctx, t, F) {
+      const { W, H, CONFIG: C } = F;
+      const day = Math.min(100, dayAt(t));
+      const tDay = tOf(day);
+      const lb = lastBreak(day), lStreak = day - lb;
+      const done = t >= TE;
+      F.background(ctx, t, { tint: F.hexA(C.gold, 0.05 + (done ? 0.06 : 0)), tintY: 1000 });
+
+      // sarsıntı (kopuşlarda)
+      let sx = 0;
+      TB.forEach((tb) => { const d = t - tb; if (d >= 0 && d < 0.2) sx += Math.sin(d * 140) * (1 - d / 0.2) * 9; });
+
+      // ---- seri HUD ----
+      F.panel(ctx, 80, 250, 440, 160, { stroke: lStreak === 0 && t > 0.5 ? F.hexA(C.red, 0.6) : undefined });
+      F.panel(ctx, 560, 250, 440, 160, { stroke: F.hexA(C.gold, 0.4) });
+      F.text(ctx, 'SEN · SERİ', 112, 290, { size: 24, weight: 800, align: 'left', color: C.ink, ls: 3 });
+      F.text(ctx, 'O · SERİ', 592, 290, { size: 24, weight: 800, align: 'left', color: C.gold, ls: 3 });
+      F.text(ctx, 'EN İYİ ' + best(day), 488, 290, { size: 20, weight: 600, font: C.mono, align: 'right', color: C.dim });
+      F.text(ctx, String(lStreak), 112, 362, { size: 72, weight: 700, font: C.mono, align: 'left', color: lStreak === 0 ? C.red : C.ink, glow: lStreak === 0 ? 20 : 0 });
+      F.text(ctx, String(day), 592, 362, { size: 72, weight: 700, font: C.mono, align: 'left', color: C.gold, glow: 20 });
+      F.text(ctx, 'GÜN', 488, 372, { size: 22, weight: 600, font: C.mono, align: 'right', color: C.dim });
+      F.text(ctx, 'GÜN', 968, 372, { size: 22, weight: 600, font: C.mono, align: 'right', color: C.dim });
+
+      ctx.save(); ctx.translate(sx, 0);
+      ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(60, ground); ctx.lineTo(W - 60, ground); ctx.stroke();
+
+      // ---- zincirler ----
+      chain(ctx, RX + 130, day, C.gold, done ? 26 : 14, t, tDay);
+      chain(ctx, LX + 130, lStreak, '#d9d6d0', 6, t, tDay);
+      // kırılan halkalar düşer
+      TB.forEach((tb, bi) => {
+        const d = t - tb; if (d < 0 || d > 1.6) return;
+        const n = BREAKS[bi] - (bi ? BREAKS[bi - 1] : 0) - 1;
+        for (let j = 0; j < Math.min(n, 18); j++) {
+          const y0 = ground - 40 - j * SP, dir = j % 2 ? 1 : -1;
+          const x = LX + 130 + dir * (40 + j * 7) * d * 2.2, y = y0 + 900 * d * d - 120 * d * (j / n);
+          link(ctx, x, Math.min(y, ground - 12), j, C.red, 14, 1 - d / 1.6, dir * d * 6);
+        }
+        // "BUGÜN OLMAZ" balonu
+        const ka = E.outBack(clamp(d / 0.2)) * (1 - clamp((d - 0.9) / 0.5));
+        if (ka > 0) {
+          ctx.save(); ctx.translate(LX - 10, ground - 300); ctx.scale(ka, ka);
+          F.panel(ctx, -130, -28, 260, 56, { r: 28, fill: F.hexA(C.red, 0.16), stroke: F.hexA(C.red, 0.6) });
+          F.text(ctx, '"BUGÜN OLMAZ"', 0, 1, { size: 24, weight: 800, color: C.red, ls: 1 });
+          ctx.restore();
+        }
+      });
+
+      // ---- adamlar ----
+      const rep = 0.5 + 0.5 * Math.sin(t * 7.5);
+      // sağ: hiç durmaz
+      const rPose = done ? F.P.celebrate(t) : F.P.lift(t, rep);
+      if (day > 40) F.embers(ctx, t, { x: RX, y: ground - 120, w: 70, h: 200, n: Math.floor(lerp(4, 30, prog(day, 40, 100))), color: C.gold, seed: 6 });
+      F.stickman(ctx, { x: RX, y: ground, s: 1.15, dir: 1, pose: rPose, glow: lerp(12, 34, day / 100), glowColor: C.gold });
+      // sol: kopuştan hemen önce telefona döner, sonra yeniden başlar
+      let near = 0;
+      TB.forEach((tb) => { near = Math.max(near, 1 - Math.abs(t - tb) / 0.45); });
+      near = clamp(near * 1.6);
+      const lPose = F.mixPose(F.P.lift(t + 0.4, rep), { ...F.P.standPhone(t), phone: true }, near);
+      F.stickman(ctx, { x: LX, y: ground, s: 1.15, dir: 1, pose: { ...lPose, phone: near > 0.5 }, phoneColor: '#ff3fa4', color: done ? '#77726c' : '#e8e4dd', glow: 6, glowColor: C.red });
+      ctx.restore();
+
+      // ---- ara yazılar ----
+      const cap = (str, a, b, col) => { const k = prog(t, a, a + 0.4) * (1 - prog(t, b - 0.4, b)); if (k > 0) F.revealLine(ctx, str, W / 2, 1560, prog(t, a, a + 0.6), { size: 38, weight: 800, alpha: k, accent: col }); };
+      cap('HER GÜN *BİR HALKA.*', 1.0, 3.9, C.gold);
+      cap('"BUGÜNLÜK OLMAZ" = *SIFIR.*', 4.2, 7.2, C.red);
+      cap('HER SEFERİNDE *BAŞA DÖNERSİN.*', 7.5, 10.5, C.red);
+      cap('O *HİÇ SIFIRLANMADI.*', 10.8, 13.8, C.gold);
+
+      // ---- final ----
+      if (t > 13.9) {
+        const k = E.outCubic(prog(t, 13.9, 14.6));
+        ctx.save(); ctx.fillStyle = `rgba(5,6,8,${0.84 * k})`; ctx.fillRect(0, 0, W, H); ctx.restore();
+        F.revealLine(ctx, 'ZİNCİRİ KİMSE KIRMADI.', W / 2, 870, prog(t, 14.2, 14.9), { size: 80, weight: 900 });
+        F.revealLine(ctx, '*SEN KIRDIN.*', W / 2, 1020, prog(t, 15.4, 16.0), { size: 124, weight: 900, accent: C.red, hiGlow: 46, stagger: 0.3 });
+      }
+      F.handleTag(ctx, 1 - prog(t, 17.6, 18.0));
+      F.endCard(ctx, t, 18.2);
+    },
+  });
+})();
+</script>
+</body>
+</html>

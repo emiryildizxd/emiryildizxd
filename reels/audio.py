@@ -484,6 +484,8 @@ def sfx(cues, dur):
             fx.add_st(reverb(metal_hit(0.7, 0.6), 0.3), t + 0.45, 0.55)
             fx.add(thud(0.0), t + 0.5, 0.6)
             fx.add_st(reverb(sad_tone(2.0), 0.5), t + 0.4, 0.7)
+        elif k == "sad":
+            fx.add_st(reverb(sad_tone(2.2), 0.5), t, 0.8)
         elif k == "snap":
             fx.add_st(reverb(snap(), 0.3), t, 0.95)
         elif k == "ding":

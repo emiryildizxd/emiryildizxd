@@ -52,7 +52,18 @@ const fs = require('fs');
   const silent = path.join(silentDir, `${name}.mp4`);
   const cues = await page.evaluate(() => window.__reel.cues);
 
-  if (!args.includes('--audio-only')) await renderVideo(silent);
+  // aynı reel'i aynı anda iki işlem render etmesin (dosya bozulmasını önler)
+  const lock = path.join(silentDir, `${name}.lock`);
+  try { fs.writeFileSync(lock, String(process.pid), { flag: 'wx' }); }
+  catch { console.error(`${name}: başka bir render çalışıyor (${lock}). Değilse bu dosyayı sil.`); process.exit(1); }
+  process.on('exit', () => { try { fs.unlinkSync(lock); } catch {} });
+
+  if (!args.includes('--audio-only')) {
+    const tmp = silent.replace(/\.mp4$/, `.tmp-${process.pid}.mp4`);
+    await renderVideo(tmp);
+    verify(tmp, Math.round(duration * fps), false);
+    fs.renameSync(tmp, silent);
+  }
   await browser.close();
 
   if (args.includes('--no-audio') || !cues) { fs.copyFileSync(silent, out); console.log(`${name}: sessiz -> ${out}`); return; }
@@ -61,7 +72,24 @@ const fs = require('fs');
   run('python3', [path.join(__dirname, 'audio.py'), cueFile, wav]);
   run('ffmpeg', ['-y', '-v', 'error', '-i', silent, '-i', wav, '-map', '0:v', '-map', '1:a', '-c:v', 'copy',
     '-af', 'loudnorm=I=-14:TP=-1.0:LRA=9', '-ar', '44100', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', out]);
-  console.log(`${name}: sesli -> ${out}`);
+  verify(out, Math.round(duration * fps), true);
+  console.log(`${name}: sesli -> ${out} (doğrulandı)`);
+
+  // video akışı 0. saniyeden başlamalı ve kare sayısı tam olmalı
+  function verify(file, frames, withAudio) {
+    const r = require('child_process').spawnSync('ffprobe', ['-v', 'error', '-count_packets', '-show_entries',
+      'stream=codec_type,start_time,nb_read_packets', '-of', 'json', file], { encoding: 'utf8' });
+    const st = JSON.parse(r.stdout).streams;
+    const v = st.find((x) => x.codec_type === 'video'), a = st.find((x) => x.codec_type === 'audio');
+    const bad = [];
+    if (!v) bad.push('video yok');
+    else {
+      if (Math.abs(+v.start_time) > 0.05) bad.push(`video ${v.start_time}s'de başlıyor`);
+      if (+v.nb_read_packets !== frames) bad.push(`kare sayısı ${v.nb_read_packets}/${frames}`);
+    }
+    if (withAudio && (!a || Math.abs(+a.start_time) > 0.05)) bad.push('ses akışı hatalı');
+    if (bad.length) { console.error(`${name}: DOĞRULAMA BAŞARISIZ -> ${bad.join(', ')}`); process.exit(1); }
+  }
 
   function run(cmd, a) {
     const r = require('child_process').spawnSync(cmd, a, { stdio: 'inherit' });

@@ -83,6 +83,9 @@ Gönderdiğin 4 reels'ten çıkardığım "formül", sayfanın görsel kimliği,
 | 07 | `reels/07-golge.html` | Dev altın gölge (potansiyel) adamla koşar. Adam durur, telefona dalar; gölge bekler, geriye bakar, gider. | "POTANSİYELİN **SENİ BEKLEMEZ.**" |
 | 08 | `reels/08-acik-kafes.html` | Altın kafeste 5 yıl, koltuk ve telefon; dışarıda hayat koşar. Kapı hep açık; kalkar, bir adım atar, geri oturur. | "KİLİT YOKTU. **SEN KALDIN.**" |
 | 09 | `reels/09-zincir.html` | Her gün bir halka. "Bugün olmaz" deyince zincir kırılır, seri sıfırlanır. Diğerininki 100 gün. | "ZİNCİRİ KİMSE KIRMADI. **SEN KIRDIN.**" |
+| 10 | `reels/10-yuzde-99.html` | İki "HAYALİN" çubuğu %99'da takılır. Biri bekler (sayaç 1.000+ gün), diğeri kalkıp son %1'i kendi eliyle iter. | "SON %1 HİÇBİR ZAMAN **KENDİ KENDİNE YÜKLENMEZ.**" |
+| 11 | `reels/11-alkis.html` | Sahnede alkışla coşan adam, alkış ve seyirci gidince biter. İkinci spot yanar: karanlıkta biri 1.233 tekrardır hiç durmamış. | "ALKIŞLA ÇALIŞIYORSAN **OYUNCUSUN.**" |
+| 12 | `reels/12-faiz.html` | Ertelenen her iş (SPOR, DERS, PROJE...) sırta taş olur ve haftalık %6 faizle büyür. Adam diz çöker, kule devrilir. | "ERTELEDİĞİN HER ŞEY **FAİZİYLE GERİ GELİR.**" |
 
 **Giriş kuralı:** Hiçbir video siyah ekranda yazıyla açılmaz. İlk kare doğrudan sahne ve hareket. Eski reel'lerde girişi `skip: 2.0` atlıyor (motor sesi ve müziği de kaydırıyor), yeni reel'ler zaten 0. saniyede aksiyonla başlıyor.
 
@@ -124,9 +127,9 @@ Yeniden üretmek için: `node render.cjs profil.html --snap 0,1,2`
 | ✅ | **GÖLGE** | Adamın gölgesi onun potansiyeli. Adam durunca gölge koşmaya devam eder ve onu terk eder. | POTANSİYELİN SENİ BEKLEMEZ. |
 | ✅ | **AÇIK KAFES** | Altın kafes: koltuk, telefon, cips. Kapı baştan beri açık. Takvim 365 gün döner, adam hiç çıkmaz. | KİLİT YOKTU. HİÇ OLMADI. |
 | ✅ | **ZİNCİR** | Seri sayacı 1→6, sonra "bugün olmaz" → 0. Tekrar tekrar. Diğeri 100'e ulaşır. | ZİNCİRİ KIRAN SENSİN. |
-| 4 | **%99** | Hayalinin yükleme çubuğu %99'da takılı, adam bekliyor. Diğeri son %1'i kendi eliyle itiyor. | KİMSE SENİN YERİNE YÜKLEMEYECEK. |
-| 5 | **ALKIŞ** | Sahnede çalışan adam alkış gelince hızlanır, alkış bitince durur. Diğeri boş salonda çalışır. | ALKIŞLA DURUYORSAN OYUNCUSUN. |
-| 6 | **FAİZ** | Ertelenen her iş sırta taş olur. Taşlar faiz gibi büyür, adam ezilir. | ERTELEDİĞİN HER ŞEY FAİZİYLE GELİR. |
+| ✅ | **%99** | Hayalinin yükleme çubuğu %99'da takılı, adam bekliyor. Diğeri son %1'i kendi eliyle itiyor. | KİMSE SENİN YERİNE YÜKLEMEYECEK. |
+| ✅ | **ALKIŞ** | Sahnede çalışan adam alkış gelince hızlanır, alkış bitince durur. Diğeri boş salonda çalışır. | ALKIŞLA DURUYORSAN OYUNCUSUN. |
+| ✅ | **FAİZ** | Ertelenen her iş sırta taş olur. Taşlar faiz gibi büyür, adam ezilir. | ERTELEDİĞİN HER ŞEY FAİZİYLE GELİR. |
 | 7 | **NABIZ** | EKG monitörü: rutin günlerde düz çizgi, hedefe saldırınca zıplar. | NEFES ALIYORSUN. YAŞAMIYORSUN. |
 | 8 | **BATAKLIK** | Konfor bataklığı yavaşça yutar. Kıpırdamayan batar, hareket eden çıkar. | KONFOR SENİ YAVAŞ ÖLDÜRÜR. |
 | 9 | **TAKVİM MERDİVENİ** | Takvim yaprakları dökülür. Biri onları üst üste koyup merdiven yapar, diğeri altında kalır. | GÜNLER YA BASAMAK YA MEZAR. |

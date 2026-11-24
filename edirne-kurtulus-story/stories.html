@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Edirne Kurtuluş Story</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Cinzel:wght@500;700;900&family=Montserrat:wght@300;500;700;900&family=Bebas+Neue&family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+  /* ==== FİRMA BİLGİLERİNİ AŞAĞIDAKİ "FIRMALAR" LİSTESİNDEN DEĞİŞTİR ==== */
+  :root{--red:#c8102e;--dred:#8a0a1f;--cream:#f7f1e6;--gold:#d4af6a;--navy:#0d1630}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#222;display:flex;flex-wrap:wrap;gap:40px;padding:40px}
+  .story{width:1080px;height:1920px;position:relative;overflow:hidden;font-family:Montserrat,sans-serif}
+  .abs{position:absolute}
+  .logo{width:150px;height:150px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:44px;letter-spacing:2px}
+  .logo img{width:100%;height:100%;object-fit:contain;border-radius:50%}
+  .firm{font-weight:700;font-size:44px;letter-spacing:6px;text-transform:uppercase}
+  .sub{font-weight:500;font-size:26px;letter-spacing:8px;text-transform:uppercase;opacity:.8}
+
+  /* ---------- 1. KLASİK BAYRAK ---------- */
+  #s1{background:radial-gradient(circle at 50% 30%,#e0193a 0%,#a50d24 55%,#5e0614 100%);color:#fff}
+  #s1 .flag{left:-200px;top:40px;width:1500px;opacity:.12;transform:rotate(-6deg)}
+  #s1 .date{top:150px;width:100%;text-align:center;font-family:Cinzel;font-size:40px;letter-spacing:14px}
+  #s1 .big{top:300px;width:100%;text-align:center;font-family:'Playfair Display';font-weight:900;font-size:430px;line-height:1;text-shadow:0 20px 60px rgba(0,0,0,.35)}
+  #s1 .yil{top:760px;width:100%;text-align:center;font-family:Cinzel;font-weight:700;font-size:58px;letter-spacing:10px}
+  #s1 .msg{top:880px;width:100%;text-align:center;font-family:'Playfair Display';font-style:italic;font-size:88px;line-height:1.1}
+  #s1 .mosque{left:0;bottom:360px;width:1080px}
+  #s1 .ground{left:0;bottom:0;width:100%;height:370px;background:linear-gradient(#fff0,#3c030c 30%)}
+  #s1 .brand{bottom:110px;width:100%;display:flex;flex-direction:column;align-items:center;gap:22px}
+  #s1 .logo{background:#fff;color:var(--red)}
+
+  /* ---------- 2. MİNİMAL KREM ---------- */
+  #s2{background:var(--cream);color:var(--dred)}
+  #s2 .frame{inset:50px;border:3px solid var(--red)}
+  #s2 .frame2{inset:66px;border:1px solid var(--red);opacity:.5}
+  #s2 .top{top:170px;width:100%;text-align:center}
+  #s2 .num{top:330px;width:100%;text-align:center;font-family:'Bebas Neue';font-size:640px;line-height:.9;color:transparent;-webkit-text-stroke:5px var(--red)}
+  #s2 .num span{color:var(--red);-webkit-text-stroke:0}
+  #s2 .t1{top:930px;width:100%;text-align:center;font-family:'Great Vibes';font-size:150px;color:var(--red)}
+  #s2 .t2{top:1110px;width:100%;text-align:center;font-family:Cinzel;font-weight:700;font-size:50px;letter-spacing:8px;line-height:1.5;color:#2a1a1a}
+  #s2 .line{top:1370px;left:390px;width:300px;height:3px;background:var(--red)}
+  #s2 .flagmini{top:1345px;left:505px;width:70px}
+  #s2 .brand{bottom:150px;width:100%;display:flex;flex-direction:column;align-items:center;gap:18px}
+  #s2 .logo{border:3px solid var(--red);color:var(--red);background:#fff}
+  #s2 .firm{color:#2a1a1a}
+
+  /* ---------- 3. GECE / ALTIN ---------- */
+  #s3{background:linear-gradient(#060b1c 0%,#0d1630 45%,#2a0a16 100%);color:var(--gold)}
+  #s3 .stars{inset:0}
+  #s3 .moon{top:170px;right:120px;width:240px}
+  #s3 .head{top:260px;left:90px;font-family:Cinzel;font-size:34px;letter-spacing:12px}
+  #s3 .h1{top:340px;left:90px;font-family:'Playfair Display';font-weight:900;font-size:150px;line-height:1;color:#f4e3bd}
+  #s3 .h1 i{color:var(--gold)}
+  #s3 .p{top:860px;left:90px;width:820px;font-size:38px;line-height:1.55;font-weight:300;color:#e8dcc4}
+  #s3 .mosque{left:0;bottom:430px;width:1080px}
+  #s3 .glow{left:140px;bottom:430px;width:800px;height:300px;background:radial-gradient(ellipse at 50% 100%,rgba(212,175,106,.35),transparent 70%)}
+  #s3 .brand{bottom:120px;left:90px;right:90px;display:flex;align-items:center;gap:36px;border-top:1px solid rgba(212,175,106,.5);padding-top:60px}
+  #s3 .logo{border:2px solid var(--gold);color:var(--gold)}
+  #s3 .firm{color:#f4e3bd}
+
+  /* ---------- 4. TİPOGRAFİK BÖLÜNMÜŞ ---------- */
+  #s4{background:#fff;color:#111}
+  #s4 .redside{left:0;top:0;width:100%;height:1120px;background:var(--red);clip-path:polygon(0 0,100% 0,100% 82%,0 100%)}
+  #s4 .vert{top:80px;left:70px;font-family:'Bebas Neue';font-size:380px;line-height:1;color:#fff;letter-spacing:6px}
+  #s4 .flag{top:120px;right:-60px;width:560px;transform:rotate(90deg);transform-origin:center;opacity:.0}
+  #s4 .crescent{top:470px;left:40px;width:420px}
+  #s4 .date{top:640px;right:80px;text-align:right;font-family:'Bebas Neue';font-size:120px;color:#fff;line-height:.95}
+  #s4 .date small{display:block;font-family:Montserrat;font-weight:500;font-size:28px;letter-spacing:6px}
+  #s4 .t{top:1180px;left:70px;right:70px;font-weight:900;font-size:92px;line-height:1.05;text-transform:uppercase}
+  #s4 .t span{color:var(--red)}
+  #s4 .p{top:1500px;left:70px;width:700px;font-size:32px;line-height:1.5;color:#444}
+  #s4 .brand{bottom:100px;right:70px;display:flex;align-items:center;gap:28px;flex-direction:row-reverse;text-align:right}
+  #s4 .logo{background:#111;color:#fff;width:130px;height:130px;font-size:38px}
+  #s4 .firm{font-size:38px}
+  #s4 .sub{font-size:22px;letter-spacing:5px}
+
+  /* ---------- 5. MODERN LALE / KÖPRÜ ---------- */
+  #s5{background:linear-gradient(160deg,#fff 0%,#fdecef 40%,#f6c9d0 100%);color:#5a0614}
+  #s5 .bigflag{top:0;left:0;width:1080px;height:760px;background:var(--red);border-radius:0 0 540px 540px/0 0 200px 200px}
+  #s5 .fl{top:120px;left:290px;width:500px}
+  #s5 .label{top:810px;width:100%;text-align:center;font-family:Cinzel;font-weight:700;font-size:34px;letter-spacing:12px;color:var(--red)}
+  #s5 .h{top:850px;width:100%;text-align:center;font-family:'Playfair Display';font-weight:900;font-size:104px;line-height:1.05}
+  #s5 .p{top:1195px;left:210px;right:210px;text-align:center;font-size:30px;line-height:1.55;color:#6b2a33}
+  #s5 .bridge{left:0;bottom:330px;width:1080px}
+  #s5 .tulipL{left:40px;bottom:560px;width:140px;transform:rotate(-12deg)}
+  #s5 .tulipR{right:40px;bottom:560px;width:140px;transform:rotate(12deg) scaleX(-1)}
+  #s5 .brand{bottom:0;width:100%;height:330px;background:#5a0614;color:#fff;display:flex;align-items:center;justify-content:center;gap:40px}
+  #s5 .logo{background:#fff;color:#5a0614}
+</style>
+</head>
+<body>
+
+<script>
+/* ===================== DÜZENLE ===================== *
+ * name: firma adı, sub: alt satır (sektör / şehir),
+ * logo: logo dosya yolu (örn. "logolar/firma1.png") — boş bırakılırsa baş harfler görünür
+ * ================================================== */
+const FIRMALAR = [
+  {name:"FİRMA ADI 1", sub:"Edirne", logo:""},
+  {name:"FİRMA ADI 2", sub:"Edirne", logo:""},
+  {name:"FİRMA ADI 3", sub:"Edirne", logo:""},
+  {name:"FİRMA ADI 4", sub:"Edirne", logo:""},
+  {name:"FİRMA ADI 5", sub:"Edirne", logo:""},
+];
+</script>
+
+<!-- 1 -->
+<div class="story" id="s1">
+  <svg class="abs flag" data-flag viewBox="0 0 1500 1000"></svg>
+  <div class="abs date">25 KASIM 1922</div>
+  <div class="abs big">104</div>
+  <div class="abs yil">YIL ÖNCE BUGÜN</div>
+  <div class="abs msg">Edirne'mizin<br>Kurtuluşu<br>Kutlu Olsun</div>
+  <div class="abs ground"></div>
+  <svg class="abs mosque" data-mosque="#3c030c" viewBox="0 0 1080 420"></svg>
+  <div class="abs brand" data-brand="0"></div>
+</div>
+
+<!-- 2 -->
+<div class="story" id="s2">
+  <div class="abs frame"></div><div class="abs frame2"></div>
+  <div class="abs top"><div class="sub" style="color:var(--red);opacity:1">1922 — 2026</div></div>
+  <div class="abs num">1<span>0</span>4</div>
+  <div class="abs t1">daima hürriyet</div>
+  <div class="abs t2">EDİRNE'NİN<br>KURTULUŞ YIL DÖNÜMÜ<br>KUTLU OLSUN</div>
+  <div class="abs line"></div>
+  <svg class="abs flagmini" data-flag viewBox="0 0 1500 1000" style="border:6px solid var(--cream)"></svg>
+  <div class="abs brand" data-brand="1"></div>
+</div>
+
+<!-- 3 -->
+<div class="story" id="s3">
+  <svg class="abs stars" id="stars" viewBox="0 0 1080 1920"></svg>
+  <svg class="abs moon" data-cres="#d4af6a" viewBox="0 0 1000 1000"></svg>
+  <div class="abs head">25 KASIM 1922</div>
+  <div class="abs h1">Hürriyetin<br><i>104.</i><br>Yılı</div>
+  <div class="abs p">Selimiye'nin gölgesinde, Meriç'in kıyısında… Edirne'mizin düşman işgalinden kurtuluşunun 104. yıl dönümünü gururla kutluyoruz.</div>
+  <div class="abs glow"></div>
+  <svg class="abs mosque" data-mosque="#d4af6a" data-outline viewBox="0 0 1080 420"></svg>
+  <div class="abs brand" data-brand="2"></div>
+</div>
+
+<!-- 4 -->
+<div class="story" id="s4">
+  <div class="abs redside"></div>
+  <div class="abs vert">EDİRNE</div>
+  <svg class="abs crescent" data-cres="#ffffff" viewBox="0 0 1000 1000"></svg>
+  <div class="abs date"><small>KURTULUŞUN</small>104.<br>YILI</div>
+  <div class="abs t">Bir gün değil,<br><span>nesillere</span><br>kalan miras.</div>
+  <div class="abs p">25 Kasım 1922'den bugüne, Edirne'nin özgürlüğü yüreğimizde. Kurtuluş yıl dönümümüz kutlu olsun.</div>
+  <div class="abs brand" data-brand="3"></div>
+</div>
+
+<!-- 5 -->
+<div class="story" id="s5">
+  <div class="abs bigflag"></div>
+  <svg class="abs fl" data-cres="#ffffff" viewBox="0 0 1000 1000"></svg>
+  <div class="abs label">25 KASIM 1922 · 2026</div>
+  <div class="abs h">Edirne<br>104 Yıldır<br>Özgür</div>
+  <div class="abs p">Edirne'mizin kurtuluşunun 104. yıl dönümünü büyük bir gurur ve coşkuyla kutluyoruz.</div>
+  <svg class="abs tulipL" data-tulip viewBox="0 0 100 200"></svg>
+  <svg class="abs tulipR" data-tulip viewBox="0 0 100 200"></svg>
+  <svg class="abs bridge" id="bridge" viewBox="0 0 1080 260"></svg>
+  <div class="abs brand" data-brand="4"></div>
+</div>
+
+<script>
+const NS='http://www.w3.org/2000/svg';
+function star(cx,cy,R,r,rot){let p=[];for(let i=0;i<10;i++){const a=rot+i*Math.PI/5,rr=i%2?r:R;p.push((cx+rr*Math.cos(a)).toFixed(1)+','+(cy+rr*Math.sin(a)).toFixed(1))}return p.join(' ')}
+// Türk bayrağı (oranlar yaklaşık resmî ölçülere göre)
+function crescentStar(cx,cy,G,fg,bg){
+  const r1=G*.25, r2=G*.2, off=G*.0625, sR=G*.125, sx=cx+off+r2+G*(1/3)-G*.125+sR*.2;
+  return `<circle cx="${cx}" cy="${cy}" r="${r1}" fill="${fg}"/><circle cx="${cx+off}" cy="${cy}" r="${r2}" fill="${bg}"/>
+  <polygon fill="${fg}" points="${star(sx,cy,sR,sR*.382,Math.PI)}"/>`;
+}
+document.querySelectorAll('[data-flag]').forEach(s=>s.innerHTML=`<rect width="1500" height="1000" fill="#e30a17"/>`+crescentStar(500,500,1000,'#fff','#e30a17'));
+// sadece hilal-yıldız (arka planla aynı renkte iç daire maskesi)
+document.querySelectorAll('[data-cres]').forEach(s=>{
+  const c=s.dataset.cres,id='m'+Math.random().toString(36).slice(2);
+  s.innerHTML=`<defs><mask id="${id}"><rect width="1000" height="1000" fill="#fff"/><circle cx="${330+62.5}" cy="500" r="200" fill="#000"/></mask></defs>
+  <circle cx="330" cy="500" r="250" fill="${c}" mask="url(#${id})"/><polygon fill="${c}" points="${star(752,500,125,48,Math.PI)}"/>`;
+});
+// Selimiye silueti
+function mosque(fill,outline){
+  const st=outline?`fill="none" stroke="${fill}" stroke-width="4"`:`fill="${fill}"`;
+  let s='';
+  const mins=[250,330,750,830];
+  // gövde
+  s+=`<rect x="330" y="300" width="420" height="120" ${st}/>`;
+  s+=`<path d="M380 300 L380 260 L700 260 L700 300" ${st}/>`;
+  s+=`<path d="M410 260 Q410 140 540 140 Q670 140 670 260 Z" ${st}/>`;
+  s+=`<path d="M540 140 L540 100" stroke="${fill}" stroke-width="5"/><circle cx="540" cy="96" r="5" fill="${fill}"/>`;
+  s+=`<path d="M340 300 Q340 250 390 250 Q440 250 440 300 Z" ${st}/><path d="M640 300 Q640 250 690 250 Q740 250 740 300 Z" ${st}/>`;
+  // küçük kubbeler
+  for(let x of [450,500,580,630]) s+=`<path d="M${x-18} 262 Q${x-18} 236 ${x} 236 Q${x+18} 236 ${x+18} 262 Z" ${st}/>`;
+  mins.forEach(x=>{
+    s+=`<rect x="${x-9}" y="60" width="18" height="360" ${st}/>`;
+    s+=`<polygon points="${x-11},62 ${x},0 ${x+11},62" ${st}/>`;
+    for(const y of [150,220,290]) s+=`<rect x="${x-15}" y="${y}" width="30" height="8" ${st}/>`;
+  });
+  // ağaç/şehir zemini
+  if(!outline) s+=`<path d="M0 420 L0 380 Q60 340 120 375 Q170 330 230 370 L330 370 L330 420 Z M750 370 L850 370 Q900 330 960 372 Q1020 340 1080 380 L1080 420 Z" fill="${fill}"/>`;
+  else s+=`<line x1="60" y1="420" x2="1020" y2="420" stroke="${fill}" stroke-width="3"/>`;
+  return s;
+}
+document.querySelectorAll('[data-mosque]').forEach(s=>s.innerHTML=mosque(s.dataset.mosque,s.hasAttribute('data-outline')));
+// yıldızlar
+(()=>{let s='',seed=7;const rnd=()=>(seed=(seed*9301+49297)%233280)/233280;for(let i=0;i<140;i++)s+=`<circle cx="${rnd()*1080}" cy="${rnd()*1100}" r="${rnd()*2.4+.4}" fill="#fff" opacity="${rnd()*.7+.2}"/>`;document.getElementById('stars').innerHTML=s})();
+// Meriç köprüsü
+(()=>{let s=`<rect x="0" y="80" width="1080" height="22" fill="#5a0614"/>`;
+  for(let i=0;i<9;i++){const x=i*120+10;s+=`<path d="M${x} 102 L${x+120} 102 L${x+120} 260 L${x+105} 260 Q${x+105} 150 ${x+60} 150 Q${x+15} 150 ${x+15} 260 L${x} 260 Z" fill="#5a0614"/>`}
+  s+=`<rect x="520" y="20" width="40" height="62" fill="#5a0614"/><polygon points="514,22 540,0 566,22" fill="#5a0614"/>`;
+  s+=`<rect x="0" y="230" width="1080" height="30" fill="#5a0614" opacity=".15"/>`;
+  document.getElementById('bridge').innerHTML=s})();
+// lale
+document.querySelectorAll('[data-tulip]').forEach(s=>s.innerHTML=`<path d="M50 95 Q52 150 48 200" stroke="#2f6b3a" stroke-width="5" fill="none"/><path d="M49 170 Q20 140 15 110 Q40 125 49 160Z" fill="#2f6b3a"/><path d="M50 100 Q15 90 18 40 Q30 10 30 10 Q38 40 50 30 Q62 40 70 10 Q82 40 82 40 Q85 90 50 100Z" fill="#c8102e"/>`);
+// marka blokları
+function initials(n){return n.split(/\s+/).filter(w=>!/^\d+$/.test(w)).slice(0,2).map(w=>w[0]).join('')}
+document.querySelectorAll('[data-brand]').forEach(b=>{
+  const f=FIRMALAR[+b.dataset.brand];
+  const logo=f.logo?`<img src="${f.logo}">`:initials(f.name);
+  b.innerHTML=`<div class="logo">${logo}</div><div><div class="firm">${f.name}</div><div class="sub">${f.sub}</div></div>`;
+  if(b.closest('#s1,#s2')) b.querySelector('div:last-child').style.textAlign='center';
+});
+</script>
+</body>
+</html>

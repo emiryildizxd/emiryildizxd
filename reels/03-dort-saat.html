@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Günde 4 Saat</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="reel.css">
+</head>
+<body>
+<script src="engine.js"></script>
+<script>
+/* REEL 03 — "GÜNDE 4 SAAT."
+   Mesaj: Aynı 4 saat; biri kaydırarak buharlaştırır, diğeri her hafta bir blok koyar.
+   4 saat × 365 = 1.460 saat ≈ 61 gün.  (1 blok = 1 hafta = 28 saat) */
+Reel({
+  title: 'Günde 4 Saat',
+  duration: 23,
+  draw(ctx, t, F) {
+    const { W, H, CONFIG: C, E, prog, clamp, lerp } = F;
+    const TA = 2.2, TB = 14.2, WEEKS = 52;
+    const ground = 1440;
+    const pw = prog(t, TA, TB);
+    const weeksF = WEEKS * (0.25 * pw + 0.75 * E.inOutQuad(pw));   // sürekli hafta
+    const hours = Math.round(Math.min(1460, weeksF * 28.077));
+    const reveal = E.outCubic(prog(t, TB + 0.3, TB + 1.0));
+
+    F.background(ctx, t, { tint: F.hexA(C.gold, 0.03 + 0.04 * pw), tintY: 1100 });
+
+    // ---- başlık ----
+    const kT = E.outBack(prog(t, 0, 0.6));
+    ctx.save(); ctx.translate(W / 2, 290); ctx.scale(lerp(0.85, 1, kT), lerp(0.85, 1, kT));
+    F.revealLine(ctx, 'GÜNDE *4 SAAT.*', 0, 0, prog(t, 0, 0.7), { size: 90, weight: 900, stagger: 0.3, accent: C.cyan });
+    ctx.restore();
+    F.text(ctx, 'BİR YILDA NEREYE GİDER?', W / 2, 372, { size: 28, weight: 700, color: C.dim, ls: 6, alpha: prog(t, 0.5, 1.1) });
+
+    // ---- HUD panelleri ----
+    const kh = E.outCubic(prog(t, 0.9, 1.5));
+    const hud = (x, label, col, resultTxt) => {
+      F.panel(ctx, x, 430, 440, 150, { alpha: kh });
+      ctx.save(); ctx.globalAlpha = kh; ctx.fillStyle = col; ctx.shadowColor = col; ctx.shadowBlur = 10;
+      ctx.beginPath(); ctx.arc(x + 34, 468, 7, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+      F.text(ctx, label, x + 54, 468, { size: 22, weight: 800, align: 'left', color: col, alpha: kh, ls: 3 });
+      F.text(ctx, 'SAAT', x + 30, 530, { size: 20, weight: 500, font: C.mono, color: C.dim, align: 'left', alpha: kh });
+      F.text(ctx, hours.toLocaleString('tr-TR'), x + 100, 532, { size: 42, weight: 700, font: C.mono, align: 'left', alpha: kh });
+      // sonuç: önce ???, sonra açılır
+      const q = 1 - reveal;
+      if (q > 0) F.text(ctx, '???', x + 410, 532, { size: 34, weight: 700, font: C.mono, color: C.dim, align: 'right', alpha: kh * q });
+      if (reveal > 0) F.text(ctx, resultTxt, x + 410, 532 + (1 - reveal) * 16, { size: 34, weight: 800, font: C.mono, color: col, align: 'right', alpha: reveal, glow: 18 });
+    };
+    hud(80, 'KAYDIRAN', C.red, '−61 GÜN');
+    hud(560, 'İNŞA EDEN', C.gold, '+61 GÜN');
+
+    // ---- ay etiketi ----
+    const months = ['OCAK', 'ŞUBAT', 'MART', 'NİSAN', 'MAYIS', 'HAZİRAN', 'TEMMUZ', 'AĞUSTOS', 'EYLÜL', 'EKİM', 'KASIM', 'ARALIK'];
+    const mi = clamp(Math.floor((weeksF / WEEKS) * 12), 0, 11);
+    const km = prog(t, 1.4, 2.0);
+    F.text(ctx, months[mi], W / 2, 640, { size: 26, weight: 700, font: C.mono, color: C.ink, alpha: km * 0.85, ls: 6 });
+    // ince zaman çubuğu
+    ctx.save(); ctx.globalAlpha = km;
+    ctx.fillStyle = 'rgba(255,255,255,0.10)'; F.rrect(ctx, W / 2 - 160, 672, 320, 6, 3); ctx.fill();
+    ctx.fillStyle = C.ink; F.rrect(ctx, W / 2 - 160, 672, 320 * (weeksF / WEEKS), 6, 3); ctx.fill();
+    ctx.restore();
+
+    // ---- zemin ----
+    ctx.save(); ctx.globalAlpha = E.outCubic(prog(t, 0.8, 1.6));
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(60, ground); ctx.lineTo(W - 60, ground); ctx.stroke();
+    ctx.restore();
+
+    // ---- SOL: kaydıran ----
+    const phoneCols = ['#ff3fa4', '#3d8bff', '#3ee08f', '#ff8a3d', '#9b7bff'];
+    const pc = phoneCols[Math.floor(t / 0.5) % phoneCols.length];
+    const lx = 270;
+    {
+      // puf minder
+      ctx.save(); ctx.globalAlpha = E.outCubic(prog(t, 0.8, 1.6));
+      ctx.fillStyle = '#16181d'; ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.ellipse(lx - 18, ground - 34, 92, 36, 0, Math.PI, 0); ctx.lineTo(lx + 74, ground); ctx.lineTo(lx - 110, ground); ctx.closePath();
+      ctx.fill(); ctx.stroke(); ctx.restore();
+      // buharlaşan saat blokları (telefondan yükselir, kaybolur)
+      if (t > TA && t < TB + 0.6) {
+        const r = F.rng(5);
+        for (let i = 0; i < 140; i++) {
+          const born = TA + (i / 140) * (TB - TA), age = t - born;
+          const jx = (r() - 0.5) * 120, rot = (r() - 0.5) * 3, life = 1.8 + r() * 0.8;
+          if (age < 0 || age > life) continue;
+          const k = age / life;
+          const x = lx + 20 + jx * k + Math.sin(age * 3 + i) * 10, y = ground - 120 - k * 520;
+          ctx.save(); ctx.translate(x, y); ctx.rotate(rot * k); ctx.globalAlpha = (1 - k) * 0.8;
+          ctx.fillStyle = F.hexA(phoneCols[i % phoneCols.length], 0.45); ctx.strokeStyle = F.hexA(phoneCols[i % phoneCols.length], 0.9); ctx.lineWidth = 2;
+          const sz = lerp(22, 10, k); F.rrect(ctx, -sz / 2, -sz / 2, sz, sz, 3); ctx.fill(); ctx.stroke();
+          ctx.restore();
+        }
+      }
+      // gölge kule (olabilecek olan) — finalde belirir
+      if (reveal > 0) {
+        const rows = 13, bs = 48, gp = 4, tw = 4 * bs + 3 * gp;
+        const gx = lx - tw / 2;
+        ctx.save(); ctx.globalAlpha = 0.55 * reveal; ctx.setLineDash([8, 8]); ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 2;
+        ctx.strokeRect(gx, ground - rows * (bs + gp), tw, rows * (bs + gp)); ctx.setLineDash([]); ctx.restore();
+        F.text(ctx, 'OLABİLECEK OLAN', lx, ground - rows * (bs + gp) - 30, { size: 20, weight: 700, color: C.dim, ls: 4, alpha: reveal });
+      }
+      F.stickman(ctx, { x: lx - 30, y: ground - 58, s: 0.95, dir: 1, pose: F.P.sitPhone(t), phoneColor: pc, color: '#d9d6d0' });
+    }
+
+    // ---- SAĞ: inşa eden (kule) ----
+    {
+      const bs = 48, gp = 4, cols = 4, tw = cols * bs + (cols - 1) * gp;
+      const tx = 800;
+      const placed = weeksF;                               // kaç blok
+      const nFull = Math.floor(placed);
+      // bloklar
+      for (let b = 0; b < Math.min(WEEKS, nFull + 1); b++) {
+        const row = Math.floor(b / cols), col = b % cols;
+        const kd = clamp((placed - b) / 0.9);       // blok b, weeksF=b iken düşmeye başlar
+        if (kd <= 0) continue;
+        const land = E.outBack(kd);
+        const x = tx + col * (bs + gp), yEnd = ground - (row + 1) * (bs + gp) + gp;
+        const y = lerp(yEnd - 260, yEnd, land);
+        const heat = row / 12;
+        const colr = F.mixHex('#c9902a', '#ffd36b', heat);
+        ctx.save(); ctx.globalAlpha = clamp(kd * 3);
+        ctx.shadowColor = C.gold; ctx.shadowBlur = 10 + heat * 16;
+        const g = ctx.createLinearGradient(0, y, 0, y + bs);
+        g.addColorStop(0, colr); g.addColorStop(1, F.mixHex(colr, '#5a3a08', 0.45));
+        ctx.fillStyle = g; F.rrect(ctx, x, y, bs, bs, 6); ctx.fill();
+        ctx.shadowBlur = 0; ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(x + 6, y + 3); ctx.lineTo(x + bs - 6, y + 3); ctx.stroke();
+        ctx.restore();
+      }
+      // adam kulenin tepesinde
+      const rowsDone = Math.floor(Math.min(placed, WEEKS) / cols);
+      const yTop = ground - Math.min(13, rowsDone) * (bs + gp);
+      const curCol = Math.floor(placed) % cols;
+      const done = placed >= WEEKS - 0.001;
+      const xs = done ? tx + tw / 2 : tx + curCol * (bs + gp) + bs / 2;
+      let pose = t < TA ? F.P.stand(t) : done ? F.P.celebrate(t) : F.mixPose(F.P.walk(t * 10, 0.7), F.P.lift(t, 1), 0.35 + 0.35 * Math.sin(t * 8));
+      const glow = lerp(10, 36, clamp(placed / WEEKS));
+      if (placed > 20) F.embers(ctx, t, { x: xs, y: yTop - 40, w: 80, h: 170, n: Math.floor(lerp(4, 26, prog(placed, 20, WEEKS))), color: C.gold, seed: 21 });
+      F.stickman(ctx, { x: xs, y: yTop, s: 0.82, dir: -1, pose, glow, glowColor: C.gold });
+
+      // kilometre taşları (kulenin solunda birikir)
+      const tags = [[6, '12 KİTAP'], [16, 'YENİ BİR DİL'], [27, '150 ANTRENMAN'], [38, '1 YAN PROJE'], [50, 'YENİ BİR SEN']];
+      tags.forEach(([wk, str], i) => {
+        const k = E.outBack(clamp((placed - wk) / 1.2));
+        if (k <= 0) return;
+        const row = Math.floor(wk / cols);
+        const y = ground - (row + 0.5) * (bs + gp);
+        const last = i === tags.length - 1;
+        const col = last ? C.gold : C.ink;
+        const tw2 = F.measure(ctx, str, { size: 22, weight: 800, ls: 2 });
+        const xr = tx - 26;
+        ctx.save(); ctx.globalAlpha = clamp(k);
+        F.rrect(ctx, xr - tw2 - 36, y - 24, tw2 + 36, 48, 24);
+        ctx.fillStyle = last ? F.hexA(C.gold, 0.14) : 'rgba(255,255,255,0.06)'; ctx.fill();
+        ctx.strokeStyle = last ? F.hexA(C.gold, 0.6) : 'rgba(255,255,255,0.16)'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.restore();
+        F.text(ctx, str, xr - 18 + (1 - k) * 30, y, { size: 22, weight: 800, align: 'right', color: col, ls: 2, alpha: clamp(k), glow: last ? 16 : 0 });
+      });
+    }
+
+    // ---- final ----
+    if (t > 16.2) {
+      const k = E.outCubic(prog(t, 16.2, 17.0));
+      ctx.save(); ctx.fillStyle = `rgba(5,6,8,${0.82 * k})`; ctx.fillRect(0, 0, W, H); ctx.restore();
+      F.revealLine(ctx, 'Aynı 24 saat.', W / 2, 900, prog(t, 16.5, 17.4), { size: 76, weight: 800 });
+      F.revealLine(ctx, '*Farklı* hayatlar.', W / 2, 1030, prog(t, 17.8, 18.7), { size: 96, weight: 900, hiGlow: 40, stagger: 0.4 });
+    }
+    F.handleTag(ctx, 1 - prog(t, 19.6, 20));
+    F.endCard(ctx, t, 20.2);
+  },
+});
+</script>
+</body>
+</html>

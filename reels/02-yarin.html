@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Yarın Başlarım</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="reel.css">
+</head>
+<body>
+<script src="engine.js"></script>
+<script>
+/* REEL 02 — "YARIN BAŞLARIM."
+   Mesaj: Erteleme bir plan değil, bahanedir. Biri her gün bir basamak çıkar,
+   diğeri her gün "yarın" der. 30 gün sonra aradaki mesafe. */
+Reel({
+  title: 'Yarın Başlarım',
+  duration: 23,
+  draw(ctx, t, F) {
+    const { W, H, CONFIG: C, E, prog, clamp, lerp } = F;
+    const N = 12, TA = 2.4, TB = 14.4, SD = (TB - TA) / N;       // basamak sayısı & zamanlama
+    const x0 = 262, floor = 1500, sw = 52, sh = 66;              // merdiven geometrisi
+    const topY = floor - N * sh, platX = x0 + N * sw;
+    const doorX = 958, doorW = 112, doorH = 190;
+    const openK = E.inOutCubic(prog(t, TB + 0.1, TB + 1.4));
+
+    F.background(ctx, t, { tint: F.hexA(C.gold, 0.04 + 0.08 * openK), tintY: topY - 80 });
+
+    // ---- başlık ----
+    const kT = E.outBack(prog(t, 0, 0.6));
+    ctx.save(); ctx.translate(W / 2, 290); ctx.scale(lerp(0.85, 1, kT), lerp(0.85, 1, kT));
+    F.revealLine(ctx, '"YARIN *BAŞLARIM."*', 0, 0, prog(t, 0, 0.7), { size: 84, weight: 900, stagger: 0.3, accent: C.red });
+    ctx.restore();
+    F.text(ctx, 'AYNI MERDİVEN. 30 GÜN. İKİ İNSAN.', W / 2, 372, { size: 28, weight: 700, color: C.dim, ls: 5, alpha: prog(t, 0.5, 1.1) });
+
+    // ---- takvim HUD ----
+    const day = clamp(Math.floor(1 + 29.999 * prog(t, TA - 0.3, TB)), 1, 30);
+    const kh = E.outCubic(prog(t, 0.9, 1.5));
+    F.panel(ctx, 80, 440, 420, 150, { alpha: kh });
+    F.text(ctx, 'GÜN', 112, 486, { size: 22, weight: 700, font: C.mono, color: C.dim, align: 'left', alpha: kh, ls: 3 });
+    F.text(ctx, String(day).padStart(2, '0'), 112, 540, { size: 60, weight: 700, font: C.mono, align: 'left', alpha: kh });
+    F.text(ctx, '/ 30', 196, 548, { size: 28, weight: 500, font: C.mono, color: C.dim, align: 'left', alpha: kh });
+    for (let i = 0; i < 30; i++) { // ilerleme noktaları
+      const cx = 300 + (i % 10) * 18, cy = 492 + Math.floor(i / 10) * 30;
+      const on = i < day && t > TA - 0.3;
+      ctx.save(); ctx.globalAlpha = kh;
+      ctx.fillStyle = on ? C.gold : 'rgba(255,255,255,0.12)';
+      if (on) { ctx.shadowColor = C.gold; ctx.shadowBlur = 8; }
+      ctx.beginPath(); ctx.arc(cx, cy, 5.5, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+    }
+
+    // ---- kapı (HEDEF) ----
+    {
+      const dx = doorX - doorW / 2, dy = topY - doorH;
+      const ka = E.outCubic(prog(t, 1.0, 1.8));
+      ctx.save(); ctx.globalAlpha = ka;
+      // ışık huzmesi
+      if (openK > 0) {
+        const g = ctx.createLinearGradient(dx, 0, dx - 520, 0);
+        g.addColorStop(0, F.hexA(C.gold, 0.35 * openK)); g.addColorStop(1, F.hexA(C.gold, 0));
+        ctx.fillStyle = g; ctx.beginPath();
+        ctx.moveTo(dx, dy); ctx.lineTo(dx - 560, dy - 220 * openK); ctx.lineTo(dx - 560, floor + 200); ctx.lineTo(dx, topY); ctx.closePath(); ctx.fill();
+        F.glowCircle(ctx, doorX, topY - doorH / 2, 420, C.gold, openK);
+      }
+      // içi
+      ctx.fillStyle = F.mixHex('#0c0d10', '#ffe2a0', openK);
+      ctx.shadowColor = C.gold; ctx.shadowBlur = 20 + 60 * openK;
+      F.rrect(ctx, dx, dy, doorW, doorH, 6); ctx.fill();
+      ctx.shadowBlur = 0;
+      // kapı kanadı (açılır)
+      const leaf = doorW * (1 - openK);
+      ctx.fillStyle = '#16181d'; ctx.fillRect(dx, dy, leaf, doorH);
+      ctx.strokeStyle = F.hexA(C.gold, 0.8); ctx.lineWidth = 4; F.rrect(ctx, dx, dy, doorW, doorH, 6); ctx.stroke();
+      if (leaf > 10) { ctx.fillStyle = C.gold; ctx.beginPath(); ctx.arc(dx + leaf - 18, dy + doorH / 2, 6, 0, Math.PI * 2); ctx.fill(); }
+      ctx.restore();
+      F.text(ctx, 'HEDEF', doorX, dy - 34, { size: 24, weight: 800, color: C.gold, ls: 6, alpha: ka, glow: 16 });
+    }
+
+    // ---- merdiven ----
+    const stepAt = (time) => clamp((time - TA) / SD, 0, N);       // sürekli basamak ilerlemesi
+    const sp = stepAt(t);
+    {
+      const ka = E.outCubic(prog(t, 0.8, 1.6));
+      ctx.save(); ctx.globalAlpha = ka;
+      const g = ctx.createLinearGradient(0, topY, 0, floor + 300);
+      g.addColorStop(0, '#15171c'); g.addColorStop(1, '#0a0b0e');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(x0, floor);
+      for (let i = 1; i <= N; i++) { ctx.lineTo(x0 + (i - 1) * sw, floor - i * sh); ctx.lineTo(x0 + i * sw, floor - i * sh); }
+      ctx.lineTo(W, topY); ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.lineTo(0, floor); ctx.closePath(); ctx.fill();
+      // kenar çizgileri
+      ctx.lineWidth = 3; ctx.lineCap = 'round';
+      ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+      ctx.beginPath(); ctx.moveTo(0, floor); ctx.lineTo(x0, floor); ctx.stroke();
+      for (let i = 1; i <= N; i++) {
+        const lit = Math.floor(sp + 0.35) >= i;
+        const y = floor - i * sh, xa = x0 + (i - 1) * sw;
+        ctx.strokeStyle = 'rgba(255,255,255,0.16)'; ctx.shadowBlur = 0;
+        ctx.beginPath(); ctx.moveTo(xa, y + sh); ctx.lineTo(xa, y); ctx.stroke();
+        ctx.save();
+        if (lit) { ctx.strokeStyle = C.gold; ctx.shadowColor = C.gold; ctx.shadowBlur = 16; } else ctx.strokeStyle = 'rgba(255,255,255,0.28)';
+        ctx.beginPath(); ctx.moveTo(xa, y); ctx.lineTo(xa + sw, y); ctx.stroke(); ctx.restore();
+      }
+      ctx.strokeStyle = openK > 0 ? C.gold : 'rgba(255,255,255,0.28)';
+      ctx.beginPath(); ctx.moveTo(platX, topY); ctx.lineTo(W, topY); ctx.stroke();
+      ctx.restore();
+    }
+
+    // ---- tırmanan ----
+    {
+      const k = Math.floor(sp), f = sp - k;
+      const posOf = (i) => i === 0 ? [222, floor] : [x0 + (i - 0.5) * sw, floor - i * sh];
+      let x, y, pose, lift = 0;
+      if (t < TA) { [x, y] = posOf(0); pose = F.P.stand(t); }
+      else if (sp >= N) {
+        // platformdan kapıya yürü, sonra kapıda kutla
+        const kw = E.inOutQuad(prog(t, TB, TB + 1.0));
+        x = lerp(posOf(N)[0], doorX - 6, kw); y = topY;
+        pose = kw < 1 ? F.P.walk(t * 9, 0.9) : F.P.celebrate(t);
+      } else {
+        const a = posOf(k), b = posOf(k + 1);
+        const m = E.inOutQuad(clamp(f / 0.7));
+        x = lerp(a[0], b[0], m); y = lerp(a[1], b[1], m); lift = Math.sin(Math.PI * m) * 26;
+        pose = f < 0.7 ? F.P.walk(1.2 + m * Math.PI * 1.6, 1) : F.P.stand(t);
+      }
+      const glow = lerp(8, 34, sp / N);
+      if (sp > 6) F.embers(ctx, t, { x, y: y - 30, w: 60, h: 160, n: Math.floor(lerp(4, 22, prog(sp, 6, N))), color: C.gold, seed: 11 });
+      F.stickman(ctx, { x, y, lift, s: 0.92, dir: 1, pose, glow, glowColor: C.gold });
+      // ad etiketi
+      const kl = prog(t, 1.6, 2.2) * (1 - prog(t, TA + 0.4, TA + 0.9));
+      if (kl > 0) F.text(ctx, 'HER GÜN 1 ADIM', x + 30, y - 290, { size: 22, weight: 800, color: C.gold, ls: 3, alpha: kl });
+    }
+
+    // ---- oturan (telefonla) ----
+    {
+      const sx = 120, sy = floor - 6;
+      const cols = ['#ff3fa4', '#3d8bff', '#3ee08f', '#ff8a3d', '#9b7bff'];
+      const pc = cols[Math.floor(t / 0.55) % cols.length];
+      const lookUp = E.inOutCubic(prog(t, TB + 0.8, TB + 1.6));
+      let pose = F.P.sitPhone(t);
+      pose = { ...pose, hipL: 1.42, kneeL: 1.25, hipR: 1.3, kneeR: 1.2 };
+      if (lookUp > 0) pose = F.mixPose(pose, { ...pose, head: -0.55, lean: 0.05, shR: 0.2, elR: 0.4, shL: 0.1, elL: 0.3 }, lookUp);
+      // küçük kutu üzerinde oturur
+      ctx.save(); ctx.fillStyle = '#121419'; ctx.strokeStyle = 'rgba(255,255,255,0.14)'; ctx.lineWidth = 3;
+      ctx.globalAlpha = E.outCubic(prog(t, 0.8, 1.6));
+      F.rrect(ctx, sx - 54, sy - 4 - 52, 92, 58, 6); ctx.fill(); ctx.stroke(); ctx.restore();
+      F.stickman(ctx, { x: sx - 10, y: sy - 58, s: 0.92, dir: 1, pose: { ...pose, phone: lookUp < 0.5 },
+        phoneColor: pc, phoneGlow: 1 - lookUp, color: '#d9d6d0' });
+      const kl = prog(t, 1.6, 2.2) * (1 - prog(t, TA + 1.2, TA + 1.8));
+      if (kl > 0) F.text(ctx, '"YARIN"', sx, sy - 210, { size: 22, weight: 800, color: C.red, ls: 3, alpha: kl });
+
+      // "yarın" balonları
+      const lines = ['yarın...', 'pazartesi başlarım', 'bugün yorgunum', 'bir video daha', 'motivasyon gelsin',
+        'ay başında', 'hafta sonu bakarım', 'şimdi değil', 'yarın kesin', 'müsait olunca', 'yeni yılda', 'yarın...'];
+      for (let i = 0; i < N; i++) {
+        const tb = TA + i * SD + 0.2, age = t - tb;
+        if (age < 0 || age > 2.6) continue;
+        const kp = E.outBack(clamp(age / 0.35)), ka = 1 - prog(age, 1.8, 2.6);
+        const bx = 60 + (i % 2) * 30, by = sy - 300 - age * 70;
+        const str = lines[i];
+        const tw = F.measure(ctx, str, { size: 28, weight: 600 });
+        ctx.save(); ctx.globalAlpha = ka; ctx.translate(bx, by); ctx.scale(kp, kp);
+        F.rrect(ctx, -24, -30, tw + 48, 60, 30); ctx.fillStyle = 'rgba(255,255,255,0.07)'; ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.16)'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.restore();
+        F.text(ctx, str, bx + (tw / 2) * kp, by, { size: 28 * kp, weight: 600, color: 'rgba(244,242,238,0.75)', alpha: ka });
+      }
+    }
+
+    // ---- final ----
+    if (t > 16.2) {
+      const k = E.outCubic(prog(t, 16.2, 17.0));
+      ctx.save(); ctx.fillStyle = `rgba(5,6,8,${0.8 * k})`; ctx.fillRect(0, 0, W, H); ctx.restore();
+      F.revealLine(ctx, '"Yarın" bir gün değil.', W / 2, 900, prog(t, 16.5, 17.5), { size: 70, weight: 800 });
+      F.revealLine(ctx, 'Bir *bahane.*', W / 2, 1030, prog(t, 17.9, 18.7), { size: 100, weight: 900, accent: C.red, hiGlow: 40, stagger: 0.4 });
+    }
+    F.handleTag(ctx, 1 - prog(t, 19.6, 20));
+    F.endCard(ctx, t, 20.2);
+  },
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reels Stüdyosu</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root { --bg:#07080b; --ink:#f4f2ee; --dim:rgba(244,242,238,.5); --line:rgba(255,255,255,.09); --gold:#f4b740; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:Inter,system-ui,sans-serif; padding:48px 16px 80px; }
+  h1 { font-weight:900; font-size:clamp(32px,6vw,56px); letter-spacing:-.02em; margin:0 0 8px; text-align:center; }
+  h1 span { color:var(--gold); text-shadow:0 0 24px rgba(244,183,64,.5); }
+  p.sub { text-align:center; color:var(--dim); letter-spacing:.2em; font-size:13px; font-weight:700; margin:0 0 40px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:24px; max-width:1100px; margin:0 auto; }
+  .card { background:rgba(255,255,255,.03); border:1px solid var(--line); border-radius:20px; padding:14px; }
+  video { width:100%; aspect-ratio:9/16; border-radius:12px; background:#000; display:block; }
+  .card h2 { font-size:18px; margin:14px 4px 4px; font-weight:800; }
+  .card p { color:var(--dim); font-size:14px; margin:0 4px 12px; line-height:1.45; }
+  .card a { color:var(--gold); font-size:13px; font-weight:700; text-decoration:none; margin:0 4px; }
+</style>
+</head>
+<body>
+  <h1>Reels <span>Stüdyosu</span></h1>
+  <p class="sub">KÜÇÜK ADIMLAR · BÜYÜK SONUÇLAR</p>
+  <div class="grid">
+    <div class="card">
+      <video src="out/01-yuzde-bir.mp4" controls playsinline loop muted></video>
+      <h2>01 · Her gün %1</h2>
+      <p>Bileşik etki: 1,01³⁶⁵ ≈ 37,8 — 0,99³⁶⁵ ≈ 0,03.</p>
+      <a href="01-yuzde-bir.html">Canlı animasyonu aç →</a>
+    </div>
+    <div class="card">
+      <video src="out/02-yarin.mp4" controls playsinline loop muted></video>
+      <h2>02 · "Yarın başlarım."</h2>
+      <p>Biri her gün bir basamak çıkar, diğeri her gün "yarın" der.</p>
+      <a href="02-yarin.html">Canlı animasyonu aç →</a>
+    </div>
+    <div class="card">
+      <video src="out/03-dort-saat.mp4" controls playsinline loop muted></video>
+      <h2>03 · Günde 4 saat</h2>
+      <p>1.460 saat: biri kaydırarak buharlaştırır, diğeri kule inşa eder.</p>
+      <a href="03-dort-saat.html">Canlı animasyonu aç →</a>
+    </div>
+  </div>
+</body>
+</html>

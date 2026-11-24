@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>%1 Kuralı</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="reel.css">
+</head>
+<body>
+<script src="engine.js"></script>
+<script>
+/* REEL 01 — "HER GÜN %1."
+   Mesaj: Küçük günlük gelişim, bileşik etkiyle devasa fark yaratır.
+   1,01^365 ≈ 37,8   |   0,99^365 ≈ 0,03 */
+Reel({
+  title: '%1 Kuralı',
+  duration: 23,
+  draw(ctx, t, F) {
+    const { W, H, CONFIG: C, E, prog, clamp, lerp } = F;
+    F.background(ctx, t, { grid: true, tint: 'rgba(244,183,64,0.05)', tintY: 900 });
+
+    // ---- zaman çizelgesi ----
+    const T0 = 2.2, T1 = 13.6;                 // gün sayacı
+    const p = prog(t, T0, T1);
+    const day = 365 * (0.72 * E.inCubic(p) + 0.28 * E.inOutQuad(p));
+    const up = (d) => Math.pow(1.01, d), dn = (d) => Math.pow(0.99, d);
+    const fmt = (v) => (v >= 10 ? v.toFixed(1) : v.toFixed(2)).replace('.', ',');
+
+    // ---- başlık (ilk saniyede: kanca) ----
+    const kT = E.outBack(prog(t, 0.0, 0.6));
+    ctx.save(); ctx.translate(W / 2, 300); ctx.scale(lerp(0.85, 1, kT), lerp(0.85, 1, kT));
+    F.revealLine(ctx, 'HER GÜN *%1.*', 0, 0, prog(t, 0, 0.7), { size: 92, weight: 900, ls: 1, stagger: 0.3 });
+    ctx.restore();
+    F.text(ctx, '365 GÜN SONRA FARK NE OLUR?', W / 2, 382, { size: 28, weight: 700, color: C.dim, ls: 6, alpha: prog(t, 0.5, 1.1) });
+
+    // ---- gün sayacı ----
+    const kc = E.outCubic(prog(t, 0.9, 1.5));
+    F.panel(ctx, W / 2 - 170, 440, 340, 104, { alpha: kc, r: 20 });
+    F.text(ctx, 'GÜN', W / 2 - 120, 492, { size: 24, weight: 700, font: C.mono, color: C.dim, alpha: kc, ls: 3 });
+    F.text(ctx, String(Math.floor(day) + (p > 0 ? 1 : 0)).padStart(3, '0').replace(/^366$/, '365'), W / 2 + 40, 494,
+      { size: 64, weight: 700, font: C.mono, alpha: kc, glow: p > 0 && p < 1 ? 14 : 0, glowColor: C.gold });
+
+    // ---- grafik ----
+    const cx0 = 110, cx1 = 960, cy0 = 640, cy1 = 1380;
+    const ymax = Math.max(2, up(day) * 1.2);
+    const X = (d) => lerp(cx0, cx1, d / 365);
+    const Y = (v) => cy1 - (v / ymax) * (cy1 - cy0);
+    const kg = E.outCubic(prog(t, 1.2, 2.0));
+
+    ctx.save(); ctx.globalAlpha = kg;
+    // yatay ızgara + etiketler
+    const steps = [0.5, 1, 2, 5, 10, 20];
+    const step = steps.find((s) => ymax / s <= 5) || 20;
+    for (let v = step; v < ymax; v += step) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(cx0, Y(v)); ctx.lineTo(cx1, Y(v)); ctx.stroke();
+      F.text(ctx, '×' + String(v).replace('.', ','), cx0 - 18, Y(v), { size: 20, weight: 500, font: C.mono, color: C.dim, align: 'right' });
+    }
+    // eksen
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(cx0, cy1); ctx.lineTo(cx1, cy1); ctx.stroke();
+    // başlangıç çizgisi (×1)
+    ctx.setLineDash([10, 12]); ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(cx0, Y(1)); ctx.lineTo(cx1, Y(1)); ctx.stroke(); ctx.setLineDash([]);
+    F.text(ctx, 'BAŞLANGIÇ', cx1, Y(1) - 18, { size: 18, weight: 700, color: C.dim, align: 'right', ls: 3 });
+    // ay işaretleri
+    ['OCA', 'NİS', 'TEM', 'EKİ', 'ARA'].forEach((m, i) => {
+      const d = [0, 90, 181, 273, 365][i];
+      F.text(ctx, m, X(d), cy1 + 34, { size: 20, weight: 500, font: C.mono, color: C.dim });
+    });
+    ctx.restore();
+
+    const curve = (fn, col, glow) => {
+      if (day <= 0) return;
+      ctx.save();
+      // alt dolgu
+      const g = ctx.createLinearGradient(0, cy0, 0, cy1);
+      g.addColorStop(0, F.hexA(col, 0.18)); g.addColorStop(1, F.hexA(col, 0));
+      ctx.beginPath(); ctx.moveTo(X(0), cy1);
+      for (let d = 0; d <= day; d += 1) ctx.lineTo(X(d), Y(fn(d)));
+      ctx.lineTo(X(day), Y(fn(day))); ctx.lineTo(X(day), cy1); ctx.closePath();
+      ctx.fillStyle = g; ctx.fill();
+      // çizgi
+      ctx.beginPath(); ctx.moveTo(X(0), Y(1));
+      for (let d = 0; d <= day; d += 1) ctx.lineTo(X(d), Y(fn(d)));
+      ctx.lineTo(X(day), Y(fn(day)));
+      ctx.lineWidth = 6; ctx.strokeStyle = col; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      ctx.shadowColor = col; ctx.shadowBlur = glow; ctx.stroke(); ctx.stroke();
+      ctx.restore();
+    };
+    curve(dn, C.red, 14);
+    curve(up, C.gold, 24);
+
+    // ---- çöp adamlar uçlarda ----
+    const sep = 26 * (1 - prog(day, 0, 30));
+    const ku = clamp(day / 365), kd = clamp(day / 365);
+    const appear = E.outBack(prog(t, 1.4, 2.0));
+    // kötüleşen
+    {
+      const x = X(day) - sep, y = Y(dn(day));
+      const walking = p > 0 && p < 1;
+      let pose = walking ? F.P.walk(t * lerp(9, 4, kd), lerp(1, 0.55, kd)) : F.P.stand(t);
+      if (kd > 0.55) pose = F.mixPose(pose, F.P.slump(t), E.inOutQuad(prog(kd, 0.55, 1)));
+      const col = F.mixHex('#f4f2ee', '#6e6a66', E.inOutQuad(kd));
+      F.stickman(ctx, { x, y, s: 0.62 * appear, pose, color: col, glow: lerp(10, 0, kd), glowColor: C.red, alpha: lerp(1, 0.75, kd) });
+      const kl = prog(t, 2.6, 3.2);
+      const side = x < 420 ? 1 : -1;
+      const lx = x + side * 150, ly = Math.min(y + 30, cy1 - 70);
+      F.panel(ctx, lx - 92, ly - 27, 184, 54, { r: 27, alpha: kl, fill: F.hexA(C.red, 0.10), stroke: F.hexA(C.red, 0.45) });
+      F.text(ctx, '×' + fmt(dn(day)), lx, ly, { size: 28, weight: 700, font: C.mono, color: C.red, alpha: kl });
+    }
+    // iyileşen
+    {
+      const x = X(day) + sep, y = Y(up(day));
+      const walking = p > 0 && p < 1;
+      let pose = walking ? (ku > 0.45 ? F.mixPose(F.P.walk(t * 11, 1), F.P.run(t * 13, 1), prog(ku, 0.45, 0.6)) : F.P.walk(t * 9, 1)) : (p >= 1 ? F.P.celebrate(t) : F.P.stand(t));
+      const glow = lerp(14, 40, ku);
+      if (ku > 0.5) F.embers(ctx, t, { x: x - 10, y: y - 30, w: 70, h: 180, n: Math.floor(lerp(6, 34, prog(ku, 0.5, 1))), color: C.gold, seed: 3 });
+      F.stickman(ctx, { x, y, s: 0.62 * appear, pose, glow, glowColor: C.gold });
+      const kl = prog(t, 2.6, 3.2);
+      const side = x < 420 ? 1 : -1;
+      const lx = x + side * 160, ly = y - 70;
+      F.panel(ctx, lx - 100, ly - 27, 200, 54, { r: 27, alpha: kl, fill: F.hexA(C.gold, 0.12), stroke: F.hexA(C.gold, 0.55) });
+      F.text(ctx, '×' + fmt(up(day)), lx, ly, { size: 28, weight: 700, font: C.mono, color: C.gold, alpha: kl });
+    }
+
+    // ---- alt HUD şeritleri ----
+    const kh = E.outCubic(prog(t, 1.6, 2.3));
+    const lane = (x, label, sub, col, v) => {
+      F.panel(ctx, x, 1470, 410, 130, { alpha: kh });
+      ctx.save(); ctx.globalAlpha = kh; ctx.fillStyle = col; ctx.shadowColor = col; ctx.shadowBlur = 12;
+      ctx.beginPath(); ctx.arc(x + 36, 1510, 8, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+      F.text(ctx, label, x + 58, 1510, { size: 24, weight: 800, align: 'left', color: col, alpha: kh, ls: 3 });
+      F.text(ctx, sub, x + 28, 1560, { size: 22, weight: 500, align: 'left', color: C.dim, alpha: kh, font: C.mono });
+      F.text(ctx, '×' + fmt(v), x + 386, 1560, { size: 38, weight: 700, align: 'right', alpha: kh, font: C.mono });
+    };
+    lane(110, 'HER GÜN +%1', '1,01ⁿ', C.gold, up(day));
+    lane(560, 'HER GÜN −%1', '0,99ⁿ', C.red, dn(day));
+
+    // ---- ara yazı: "İlk aylarda fark yok gibi..." ----
+    const kq = prog(t, 3.6, 4.2) * (1 - prog(t, 6.4, 6.9));
+    if (kq > 0) F.text(ctx, 'İlk aylarda fark yok gibi...', W / 2, 590, { size: 30, weight: 600, color: C.ink, alpha: kq * 0.85 });
+    const kq2 = prog(t, 9.6, 10.1) * (1 - prog(t, 13.2, 13.6));
+    if (kq2 > 0) F.text(ctx, '...sonra bileşik etki devreye girer.', W / 2, 590, { size: 30, weight: 600, color: C.gold, alpha: kq2 });
+
+    // ---- final ----
+    if (t > 14.6) {
+      const k = E.outCubic(prog(t, 14.6, 15.4));
+      ctx.save(); ctx.fillStyle = `rgba(5,6,8,${0.82 * k})`; ctx.fillRect(0, 0, W, H); ctx.restore();
+      F.revealLine(ctx, 'Bugün fark etmez.', W / 2, 850, prog(t, 15.0, 16.0), { size: 72, weight: 800 });
+      F.revealLine(ctx, 'Bir yıl sonra', W / 2, 990, prog(t, 16.4, 17.2), { size: 72, weight: 800 });
+      F.revealLine(ctx, '*37 kat* fark eder.', W / 2, 1090, prog(t, 17.0, 18.0), { size: 92, weight: 900, hiGlow: 40 });
+    }
+    F.handleTag(ctx, 1 - prog(t, 19.6, 20));
+    F.endCard(ctx, t, 20.2);
+  },
+});
+</script>
+</body>
+</html>

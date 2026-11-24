@@ -280,6 +280,31 @@ def swipe():
     return filt(noise(0.09), 1500, 6000) * np.sin(np.pi * t / 0.09) ** 2 * 0.25
 
 
+def snap():
+    """İp kopması: keskin çatırtı + kamçı + alt vuruş."""
+    t = T(0.5)
+    crack = filt(noise(0.5), 2000) * np.exp(-t / 0.008) * 1.2
+    whip = osc_sweep(2600 * np.exp(-t / 0.03) + 500) * np.exp(-t / 0.06) * 0.35
+    low = np.sin(2 * np.pi * 70 * t) * np.exp(-t / 0.12) * 0.9
+    return np.tanh((crack + whip + low) * 1.6) * 0.9
+
+
+def ding():
+    return bell(nfreq("E6"), 1.6) * 0.8 + np.concatenate([np.zeros(int(0.09 * SR)), bell(nfreq("B6"), 1.6)])[:int(1.6 * SR)] * 0.7
+
+
+def lowbat():
+    t = T(0.32)
+    beep = np.sign(np.sin(2 * np.pi * 880 * t)) * 0.25
+    gate = ((t < 0.09) | ((t > 0.15) & (t < 0.24))).astype(float)
+    return filt(beep * gate, 300, 4000)
+
+
+def pulse(p=0.0):
+    t = T(0.16)
+    return np.sin(2 * np.pi * (260 + 120 * p) * t) * np.minimum(1, t / 0.01) * np.exp(-t / 0.05) * 0.5
+
+
 # ------------------------------------------------------------------ mikser
 class Bus:
     def __init__(self, dur):
@@ -459,6 +484,14 @@ def sfx(cues, dur):
             fx.add_st(reverb(metal_hit(0.7, 0.6), 0.3), t + 0.45, 0.55)
             fx.add(thud(0.0), t + 0.5, 0.6)
             fx.add_st(reverb(sad_tone(2.0), 0.5), t + 0.4, 0.7)
+        elif k == "snap":
+            fx.add_st(reverb(snap(), 0.3), t, 0.95)
+        elif k == "ding":
+            fx.add_st(reverb(ding(), 0.5), t, 0.7)
+        elif k == "lowbat":
+            fx.add(lowbat(), t, 0.5)
+        elif k == "pulse":
+            fx.add_st(reverb(pulse(p), 0.3), t, 0.35)
         elif k == "break":
             fx.add_st(reverb(boom(1.2), 0.4), t, 1.0)
             fx.add_st(reverb(crumble(1.8), 0.3), t, 0.8)

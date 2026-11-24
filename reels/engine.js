@@ -267,7 +267,7 @@
       }
     }
     ctx.restore();
-    return { head: [X(head), Y(head)], handR: [X(hR), Y(hR)], handL: [X(hL), Y(hL)] };
+    return { head: [X(head), Y(head)], handR: [X(hR), Y(hR)], handL: [X(hL), Y(hL)], hip: [X([0, 0]), Y([0, 0])], neck: [X(neck), Y(neck)] };
   }
 
   // ---------- parçacıklar (deterministik: t'den hesaplanır) ----------
@@ -321,9 +321,22 @@
     canvas.width = W; canvas.height = H; canvas.id = 'reel';
     document.body.appendChild(canvas);
     const ctx = canvas.getContext('2d');
-    const draw = (t) => { ctx.save(); def.draw(ctx, t, window.F); ctx.restore(); finish(ctx, t); };
+    // skip: girişi atla -> video ilk karede doğrudan aksiyonla açılır (ses/müzik de kaydırılır)
+    const skip = def.skip || 0;
+    def = { ...def, duration: def.duration - skip };
+    const draw = (t) => { ctx.save(); def.draw(ctx, t + skip, window.F); ctx.restore(); finish(ctx, t + skip); };
+    let cues = def.cues ? def.cues() : null;
+    if (cues && skip) {
+      const m = { ...cues.music };
+      ['grid0', 'climax', 'punch', 'end'].forEach((k) => { if (k in m) m[k] = Math.max(0, m[k] - skip); });
+      const list = cues.cues.map((c) => ({ ...c, t: c.t - skip }))
+        .filter((c) => c.t >= -0.01 || (c.type === 'riser' && c.t + c.d > 0.5))
+        .map((c) => (c.type === 'riser' && c.t < 0 ? { ...c, d: c.d + c.t, t: 0 } : c));
+      list.push({ t: 0, type: 'hit' });                    // ilk karede vuruş: video sesle açılır
+      cues = { music: m, cues: list };
+    }
 
-    window.__reel = { duration: def.duration, fps, cues: def.cues ? def.cues() : null };
+    window.__reel = { duration: def.duration, fps, cues };
     window.__render = (t) => draw(t);
 
     const freeze = params.get('t');

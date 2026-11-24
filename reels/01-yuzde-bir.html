@@ -16,6 +16,7 @@
 Reel({
   title: '%1 Kuralı',
   duration: 23,
+  skip: 2.0,           // giriş yok: ilk kare doğrudan sahne + aksiyon
   cues() {
     const c = [{ t: 0, type: 'title' }, { t: 1.0, type: 'ui', p: 0.2 }, { t: 1.3, type: 'ui', p: 0.5 }, { t: 1.7, type: 'ui', p: 0.8 },
       { t: 3.6, type: 'whoosh' }, { t: 9.6, type: 'whoosh' }, { t: 9.0, type: 'riser', d: 4.6 }, { t: 13.6, type: 'climax' },

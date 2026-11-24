@@ -86,6 +86,7 @@
   Reel({
     title: 'Bir Vuruş Daha',
     duration: 23,
+    skip: 2.0,         // giriş yok: ilk kare doğrudan sahne + aksiyon
     cues() {
       const c = [{ t: 0, type: 'title' }, { t: 1.1, type: 'ui', p: 0.4 }];
       A.forEach((w, i) => c.push({ t: w.hit, type: 'clank', p: i / N, g: 0.42, bright: 0.85 }));

@@ -16,6 +16,7 @@
 Reel({
   title: 'Yarın Başlarım',
   duration: 23,
+  skip: 2.0,           // giriş yok: ilk kare doğrudan sahne + aksiyon
   cues() {
     const TA = 2.4, SD = 1, N = 12, TB = 14.4, c = [{ t: 0, type: 'title' }, { t: 1.0, type: 'ui', p: 0.3 }, { t: 1.6, type: 'ui', p: 0.6 }];
     for (let k = 0; k < N; k++) {

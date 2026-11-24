@@ -62,9 +62,8 @@ Gönderdiğin 4 reels'ten çıkardığım "formül", sayfanın görsel kimliği,
 
 | Zaman | Ne olur |
 |---|---|
-| 0–1 sn | Başlık + soru (kanca). Vurgulu kelime parlar. |
-| 1–2 sn | Sahne, karakterler ve HUD belirir. |
-| 2–14 sn | Deney akar: sayaçlar, karşılaştırma, ara cümle ("İlk aylarda fark yok gibi..."). |
+| 0 sn | **Sahne ve aksiyon ilk karede.** Giriş yok, yazı beklemesi yok. Kanca görselin kendisi (kablo, kukla ipleri, sayaçlar). |
+| 0–14 sn | Deney akar: sayaçlar, karşılaştırma, ara cümle ("İlk aylarda fark yok gibi..."). |
 | 14–16 sn | Sonuç: "???" açılır, kazanan parlar, kaybeden çöker. |
 | 16–20 sn | Ekran kararır, iki satırlık punchline gelir. |
 | 20–23 sn | Logo + @hesap + "Takip et". |
@@ -79,6 +78,10 @@ Gönderdiğin 4 reels'ten çıkardığım "formül", sayfanın görsel kimliği,
 | 02 | `reels/02-yarin.html` | Biri her gün bir basamak çıkar, diğeri telefonda "yarın" der. | "30 GÜN. 30 BAHANE. **SIFIR ADIM.**" |
 | 03 | `reels/03-dort-saat.html` | Günde 4 saat = yılda 1.460 saat ≈ 61 gün. Biri kaydırır, diğeri kule inşa eder. | "61 GÜNÜ ÇÖPE ATTIN. SONRA **\"ŞANSSIZIM\"** DİYORSUN." |
 | 04 | `reels/04-bir-vurus.html` | İki madenci aynı duvarı kazar. Hızlı başlayan yavaşlar ve elmasa 1 vuruş kala bırakır, sabit tempoda giden duvarı yıkar. | "1 VURUŞ UZAKTAYDI. **VE SEN BIRAKTIN.**" |
+| 05 | `reels/05-sarj.html` | Gece. Adamın kafasından dev telefona kablo uzanır; telefon şarj oldukça adam söner. 23:47 → 04:12. | "TELEFONUN %100. **SEN %3.**" |
+| 06 | `reels/06-ipler.html` | Kukla adam: BEĞENİ, ONAY, BİLDİRİM, KONFOR ipleri. Tek tek koparır, düşer, kendi ayağıyla kalkar. | "İPLERİNİ KİM TUTUYOR? **KES.**" |
+
+**Giriş kuralı:** Hiçbir video siyah ekranda yazıyla açılmaz. İlk kare doğrudan sahne ve hareket. Eski reel'lerde girişi `skip: 2.0` atlıyor (motor sesi ve müziği de kaydırıyor), yeni reel'ler zaten 0. saniyede aksiyonla başlıyor.
 
 Render edilmiş videolar: `reels/out/*.mp4` (1080×1920, 30 fps, **sesli**: kendi ürettiğimiz telifsiz müzik ve efektler, -14 LUFS).
 
@@ -108,6 +111,23 @@ Referanslardaki gibi: **kısa, kesik, büyük harf, nokta ile biten** cümleler.
 - `profil-2-monogram.png`: SD monogramı. En küçük boyutta en net okunan bu.
 
 Yeniden üretmek için: `node render.cjs profil.html --snap 0,1,2`
+
+## 4a. Özgün fikir havuzu (referanslardan türetilmemiş)
+
+| # | Fikir | Sahne | Punchline |
+|---|---|---|---|
+| ✅ | **ŞARJ** | Kafadan telefona kablo; telefon dolar, adam söner. | TELEFONUN %100. SEN %3. |
+| ✅ | **İPLER** | Kukla adam; BEĞENİ/ONAY/BİLDİRİM/KONFOR iplerini koparır. | İPLERİNİ KİM TUTUYOR? KES. |
+| 1 | **GÖLGE** | Adamın gölgesi onun potansiyeli. Adam durunca gölge koşmaya devam eder ve onu terk eder. | POTANSİYELİN SENİ BEKLEMEZ. |
+| 2 | **AÇIK KAFES** | Altın kafes: koltuk, telefon, cips. Kapı baştan beri açık. Takvim 365 gün döner, adam hiç çıkmaz. | KİLİT YOKTU. HİÇ OLMADI. |
+| 3 | **ZİNCİR** | Seri sayacı 1→6, sonra "bugün olmaz" → 0. Tekrar tekrar. Diğeri 100'e ulaşır. | ZİNCİRİ KIRAN SENSİN. |
+| 4 | **%99** | Hayalinin yükleme çubuğu %99'da takılı, adam bekliyor. Diğeri son %1'i kendi eliyle itiyor. | KİMSE SENİN YERİNE YÜKLEMEYECEK. |
+| 5 | **ALKIŞ** | Sahnede çalışan adam alkış gelince hızlanır, alkış bitince durur. Diğeri boş salonda çalışır. | ALKIŞLA DURUYORSAN OYUNCUSUN. |
+| 6 | **FAİZ** | Ertelenen her iş sırta taş olur. Taşlar faiz gibi büyür, adam ezilir. | ERTELEDİĞİN HER ŞEY FAİZİYLE GELİR. |
+| 7 | **NABIZ** | EKG monitörü: rutin günlerde düz çizgi, hedefe saldırınca zıplar. | NEFES ALIYORSUN. YAŞAMIYORSUN. |
+| 8 | **BATAKLIK** | Konfor bataklığı yavaşça yutar. Kıpırdamayan batar, hareket eden çıkar. | KONFOR SENİ YAVAŞ ÖLDÜRÜR. |
+| 9 | **TAKVİM MERDİVENİ** | Takvim yaprakları dökülür. Biri onları üst üste koyup merdiven yapar, diğeri altında kalır. | GÜNLER YA BASAMAK YA MEZAR. |
+| 10 | **İKİ SES** | Kafada iki hoparlör: "YARIN" sesi büyür, "ŞİMDİ" sesi kısık. Adam düğmeyi çevirir. | SESİNİ AÇ. |
 
 ## 4. Sonraki 30 fikir
 

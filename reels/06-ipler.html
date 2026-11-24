@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>İpler</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="reel.css">
+</head>
+<body>
+<script src="engine.js"></script>
+<script>
+/* REEL 06 — "İPLER"
+   Adam bir kukla: BEĞENİ, ONAY, BİLDİRİM, KONFOR ipleri onu sarsarak oynatıyor.
+   İpleri tek tek koparır. Sonuncusu kopunca düşer. Sonra ilk kez kendi ayağıyla kalkar.
+   Giriş yok: ilk karede kukla zaten oynatılıyor. */
+(function () {
+  const { lerp, clamp, E } = F;
+  const SN = [5.0, 7.2, 9.2, 11.0];                     // kopma anları
+  const LABELS = ['BEĞENİ', 'ONAY', 'BİLDİRİM', 'KONFOR'];
+  const ATT = ['handL', 'handR', 'head', 'neck'];       // ipin bağlı olduğu nokta
+  const OFF = [-250, 250, -70, 90];                      // kontrol çubuğu üzerindeki konum
+  const BAR = [540, 600];
+  const ground = 1470, TUP0 = 12.4, TUP1 = 13.6;         // kalkış
+  const jerk = (x) => { const s = Math.sin(x); return 0.5 + 0.5 * Math.sign(s) * Math.pow(Math.abs(s), 0.35); };
+  const cut = (i, t) => t >= SN[i];
+
+  Reel({
+    title: 'İpler',
+    duration: 22.5,
+    cues() {
+      const c = [{ t: 0, type: 'hit' }];
+      SN.forEach((s) => c.push({ t: s, type: 'snap' }));
+      c.push({ t: 1.8, type: 'whoosh' }, { t: 5.2, type: 'whoosh' }, { t: 11.1, type: 'whoosh' }, { t: 13.0, type: 'whoosh' },
+        { t: 11.25, type: 'hit' }, { t: 11.6, type: 'riser', d: TUP1 - 11.6 }, { t: TUP1, type: 'climax' },
+        { t: 15.2, type: 'drop' }, { t: 15.6, type: 'punch' }, { t: 16.9, type: 'hit' }, { t: 19.6, type: 'end' });
+      return { music: { bpm: 132, grid0: 0.0, climax: SN[3], punch: 15.6, end: 19.6, prog: 'dm', drums: 'full' }, cues: c };
+    },
+    draw(ctx, t, F) {
+      const { W, H, CONFIG: C, prog } = F;
+      const nCut = SN.filter((s) => t >= s).length;
+      const free = E.inOutCubic(prog(t, TUP0, TUP1));       // 0 → 1 kendi ayağında
+
+      // sarsıntı
+      let sx = 0, sy = 0;
+      SN.forEach((s) => { const d = t - s; if (d >= 0 && d < 0.25) { const m = (1 - d / 0.25) * 12; sx += Math.sin(d * 120) * m; sy += Math.cos(d * 150) * m; } });
+      { const d = t - 11.25; if (d >= 0 && d < 0.3) { const m = (1 - d / 0.3) * 16; sy += Math.sin(d * 90) * m; } }
+
+      F.background(ctx, t, { tint: F.mixHex('#ff4d5e', '#f4b740', nCut / 4) === '#f4b740' ? F.hexA(C.gold, 0.06 + 0.06 * free) : F.hexA(C.red, 0.06 * (1 - nCut / 5)), tintY: 900 });
+
+      // ---- KONTROL HUD (sahnenin parçası) ----
+      {
+        const pct = Math.round(lerp(nCut * 25 - 25, nCut * 25, nCut ? E.outCubic(clamp((t - SN[nCut - 1]) / 0.5)) : 1));
+        const col = F.mixHex('#ff4d5e', '#f4b740', nCut / 4);
+        F.text(ctx, 'KONTROL SENDE', 112, 290, { size: 26, weight: 800, align: 'left', color: C.dim, ls: 4 });
+        F.text(ctx, '%' + Math.max(0, pct), 968, 292, { size: 52, weight: 700, font: C.mono, align: 'right', color: col, glow: nCut === 4 ? 24 : 0 });
+        for (let i = 0; i < 4; i++) {
+          const on = i < nCut, x = 112 + i * 216;
+          ctx.save(); ctx.fillStyle = on ? col : 'rgba(255,255,255,0.10)';
+          if (on) { ctx.shadowColor = col; ctx.shadowBlur = 14; }
+          F.rrect(ctx, x, 340, 200, 16, 8); ctx.fill(); ctx.restore();
+        }
+      }
+
+      ctx.save(); ctx.translate(sx, sy);
+
+      // ---- zemin ----
+      ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(80, ground); ctx.lineTo(W - 80, ground); ctx.stroke();
+
+      // ---- kontrol çubuğu (kuklacı) ----
+      const flyAway = E.inCubic(prog(t, 12.0, 13.4));
+      const barAng = (nCut < 4 ? 0.16 * (jerk(t * 2.3) - 0.5) * 2 * (1 - nCut / 5) : 0);
+      const barY = BAR[1] - flyAway * 700;
+      const barPt = (i) => [BAR[0] + Math.cos(barAng) * OFF[i], barY + Math.sin(barAng) * OFF[i]];
+      ctx.save(); ctx.globalAlpha = 1 - flyAway;
+      ctx.translate(BAR[0], barY); ctx.rotate(barAng);
+      ctx.shadowColor = C.red; ctx.shadowBlur = 24;
+      ctx.fillStyle = '#1a1214'; ctx.strokeStyle = F.hexA(C.red, 0.7); ctx.lineWidth = 4;
+      F.rrect(ctx, -300, -14, 600, 28, 14); ctx.fill(); ctx.stroke();
+      F.rrect(ctx, -14, -120, 28, 140, 14); ctx.fill(); ctx.stroke();
+      ctx.restore();
+
+      // ---- kukla ----
+      const j1 = jerk(t * 4.1), j2 = jerk(t * 3.3 + 1.2), j3 = jerk(t * 2.7 + 0.4), j4 = jerk(t * 5.2 + 2);
+      const fall = (i) => cut(i, t) ? E.outElastic(clamp((t - SN[i]) / 0.9)) : 0;
+      // ip bağlıyken kollar yukarı çekilir, kopunca sarkar
+      let pose = {
+        lean: lerp(0.04 + 0.12 * (j3 - 0.5), 0.1, fall(3)),
+        hipL: 0.1 + 0.25 * (j4 - 0.5), kneeL: 0.12 + 0.2 * j2, hipR: -0.06 - 0.2 * (j1 - 0.5), kneeR: 0.18 + 0.15 * j3,
+        shL: lerp(-lerp(1.6, 2.7, j1), -0.12, fall(0)), elL: lerp(-0.3, -0.1, fall(0)),
+        shR: lerp(lerp(1.6, 2.7, j2), 0.12, fall(1)), elR: lerp(0.3, 0.1, fall(1)),
+        head: lerp(0.35 * (j4 - 0.5), 0.55, fall(2)),
+      };
+      let lift = cut(3, t) ? 70 * (1 - E.inQuad(clamp((t - SN[3]) / 0.25))) : 55 + 30 * j3;
+      // düşüş → diz çökme → kalkış
+      const kneel = { lean: 0.55, hipL: 1.15, kneeL: 2.25, hipR: 0.85, kneeR: 2.1, shL: 0.15, elL: 0.2, shR: 0.3, elR: 0.3, head: 0.6 };
+      const strong = { lean: -0.04, hipL: 0.14, kneeL: 0.03, hipR: -0.14, kneeR: 0.03, shL: -0.32, elL: -0.25, shR: 0.32, elR: 0.25, head: -0.15 };
+      if (t >= SN[3]) pose = F.mixPose(pose, kneel, E.outCubic(prog(t, SN[3] + 0.1, SN[3] + 0.6)));
+      if (free > 0) pose = F.mixPose(pose, strong, free);
+      if (t > TUP1) { const b = Math.sin((t - TUP1) * 2.2) * 0.02; pose = { ...pose, lean: pose.lean + b }; }
+
+      const bodyCol = F.mixHex('#9c9894', '#f4f2ee', clamp(nCut / 4 * 0.6 + free * 0.4));
+      const glowCol = free > 0.3 ? C.gold : C.red;
+      const glow = free > 0 ? lerp(10, 40, free) : lerp(14, 4, nCut / 4);
+      if (free > 0.4) F.embers(ctx, t, { x: 540, y: ground - 110, w: 90, h: 260, n: Math.floor(lerp(0, 36, prog(free, 0.4, 1))), color: C.gold, seed: 14 });
+      if (free > 0) F.glowCircle(ctx, 540, ground - 150, 420, C.gold, 0.45 * free);
+      const res = F.stickman(ctx, { x: 540, y: ground, s: 1.7, dir: 1, pose, lift, color: bodyCol, glow, glowColor: glowCol });
+
+      // ---- ipler ----
+      for (let i = 0; i < 4; i++) {
+        const a = res[ATT[i]], b = barPt(i);
+        ctx.save(); ctx.lineCap = 'round';
+        if (!cut(i, t)) {
+          ctx.strokeStyle = 'rgba(255,240,240,0.7)'; ctx.lineWidth = 3; ctx.shadowColor = C.red; ctx.shadowBlur = 10;
+          ctx.beginPath(); ctx.moveTo(...b); ctx.lineTo(...a); ctx.stroke();
+        } else {
+          const d = t - SN[i];
+          // üst parça yukarı geri çekilir
+          const k = 1 - E.outCubic(clamp(d / 0.45));
+          if (k > 0 && flyAway < 1) {
+            ctx.globalAlpha = 1 - flyAway;
+            ctx.strokeStyle = 'rgba(255,240,240,0.7)'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(...b); ctx.lineTo(lerp(b[0], a[0], 0.5 * k), lerp(b[1], a[1], 0.5 * k)); ctx.stroke();
+          }
+          // alt parça sarkar ve söner
+          const ka = 1 - clamp((d - 0.6) / 1.2);
+          if (ka > 0) {
+            ctx.globalAlpha = ka; ctx.strokeStyle = 'rgba(255,240,240,0.55)'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(...a); ctx.quadraticCurveTo(a[0] + 30, a[1] + 40, a[0] + 8 + Math.sin(d * 6) * 10, a[1] + 95); ctx.stroke();
+          }
+          // kopma parlaması
+          if (d < 0.35) {
+            const m = [lerp(a[0], b[0], 0.5), lerp(a[1], b[1], 0.5)], q = d / 0.35;
+            ctx.globalAlpha = 1 - q; ctx.strokeStyle = '#fff'; ctx.lineWidth = 6 * (1 - q); ctx.shadowColor = C.red; ctx.shadowBlur = 30;
+            ctx.beginPath(); ctx.arc(m[0], m[1], 20 + q * 110, 0, Math.PI * 2); ctx.stroke();
+            for (let r = 0; r < 8; r++) {
+              const an = r * Math.PI / 4 + 0.3, l1 = 20 + q * 60, l2 = 40 + q * 150;
+              ctx.beginPath(); ctx.moveTo(m[0] + Math.cos(an) * l1, m[1] + Math.sin(an) * l1); ctx.lineTo(m[0] + Math.cos(an) * l2, m[1] + Math.sin(an) * l2); ctx.stroke();
+            }
+          }
+        }
+        ctx.restore();
+        // etiket
+        const tagA = cut(i, t) ? 1 - clamp((t - SN[i] - 0.3) / 0.8) : 1;
+        if (tagA > 0 && flyAway < 1) {
+          const tx = b[0], ty = b[1] - 52 - (cut(i, t) ? 0 : 0) + (i >= 2 ? -48 : 0);
+          const tw = F.measure(ctx, LABELS[i], { size: 22, weight: 800, ls: 2 });
+          const dead = cut(i, t);
+          ctx.save(); ctx.globalAlpha = tagA * (1 - flyAway);
+          F.rrect(ctx, tx - tw / 2 - 18, ty - 22, tw + 36, 44, 22);
+          ctx.fillStyle = dead ? 'rgba(255,255,255,0.04)' : F.hexA(C.red, 0.14); ctx.fill();
+          ctx.strokeStyle = dead ? 'rgba(255,255,255,0.15)' : F.hexA(C.red, 0.6); ctx.lineWidth = 2; ctx.stroke();
+          ctx.restore();
+          F.text(ctx, LABELS[i], tx, ty + 1, { size: 22, weight: 800, ls: 2, color: dead ? C.dim : '#ffd6da', alpha: tagA * (1 - flyAway) });
+          if (dead) { ctx.save(); ctx.globalAlpha = tagA; ctx.strokeStyle = C.red; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(tx - tw / 2 - 6, ty); ctx.lineTo(tx - tw / 2 - 6 + (tw + 12) * E.outCubic(clamp((t - SN[i]) / 0.25)), ty); ctx.stroke(); ctx.restore(); }
+        }
+      }
+      ctx.restore();
+
+      // ---- ara yazılar ----
+      const cap = (str, a, b, col) => { const k = prog(t, a, a + 0.4) * (1 - prog(t, b - 0.4, b)); if (k > 0) F.revealLine(ctx, str, W / 2, 1560, prog(t, a, a + 0.6), { size: 38, weight: 800, alpha: k, accent: col }); };
+      cap('HER GÜN SENİ *OYNATIYORLAR.*', 1.8, 4.8, C.red);
+      cap('İLK İP *ACITIR.*', 5.2, 8.8, C.red);
+      cap('SONUNCUSU *DÜŞÜRÜR.*', 11.1, 12.9, C.red);
+      cap('SONRA İLK KEZ *KENDİ AYAĞINLA* DURURSUN.', 13.0, 15.1, C.gold);
+
+      // ---- final ----
+      if (t > 15.2) {
+        const k = E.outCubic(prog(t, 15.2, 15.9));
+        ctx.save(); ctx.fillStyle = `rgba(5,6,8,${0.84 * k})`; ctx.fillRect(0, 0, W, H); ctx.restore();
+        F.revealLine(ctx, 'İPLERİNİ KİM TUTUYOR?', W / 2, 860, prog(t, 15.6, 16.4), { size: 80, weight: 900 });
+        F.revealLine(ctx, '*KES.*', W / 2, 1050, prog(t, 16.9, 17.3), { size: 200, weight: 900, accent: C.gold, hiGlow: 50 });
+      }
+      F.handleTag(ctx, 1 - prog(t, 19.0, 19.4));
+      F.endCard(ctx, t, 19.6);
+    },
+  });
+})();
+</script>
+</body>
+</html>

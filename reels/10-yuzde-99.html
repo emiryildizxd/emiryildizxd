@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>%99</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="reel.css">
+</head>
+<body>
+<script src="engine.js"></script>
+<script>
+/* REEL 10 — "%99"
+   İki "HAYALİN" yükleme çubuğu hızla %99'a çıkar ve takılır.
+   Biri oturup bekler (bekleme sayacı yıllara gider). Diğeri kalkar, çubuğun ucunu
+   kendi elleriyle iter: %99,1 … %99,9 … %100. Giriş yok: ilk karede çubuklar doluyor. */
+(function () {
+  const { lerp, clamp, E, prog } = F;
+  const BX = 120, BW = 840, BH = 74;
+  const A = { bar: 500, ground: 780 }, B = { bar: 1150, ground: 1400 };
+  const TF = 3.4, TW0 = 5.0, TW1 = 6.3, TP1 = 9.6;
+  const fillA = (t) => 99 * E.outCubic(clamp(t / TF));
+  const fillB = (t) => t < TW1 ? fillA(t) : t < TP1 ? 99 + 0.999 * E.inCubic(prog(t, TW1, TP1)) : 100;
+  const waitDays = (t) => Math.floor(Math.max(0, t - TF) ** 2 * 16);
+
+  function bar(ctx, y, pct, col, done, label, t) {
+    F.panel(ctx, BX, y, BW, BH, { r: 37, fill: 'rgba(255,255,255,0.04)' });
+    const fw = Math.max(BH, BW * pct / 100);
+    ctx.save();
+    F.rrect(ctx, BX, y, fw, BH, 37); ctx.clip();
+    const g = ctx.createLinearGradient(BX, 0, BX + fw, 0);
+    g.addColorStop(0, F.hexA(col, 0.55)); g.addColorStop(1, col);
+    ctx.fillStyle = g; ctx.shadowColor = col; ctx.shadowBlur = done ? 40 : 18; ctx.fillRect(BX, y, fw, BH);
+    // kayan parlaklık şeridi
+    const sx = BX + ((t * 420) % (fw + 200)) - 100;
+    const sg = ctx.createLinearGradient(sx - 60, 0, sx + 60, 0);
+    sg.addColorStop(0, 'rgba(255,255,255,0)'); sg.addColorStop(0.5, 'rgba(255,255,255,0.35)'); sg.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = sg; ctx.fillRect(BX, y, fw, BH);
+    ctx.restore();
+    const txt = pct >= 100 ? '%100' : '%' + (pct >= 99 ? pct.toFixed(1).replace('.', ',') : Math.floor(pct));
+    F.text(ctx, txt, BX + 34, y + BH / 2 + 2, { size: 38, weight: 700, font: F.CONFIG.mono, align: 'left', color: pct > 12 && col === F.CONFIG.gold ? '#1a1206' : F.CONFIG.ink });
+    F.text(ctx, label, BX + 4, y - 34, { size: 24, weight: 800, align: 'left', color: done ? F.CONFIG.gold : F.CONFIG.ink, ls: 3, glow: done ? 16 : 0 });
+    if (!done) { // dönen yükleme simgesi
+      const cx = BX + F.measure(ctx, label, { size: 24, weight: 800, ls: 3 }) + 36, cy = y - 34;
+      ctx.save(); ctx.strokeStyle = F.CONFIG.ink; ctx.lineWidth = 4; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.arc(cx, cy, 12, t * 7, t * 7 + 4.2); ctx.stroke(); ctx.restore();
+    }
+  }
+
+  Reel({
+    title: '%99',
+    duration: 20,
+    cues() {
+      const c = [{ t: 0, type: 'hit' }];
+      let last = 0;
+      for (let t = 0; t < TF; t += 1 / 120) { const p = Math.floor(fillA(t) / 9); if (p !== last) { c.push({ t, type: 'tick', p: fillA(t) / 99 }); last = p; } }
+      [5.25, 5.65, 6.05].forEach((t) => c.push({ t, type: 'step', p: 0.3 }));
+      for (let t = TW1 + 0.2; t < TP1; t += 0.55) c.push({ t, type: 'block', p: prog(t, TW1, TP1) });
+      c.push({ t: TW1, type: 'riser', d: TP1 - TW1 }, { t: TP1, type: 'ding' }, { t: TP1, type: 'climax' }, { t: 10.6, type: 'sad' },
+        { t: 0.8, type: 'whoosh' }, { t: 4.0, type: 'whoosh' }, { t: 6.5, type: 'whoosh' }, { t: 10.0, type: 'whoosh' },
+        { t: 13.0, type: 'drop' }, { t: 13.3, type: 'punch' }, { t: 14.5, type: 'hit' }, { t: 17.3, type: 'end' });
+      return { music: { bpm: 124, grid0: 0.0, climax: TP1, punch: 13.3, end: 17.3, prog: 'dm', drums: 'full' }, cues: c };
+    },
+    draw(ctx, t, F) {
+      const { W, H, CONFIG: C } = F;
+      const doneB = t >= TP1;
+      let shx = 0; if (t > TW1 && t < TP1) shx = Math.sin(t * 70) * 3 * prog(t, TW1, TP1);
+      if (t >= TP1 && t < TP1 + 0.3) shx = Math.sin(t * 120) * 14 * (1 - (t - TP1) / 0.3);
+      F.background(ctx, t, { tint: F.hexA(C.gold, doneB ? 0.12 : 0.04), tintY: B.bar });
+
+      // ---- BÖLÜM A: bekleyen ----
+      bar(ctx, A.bar, fillA(t), '#8b8f99', false, 'HAYALİN', t);
+      F.text(ctx, 'BEKLİYOR', BX + BW, A.bar - 34, { size: 20, weight: 700, align: 'right', color: C.red, ls: 3, alpha: prog(t, TF, TF + 0.4) });
+      const wd = waitDays(t);
+      F.text(ctx, wd.toLocaleString('tr-TR') + ' GÜN', BX + BW, A.bar + BH + 40, { size: 32, weight: 700, font: C.mono, align: 'right', color: C.red, alpha: prog(t, TF, TF + 0.4) });
+      ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(60, A.ground); ctx.lineTo(W - 60, A.ground); ctx.stroke();
+      {
+        ctx.save(); ctx.fillStyle = '#16181d'; ctx.strokeStyle = 'rgba(255,255,255,0.14)'; ctx.lineWidth = 3;
+        F.rrect(ctx, 150, A.ground - 60, 110, 60, 6); ctx.fill(); ctx.stroke(); ctx.restore();
+        const bored = prog(t, TF, 12);
+        const look = { ...F.P.sitPhone(t), phone: false, lean: lerp(0.1, 0.5, bored), head: lerp(-0.3, 0.7, bored), shR: 0.4, elR: 0.9, shL: 0.3, elL: 1.0 };
+        F.stickman(ctx, { x: 200, y: A.ground - 60, s: 1.0, dir: 1, pose: { ...look, sit: true }, color: F.mixHex('#f4f2ee', '#77726c', bored) });
+        // ayak tıkırtısı: sabırsızlık
+        if (t > TF && t < 8) { const k = Math.abs(Math.sin(t * 9)); F.text(ctx, '·', 290, A.ground - 8 - k * 8, { size: 30, color: C.dim }); }
+      }
+      // ayırıcı
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.setLineDash([8, 10]);
+      ctx.beginPath(); ctx.moveTo(60, 900); ctx.lineTo(W - 60, 900); ctx.stroke(); ctx.setLineDash([]);
+
+      // ---- BÖLÜM B: iten ----
+      ctx.save(); ctx.translate(shx, 0);
+      const pb = fillB(t);
+      bar(ctx, B.bar, pb, C.gold, doneB, doneB ? 'TAMAMLANDI' : 'HAYALİN', t);
+      ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(60, B.ground); ctx.lineTo(W - 60, B.ground); ctx.stroke();
+      {
+        const endX = BX + BW * pb / 100;
+        let x = 200, pose = { ...F.P.sitPhone(t), phone: false, head: -0.3, shR: 0.4, elR: 0.9, shL: 0.3, elL: 1.0, sit: true }, y = B.ground - 60;
+        // kutu
+        ctx.save(); ctx.fillStyle = '#16181d'; ctx.strokeStyle = 'rgba(255,255,255,0.14)'; ctx.lineWidth = 3;
+        F.rrect(ctx, 150, B.ground - 60, 110, 60, 6); ctx.fill(); ctx.stroke(); ctx.restore();
+        const push = { lean: 0.55, hipL: 0.6, kneeL: 0.25, hipR: -0.55, kneeR: 0.05, shL: 1.45, elL: 0.15, shR: 1.55, elR: 0.05, head: -0.2 };
+        if (t >= TW0) {
+          const up = E.inOutQuad(prog(t, TW0, TW0 + 0.35));
+          const walk = E.inOutQuad(prog(t, TW0 + 0.3, TW1));
+          x = lerp(200, endX - 120, walk);
+          y = lerp(B.ground - 60, B.ground, up);
+          pose = up < 1 ? F.mixPose({ ...pose, sit: false }, F.P.stand(t), up) : F.P.walk(t * 9, 1);
+          if (t >= TW1 - 0.15) { x = endX - 120; pose = F.mixPose(F.P.walk(t * 9, 1), push, E.outCubic(prog(t, TW1 - 0.15, TW1 + 0.15))); }
+          if (t > TW1 && t < TP1) pose = { ...push, lean: push.lean + Math.sin(t * 22) * 0.03, kneeL: push.kneeL + Math.abs(Math.sin(t * 6)) * 0.15 };
+          if (doneB) { const k = E.outCubic(prog(t, TP1 + 0.2, TP1 + 0.8)); pose = F.mixPose(push, F.P.celebrate(t), k); x = endX - 120 + k * 0; }
+        }
+        const glow = t > TW0 ? lerp(12, 38, prog(t, TW0, TP1)) : 6;
+        if (t > TW1 && !doneB) { // ter / zorlanma kıvılcımları
+          F.embers(ctx, t, { x: x + 40, y: y - 160, w: 60, h: 120, n: 10, color: C.gold, seed: 3 });
+        }
+        if (doneB) F.embers(ctx, t, { x: endX - 60, y: B.bar + 40, w: 300, h: 380, n: 40, color: C.gold, seed: 9 });
+        F.stickman(ctx, { x, y, s: 1.2, dir: 1, pose: { ...pose, sit: t < TW0 || (t < TW0 + 0.18) }, glow, glowColor: C.gold });
+      }
+      // tamamlanma patlaması
+      if (doneB && t < TP1 + 0.7) {
+        const q = (t - TP1) / 0.7;
+        ctx.save(); ctx.globalAlpha = 1 - q; ctx.strokeStyle = C.gold; ctx.lineWidth = 10 * (1 - q); ctx.shadowColor = C.gold; ctx.shadowBlur = 40;
+        ctx.beginPath(); ctx.arc(BX + BW, B.bar + BH / 2, 40 + q * 420, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+      }
+      ctx.restore();
+
+      // ---- ara yazılar ----
+      const cap = (str, a, b, col) => { const k = prog(t, a, a + 0.4) * (1 - prog(t, b - 0.4, b)); if (k > 0) F.revealLine(ctx, str, W / 2, 1530, prog(t, a, a + 0.6), { size: 38, weight: 800, alpha: k, accent: col }); };
+      cap("HERKES *%99'A* GELİR.", 0.8, 3.7, C.gold);
+      cap('SONRA *BEKLER...*', 4.0, 6.2, C.red);
+      cap('SON %1 *EN AĞIR* OLANIDIR.', 6.5, 9.6, C.gold);
+      cap('O BEKLEMEDİ. *İTTİ.*', 10.0, 12.9, C.gold);
+
+      // ---- final ----
+      if (t > 13.0) {
+        const k = E.outCubic(prog(t, 13.0, 13.7));
+        ctx.save(); ctx.fillStyle = `rgba(5,6,8,${0.84 * k})`; ctx.fillRect(0, 0, W, H); ctx.restore();
+        F.revealLine(ctx, 'SON %1 HİÇBİR ZAMAN', W / 2, 860, prog(t, 13.3, 14.0), { size: 80, weight: 900 });
+        F.revealLine(ctx, '*KENDİ KENDİNE YÜKLENMEZ.*', W / 2, 1000, prog(t, 14.5, 15.2), { size: 80, weight: 900, accent: C.gold, hiGlow: 40, stagger: 0.3 });
+      }
+      F.handleTag(ctx, 1 - prog(t, 16.7, 17.1));
+      F.endCard(ctx, t, 17.3);
+    },
+  });
+})();
+</script>
+</body>
+</html>

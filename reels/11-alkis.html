@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Alkış</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="reel.css">
+</head>
+<body>
+<script src="engine.js"></script>
+<script>
+/* REEL 11 — "ALKIŞ"
+   Sahnede spot ışığı altında çalışan adam: alkış geldikçe coşar, alkış bitince durur.
+   Seyirci gider, o da biter. Sonra ikinci spot yanar: karanlıkta baştan beri
+   hiç durmadan çalışan biri vardı. Giriş yok: ilk karede alkış ve aksiyon. */
+(function () {
+  const { lerp, clamp, E, prog } = F;
+  const stage = 1250, AX = 360, BX = 820, TR = 10.0;
+  const a = (t) => {
+    if (t < 2.6) return 1;
+    if (t < 4.0) return lerp(1, 0.08, E.outCubic(prog(t, 2.6, 3.6)));
+    if (t < 6.3) return lerp(0.08, 0.95, E.outCubic(prog(t, 4.0, 4.6)));
+    return lerp(0.95, 0, E.inOutQuad(prog(t, 6.3, 7.6)));
+  };
+  const DT = 1 / 240, N = Math.ceil(21 / DT);
+  const phA = new Float32Array(N);
+  for (let i = 1; i < N; i++) phA[i] = phA[i - 1] + 9.5 * a(i * DT - 0.3) * DT;
+  const at = (t) => phA[Math.max(0, Math.min(N - 1, Math.round(t / DT)))];
+  const AUD = Array.from({ length: 9 }, (_, i) => ({ x: 70 + i * 118 + (i % 2) * 20, y: 1470 + (i % 2) * 70, s: 0.9 + (i % 3) * 0.08, leave: 7.4 + ((i * 5) % 9) * 0.27 }));
+
+  function spot(ctx, x, k, col) {
+    if (k <= 0) return;
+    ctx.save();
+    const g = ctx.createLinearGradient(0, 120, 0, stage);
+    g.addColorStop(0, F.hexA(col, 0.0)); g.addColorStop(1, F.hexA(col, 0.22 * k));
+    ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(x - 40, 120); ctx.lineTo(x + 40, 120); ctx.lineTo(x + 200, stage); ctx.lineTo(x - 200, stage); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = F.hexA(col, 0.25 * k); ctx.beginPath(); ctx.ellipse(x, stage, 210, 30, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+
+  Reel({
+    title: 'Alkış',
+    duration: 20,
+    cues() {
+      return {
+        music: { bpm: 120, grid0: 0.0, climax: 7.6, punch: 13.3, end: 17.3, prog: 'em', drums: 'full' },
+        cues: [{ t: 0, type: 'hit' }, { t: 0, type: 'applause', d: 2.8, p: 1 }, { t: 2.8, type: 'applause', d: 0.8, p: 0.2 },
+          { t: 4.0, type: 'applause', d: 2.9, p: 0.9 }, { t: 6.9, type: 'applause', d: 0.9, p: 0.2 },
+          { t: 0.6, type: 'whoosh' }, { t: 3.0, type: 'whoosh' }, { t: 6.4, type: 'whoosh' }, { t: 8.6, type: 'sad' },
+          { t: TR, type: 'hit' }, { t: TR + 0.1, type: 'climax' }, { t: 10.2, type: 'whoosh' },
+          { t: 13.0, type: 'drop' }, { t: 13.3, type: 'punch' }, { t: 14.5, type: 'hit' }, { t: 17.3, type: 'end' }],
+      };
+    },
+    draw(ctx, t, F) {
+      const { W, H, CONFIG: C } = F;
+      const ap = a(t), tempo = a(t - 0.3);
+      const rev = E.outCubic(prog(t, TR, TR + 0.5));
+      F.background(ctx, t, { color: '#050608' });
+
+      // ---- HUD ----
+      F.text(ctx, 'ALKIŞ', 112, 270, { size: 24, weight: 800, align: 'left', color: C.dim, ls: 4 });
+      for (let i = 0; i < 12; i++) {
+        const on = i < Math.round(ap * 12);
+        ctx.save(); ctx.fillStyle = on ? F.mixHex('#f4b740', '#ff4d5e', i / 11) : 'rgba(255,255,255,0.08)';
+        if (on) { ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 10; }
+        F.rrect(ctx, 250 + i * 60, 256, 48, 28, 6); ctx.fill(); ctx.restore();
+      }
+      const repsA = Math.floor(at(t) / (2 * Math.PI)) + 12, repsB = Math.floor(t * 9.5 / (2 * Math.PI)) + 1217;
+      F.panel(ctx, 80, 330, 440, 120); F.panel(ctx, 560, 330, 440, 120, { stroke: rev > 0 ? F.hexA(C.gold, 0.5) : undefined });
+      F.text(ctx, 'SAHNEDEKİ', 112, 362, { size: 20, weight: 800, align: 'left', color: C.ink, ls: 3 });
+      F.text(ctx, 'KARANLIKTAKİ', 592, 362, { size: 20, weight: 800, align: 'left', color: C.gold, ls: 3 });
+      F.text(ctx, String(repsA), 112, 410, { size: 44, weight: 700, font: C.mono, align: 'left', color: tempo < 0.2 ? C.red : C.ink });
+      F.text(ctx, 'TEKRAR', 488, 412, { size: 18, weight: 600, font: C.mono, align: 'right', color: C.dim });
+      F.text(ctx, 'TEKRAR', 968, 412, { size: 18, weight: 600, font: C.mono, align: 'right', color: C.dim });
+      if (rev < 1) F.text(ctx, '???', 592, 410, { size: 44, weight: 700, font: C.mono, align: 'left', color: C.dim, alpha: 1 - rev });
+      if (rev > 0) F.text(ctx, repsB.toLocaleString('tr-TR'), 592, 410 + (1 - rev) * 12, { size: 44, weight: 700, font: C.mono, align: 'left', color: C.gold, alpha: rev, glow: 18 });
+
+      // ---- sahne ----
+      spot(ctx, AX, t > 7.6 ? lerp(0.25 + 0.75 * ap, 0.12, prog(t, 7.6, 9)) : 0.3 + 0.7 * ap, '#fff1d6');
+      spot(ctx, BX, rev, C.gold);
+      ctx.fillStyle = '#0d0e12'; ctx.fillRect(0, stage, W, 90);
+      ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(0, stage); ctx.lineTo(W, stage); ctx.stroke();
+
+      // ---- A: alkışla çalışan ----
+      {
+        const k = 0.5 + 0.5 * Math.sin(at(t));
+        let pose = F.mixPose(F.P.lift(t, k), F.P.slump(t), clamp((0.35 - tempo) / 0.3));
+        const sitK = E.inOutCubic(prog(t, 8.4, 9.2));
+        if (sitK > 0) pose = F.mixPose(pose, { lean: 0.6, hipL: 2.15, kneeL: 1.95, hipR: 2.0, kneeR: 1.85, shL: 0.3, elL: 0.3, shR: 0.4, elR: 0.4, head: 0.75 }, sitK);
+        const col = F.mixHex('#f4f2ee', '#6e6a66', clamp(1 - tempo));
+        F.stickman(ctx, { x: AX, y: stage, s: 1.3, dir: 1, pose, color: col, glow: 28 * tempo, glowColor: C.gold });
+      }
+      // ---- B: karanlıkta hiç durmayan ----
+      {
+        const k = 0.5 + 0.5 * Math.sin(t * 9.5 + 1);
+        if (rev > 0.5) F.embers(ctx, t, { x: BX, y: stage - 120, w: 80, h: 220, n: 26, color: C.gold, seed: 5 });
+        F.stickman(ctx, { x: BX, y: stage, s: 1.3, dir: -1, pose: F.P.lift(t, k), color: rev > 0 ? '#f4f2ee' : '#2a2b30', glow: 34 * rev, glowColor: C.gold, alpha: lerp(0.35, 1, rev) });
+      }
+
+      // ---- seyirci ----
+      AUD.forEach((p, i) => {
+        const gone = E.inCubic(prog(t, p.leave, p.leave + 0.8));
+        if (gone >= 1) return;
+        const y = p.y + gone * 300, x = p.x;
+        ctx.save(); ctx.globalAlpha = 1 - gone;
+        // eller: alkış
+        if (ap > 0.3 && gone === 0) {
+          const c = Math.abs(Math.sin(t * 14 + i * 1.7));
+          ctx.strokeStyle = '#3a3c44'; ctx.lineWidth = 12 * p.s; ctx.lineCap = 'round';
+          const hy = y - 120 * p.s;
+          ctx.beginPath(); ctx.moveTo(x - 40 * p.s, y - 20); ctx.lineTo(x - 14 * c * p.s - 4, hy); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(x + 40 * p.s, y - 20); ctx.lineTo(x + 14 * c * p.s + 4, hy); ctx.stroke();
+          if (c < 0.25) { ctx.strokeStyle = F.hexA(C.gold, 0.8 * ap); ctx.lineWidth = 3; for (let r = 0; r < 5; r++) { const an = -Math.PI / 2 + (r - 2) * 0.45; ctx.beginPath(); ctx.moveTo(x + Math.cos(an) * 18, hy + Math.sin(an) * 18); ctx.lineTo(x + Math.cos(an) * 34, hy + Math.sin(an) * 34); ctx.stroke(); } }
+        }
+        ctx.fillStyle = '#121318'; ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.ellipse(x, y + 60 * p.s, 74 * p.s, 70 * p.s, 0, Math.PI, 0); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.arc(x, y - 30 * p.s, 40 * p.s, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.restore();
+      });
+
+      // ---- ara yazılar ----
+      const cap = (str, a0, b, col) => { const k = prog(t, a0, a0 + 0.4) * (1 - prog(t, b - 0.4, b)); if (k > 0) F.revealLine(ctx, str, W / 2, 560, prog(t, a0, a0 + 0.6), { size: 40, weight: 800, alpha: k, accent: col }); };
+      cap('ALKIŞ GELİNCE *COŞAR.*', 0.6, 2.8, C.gold);
+      cap('ALKIŞ BİTİNCE... *DURUR.*', 3.0, 4.3, C.red);
+      cap('SEYİRCİ GİDİNCE *O DA BİTER.*', 6.4, 9.7, C.red);
+      cap('O HİÇ *SEYİRCİ BEKLEMEDİ.*', 10.2, 12.9, C.gold);
+
+      // ---- final ----
+      if (t > 13.0) {
+        const k = E.outCubic(prog(t, 13.0, 13.7));
+        ctx.save(); ctx.fillStyle = `rgba(5,6,8,${0.84 * k})`; ctx.fillRect(0, 0, W, H); ctx.restore();
+        F.revealLine(ctx, 'ALKIŞLA ÇALIŞIYORSAN', W / 2, 870, prog(t, 13.3, 14.0), { size: 84, weight: 900 });
+        F.revealLine(ctx, '*OYUNCUSUN.*', W / 2, 1020, prog(t, 14.5, 15.0), { size: 124, weight: 900, accent: C.red, hiGlow: 46 });
+      }
+      F.handleTag(ctx, 1 - prog(t, 16.7, 17.1));
+      F.endCard(ctx, t, 17.3);
+    },
+  });
+})();
+</script>
+</body>
+</html>

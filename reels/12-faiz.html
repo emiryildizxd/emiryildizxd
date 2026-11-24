@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Faiz</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="reel.css">
+</head>
+<body>
+<script src="engine.js"></script>
+<script>
+/* REEL 12 — "FAİZ"
+   Yürüyen adamın sırtına ertelenen her iş bir taş olarak düşer: SPOR, DERS, PROJE...
+   Taşlar faiz gibi büyür. Adam yavaşlar, eğilir, diz çöker; kule devrilir.
+   Giriş yok: ilk karede adam yürüyor, ilk taş düşmek üzere. */
+(function () {
+  const { lerp, clamp, E, prog, rng } = F;
+  const ground = 1400, MX = 400, TC = 9.9, TT = 10.3;
+  const LAB = ['SPOR', 'DERS', 'PROJE', 'UYKU', 'SAĞLIK', 'BİRİKİM', 'AİLE'];
+  const DROP = [0.5, 1.7, 2.9, 4.1, 5.3, 6.5, 7.7];
+  const rad = (i, t) => t < DROP[i] ? 0 : 34 * Math.pow(1.065, Math.min(t, TC) - DROP[i] > 0 ? (Math.min(t, TC) - DROP[i]) / 0.5 : 0);
+  const loadAt = (t) => DROP.reduce((s, d, i) => s + (t >= d ? (rad(i, t) / 34) ** 2 * 5 : 0), 0);
+  const speed = (t) => t >= TC ? 0 : clamp(1 - loadAt(t) / 260, 0.15, 1);
+  const DT = 1 / 240, N = Math.ceil(21 / DT), ph = new Float32Array(N);
+  for (let i = 1; i < N; i++) ph[i] = ph[i - 1] + 9 * speed(i * DT) * DT;
+  const phAt = (t) => ph[Math.max(0, Math.min(N - 1, Math.round(t / DT)))];
+  const r = rng(12);
+  const SHAPES = DROP.map(() => Array.from({ length: 9 }, () => 0.82 + r() * 0.3));
+  const PILE = DROP.map((_, i) => ({ x: MX + [-230, 210, -90, 330, -320, 90, 0][i], rot: (r() - 0.5) * 2 }));
+
+  function stone(ctx, x, y, R, i, rot = 0) {
+    const sh = SHAPES[i];
+    ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
+    ctx.beginPath();
+    sh.forEach((k, j) => { const a = j / sh.length * Math.PI * 2; const px = Math.cos(a) * R * k, py = Math.sin(a) * R * k * 0.86; j ? ctx.lineTo(px, py) : ctx.moveTo(px, py); });
+    ctx.closePath();
+    const g = ctx.createLinearGradient(0, -R, 0, R); g.addColorStop(0, '#463a3c'); g.addColorStop(1, '#1c1718');
+    ctx.fillStyle = g; ctx.shadowColor = F.CONFIG.red; ctx.shadowBlur = 8 + R * 0.12; ctx.fill();
+    ctx.shadowBlur = 0; ctx.strokeStyle = F.hexA(F.CONFIG.red, 0.55); ctx.lineWidth = 3; ctx.stroke();
+    if (R > 70) { ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(-R * 0.4, -R * 0.3); ctx.lineTo(-R * 0.1, 0); ctx.lineTo(-R * 0.25, R * 0.35); ctx.stroke(); }
+    ctx.restore();
+    F.text(ctx, LAB[i], x, y + 2, { size: Math.max(16, R * 0.3), weight: 800, color: '#ffd6da', ls: 1 });
+  }
+
+  Reel({
+    title: 'Faiz',
+    duration: 20,
+    cues() {
+      const c = [{ t: 0, type: 'hit' }];
+      let last = 0;
+      for (let t = 0; t < TC; t += 1 / 120) { const k = Math.floor(phAt(t) / Math.PI); if (k !== last) { c.push({ t, type: 'step', p: 0.1 }); last = k; } }
+      DROP.forEach((d, i) => c.push({ t: d + 0.3, type: i < 3 ? 'block' : 'hit', p: 0 }));
+      DROP.forEach((d, i) => c.push({ t: TT + 0.35 + i * 0.12, type: 'block', p: 0 }));
+      c.push({ t: TC, type: 'hit' }, { t: TC + 0.05, type: 'sad' }, { t: TT, type: 'whoosh' },
+        { t: 0.8, type: 'whoosh' }, { t: 3.8, type: 'whoosh' }, { t: 7.2, type: 'whoosh' },
+        { t: 13.0, type: 'drop' }, { t: 13.3, type: 'punch' }, { t: 14.5, type: 'hit' }, { t: 17.3, type: 'end' });
+      return { music: { bpm: 96, grid0: 0.0, climax: TC, punch: 13.3, end: 17.3, prog: 'dm', drums: 'full' }, cues: c };
+    },
+    draw(ctx, t, F) {
+      const { W, H, CONFIG: C } = F;
+      const load = loadAt(t), n = DROP.filter((d) => t >= d).length;
+      let shy = 0; DROP.forEach((d, i) => { const q = t - d - 0.3; if (q >= 0 && q < 0.2) shy += Math.sin(q * 120) * (1 - q / 0.2) * (3 + i * 2); });
+      if (t > TC && t < TC + 0.3) shy += Math.sin(t * 100) * 14 * (1 - (t - TC) / 0.3);
+      F.background(ctx, t, { tint: F.hexA(C.red, 0.03 + 0.06 * clamp(load / 260)), tintY: 900 });
+
+      // ---- HUD ----
+      F.panel(ctx, 80, 250, 440, 140); F.panel(ctx, 560, 250, 440, 140, { stroke: F.hexA(C.red, 0.45) });
+      F.text(ctx, 'ERTELENEN İŞ', 112, 288, { size: 22, weight: 800, align: 'left', color: C.ink, ls: 3 });
+      F.text(ctx, 'YÜK', 592, 288, { size: 22, weight: 800, align: 'left', color: C.red, ls: 3 });
+      F.text(ctx, 'FAİZ %6 / HAFTA', 968, 288, { size: 18, weight: 600, font: C.mono, align: 'right', color: C.dim });
+      F.text(ctx, String(n), 112, 345, { size: 56, weight: 700, font: C.mono, align: 'left' });
+      F.text(ctx, Math.round(load) + ' KG', 968, 345, { size: 56, weight: 700, font: C.mono, align: 'right', color: C.red, glow: load > 120 ? 18 : 0 });
+
+      ctx.save(); ctx.translate(0, shy);
+      // ---- zemin ----
+      const scroll = phAt(t) / 9 * 300;
+      ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(0, ground); ctx.lineTo(W, ground); ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 4;
+      for (let i = -1; i < 12; i++) { const x = ((i * 120 - scroll) % 1440 + 1440) % 1440 - 120; ctx.beginPath(); ctx.moveTo(x, ground + 40); ctx.lineTo(x + 60, ground + 40); ctx.stroke(); }
+
+      // ---- adam ----
+      const lk = clamp(load / 230);
+      const v = speed(t);
+      let pose = F.P.walk(phAt(t), lerp(1, 0.45, lk));
+      pose = { ...pose, lean: lerp(0.08, 0.75, lk), head: lerp(0.0, 0.35, lk), kneeL: pose.kneeL + 0.35 * lk, kneeR: pose.kneeR + 0.35 * lk,
+        shL: -0.9 - 0.4 * lk, elL: -1.6, shR: -0.7 - 0.4 * lk, elR: -1.7 };          // eller yukarıda, taşları tutar
+      const kneel = { lean: 0.85, hipL: 1.15, kneeL: 2.25, hipR: 0.85, kneeR: 2.1, shL: 0.6, elL: 0.3, shR: 0.7, elR: 0.3, head: 0.9 };
+      if (t >= TC) pose = F.mixPose(pose, kneel, E.outCubic(prog(t, TC, TC + 0.25)));
+      const col = F.mixHex('#f4f2ee', '#8a8580', lk);
+      const res = F.stickman(ctx, { x: MX, y: ground, s: 1.3, dir: 1, pose, color: col, glow: lerp(10, 0, lk), glowColor: C.gold });
+
+      // ---- taş kulesi ----
+      const base = [res.neck[0] - 52, res.neck[1] + 4];
+      let yAcc = base[1];
+      DROP.forEach((d, i) => {
+        if (t < d) return;
+        const R = rad(i, t);
+        const sx = base[0] + (i % 2 ? 16 : -16) + Math.sin(t * 2 + i) * 4 * lk, sy = yAcc - R * 0.86;
+        yAcc = sy - R * 0.86 * 0.9;
+        const k = E.outBack(clamp((t - d) / 0.35));
+        let x = sx, y = lerp(-200, sy, k), rot = 0;
+        if (t >= TT) { // kule devrilir, taşlar yere yığılır
+          const q = E.inQuad(clamp((t - TT - i * 0.12) / 0.45));
+          const pile = PILE[i];
+          x = lerp(sx, pile.x, q); y = lerp(sy, ground - R * 0.8, q); rot = pile.rot * q;
+        }
+        stone(ctx, x, y, R, i, rot);
+      });
+      ctx.restore();
+
+      // ---- ara yazılar ----
+      const cap = (str, a, b, col) => { const k = prog(t, a, a + 0.4) * (1 - prog(t, b - 0.4, b)); if (k > 0) F.revealLine(ctx, str, W / 2, 1540, prog(t, a, a + 0.6), { size: 38, weight: 800, alpha: k, accent: col }); };
+      cap('ERTELEDİĞİN İŞ BUGÜN *KÜÇÜKTÜR.*', 0.8, 3.5, C.gold);
+      cap('AMA *FAİZİ İŞLER.*', 3.8, 6.9, C.red);
+      cap('HER HAFTA *DAHA AĞIR.*', 7.2, 9.9, C.red);
+      cap('SONUNDA *ALTINDA KALIRSIN.*', 10.3, 12.8, C.red);
+
+      // ---- final ----
+      if (t > 13.0) {
+        const k = E.outCubic(prog(t, 13.0, 13.7));
+        ctx.save(); ctx.fillStyle = `rgba(5,6,8,${0.84 * k})`; ctx.fillRect(0, 0, W, H); ctx.restore();
+        F.revealLine(ctx, 'ERTELEDİĞİN HER ŞEY', W / 2, 870, prog(t, 13.3, 14.0), { size: 86, weight: 900 });
+        F.revealLine(ctx, '*FAİZİYLE GERİ GELİR.*', W / 2, 1010, prog(t, 14.5, 15.2), { size: 92, weight: 900, accent: C.red, hiGlow: 44, stagger: 0.3 });
+      }
+      F.handleTag(ctx, 1 - prog(t, 16.7, 17.1));
+      F.endCard(ctx, t, 17.3);
+    },
+  });
+})();
+</script>
+</body>
+</html>

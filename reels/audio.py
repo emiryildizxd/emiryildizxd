@@ -305,6 +305,25 @@ def pulse(p=0.0):
     return np.sin(2 * np.pi * (260 + 120 * p) * t) * np.minimum(1, t / 0.01) * np.exp(-t / 0.05) * 0.5
 
 
+_CLAPS = None
+
+
+def applause(dur, p=1.0):
+    """Sentetik alkış: yüzlerce kısa gürültü patlaması, yoğunluk p."""
+    global _CLAPS
+    if _CLAPS is None:
+        _CLAPS = [filt(noise(0.04), 700 + 300 * i, 5200) * np.exp(-T(0.04) / (0.005 + 0.001 * i)) for i in range(6)]
+    y = np.zeros(int(dur * SR) + SR)
+    r = np.random.default_rng(int(dur * 100) + int(p * 10))
+    for _ in range(int(dur * 70 * p)):
+        s = int(r.uniform(0, dur) * SR)
+        c = _CLAPS[r.integers(6)] * r.uniform(0.2, 1.0)
+        y[s:s + len(c)] += c
+    t = np.arange(len(y)) / SR
+    e = np.minimum(1, t / 0.25) * np.clip((dur + 0.3 - t) / 0.6, 0, 1)
+    return np.tanh(y * e * 0.8) * 0.8
+
+
 # ------------------------------------------------------------------ mikser
 class Bus:
     def __init__(self, dur):
@@ -484,6 +503,8 @@ def sfx(cues, dur):
             fx.add_st(reverb(metal_hit(0.7, 0.6), 0.3), t + 0.45, 0.55)
             fx.add(thud(0.0), t + 0.5, 0.6)
             fx.add_st(reverb(sad_tone(2.0), 0.5), t + 0.4, 0.7)
+        elif k == "applause":
+            fx.add_st(reverb(applause(c["d"], p), 0.35), t, 0.6)
         elif k == "sad":
             fx.add_st(reverb(sad_tone(2.2), 0.5), t, 0.8)
         elif k == "snap":

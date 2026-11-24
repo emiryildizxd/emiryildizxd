@@ -86,6 +86,15 @@
   Reel({
     title: 'Bir Vuruş Daha',
     duration: 23,
+    cues() {
+      const c = [{ t: 0, type: 'title' }, { t: 1.1, type: 'ui', p: 0.4 }];
+      A.forEach((w, i) => c.push({ t: w.hit, type: 'clank', p: i / N, g: 0.42, bright: 0.85 }));
+      B.forEach((w, i) => c.push({ t: w.hit, type: 'clank', p: 0.5 + i / N / 2, g: 0.62, bright: 1.0 }));
+      c.push({ t: 2.4, type: 'whoosh' }, { t: 6.6, type: 'whoosh' }, { t: tQuit, type: 'whoosh' }, { t: tBreak - 0.3, type: 'whoosh' },
+        { t: tQuit, type: 'quit' }, { t: tBreak, type: 'break' },
+        { t: 16.2, type: 'drop' }, { t: 16.5, type: 'punch' }, { t: 17.7, type: 'hit' }, { t: 20.2, type: 'end' });
+      return { music: { bpm: 60 / 0.47, grid0: B[0].hit, climax: tBreak, punch: 16.5, end: 20.2, prog: 'am', drums: 'light', melody: false }, cues: c };
+    },
     draw(ctx, t, F) {
       const { W, H, CONFIG: C, prog } = F;
       const SA = swingState(A, t), SB = swingState(B, t);
@@ -104,7 +113,7 @@
       ctx.save(); ctx.translate(W / 2, 290); ctx.scale(lerp(0.85, 1, kT), lerp(0.85, 1, kT));
       F.revealLine(ctx, 'BİR VURUŞ *DAHA.*', 0, 0, prog(t, 0, 0.7), { size: 90, weight: 900, stagger: 0.3, accent: C.cyan });
       ctx.restore();
-      F.text(ctx, 'İKİSİ DE AYNI DUVARI KAZIYOR.', W / 2, 372, { size: 28, weight: 700, color: C.dim, ls: 5, alpha: prog(t, 0.5, 1.1) });
+      F.text(ctx, 'AYNI DUVAR. AYNI KAZMA. FARKLI SON.', W / 2, 372, { size: 28, weight: 700, color: C.dim, ls: 5, alpha: prog(t, 0.5, 1.1) });
 
       ctx.save(); ctx.translate(sx, sy);
       const kr = E.outCubic(prog(t, 0.7, 1.5));
@@ -177,7 +186,7 @@
       LANES.forEach((L, li) => {
         const S = li === 0 ? SA : SB, col = li === 0 ? C.red : C.gold;
         const y = L.top - 52;
-        F.text(ctx, li === 0 ? 'HIZLI BAŞLAYAN' : 'DURMAYAN', 60, y, { size: 24, weight: 800, align: 'left', color: col, ls: 3, alpha: kh });
+        F.text(ctx, li === 0 ? 'MOTİVASYON' : 'DİSİPLİN', 60, y, { size: 24, weight: 800, align: 'left', color: col, ls: 3, alpha: kh });
         F.text(ctx, 'VURUŞ', 470, y, { size: 20, weight: 500, font: C.mono, color: C.dim, align: 'left', alpha: kh });
         F.text(ctx, String(S.n).padStart(2, '0'), 560, y + 2, { size: 34, weight: 700, font: C.mono, align: 'left', alpha: kh });
         // sonuç
@@ -248,17 +257,17 @@
 
       // ---- ara yazılar ----
       const cap = (str, a, b, col) => { const k = prog(t, a, a + 0.4) * (1 - prog(t, b - 0.4, b)); if (k > 0) F.revealLine(ctx, str, W / 2, 1440, prog(t, a, a + 0.7), { size: 34, weight: 700, color: col || C.ink, alpha: k, accent: col }); };
-      cap('Biri *hızlı* başladı...', 2.4, 5.8, C.red);
-      cap('İkisi de duvarın arkasını *göremiyor.*', 6.6, 10.2, C.cyan);
-      cap('...ve bir vuruş kala *bıraktı.*', tQuit, tBreak - 0.35, C.red);
-      cap('Diğeri bir kez *daha* vurdu.', tBreak - 0.3, 16.0, C.gold);
+      cap('MOTİVASYON *HIZLI* BAŞLAR...', 2.4, 5.8, C.red);
+      cap('DUVARIN ARKASINI *KİMSE GÖRMEZ.*', 6.6, 10.2, C.cyan);
+      cap('1 VURUŞ KALA *BIRAKTI.*', tQuit, tBreak - 0.35, C.red);
+      cap('DİSİPLİN *BİR KEZ DAHA* VURDU.', tBreak - 0.3, 16.0, C.gold);
 
       // ---- final ----
       if (t > 16.2) {
         const k = E.outCubic(prog(t, 16.2, 17.0));
         ctx.save(); ctx.fillStyle = `rgba(5,6,8,${0.82 * k})`; ctx.fillRect(0, 0, W, H); ctx.restore();
-        F.revealLine(ctx, 'Vazgeçtiğin an,', W / 2, 900, prog(t, 16.5, 17.3), { size: 74, weight: 800 });
-        F.revealLine(ctx, 'belki *son vuruştu.*', W / 2, 1030, prog(t, 17.7, 18.7), { size: 90, weight: 900, accent: C.cyan, hiGlow: 40, stagger: 0.4 });
+        F.revealLine(ctx, '1 VURUŞ UZAKTAYDI.', W / 2, 900, prog(t, 16.5, 17.3), { size: 80, weight: 900 });
+        F.revealLine(ctx, '*VE SEN BIRAKTIN.*', W / 2, 1040, prog(t, 17.7, 18.4), { size: 104, weight: 900, accent: C.red, hiGlow: 40, stagger: 0.4 });
       }
       F.handleTag(ctx, 1 - prog(t, 19.6, 20));
       F.endCard(ctx, t, 20.2);

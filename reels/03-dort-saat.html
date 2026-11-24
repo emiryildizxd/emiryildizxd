@@ -16,6 +16,16 @@
 Reel({
   title: 'Günde 4 Saat',
   duration: 23,
+  cues() {
+    const TA = 2.2, TB = 14.2, WEEKS = 52, c = [{ t: 0, type: 'title' }, { t: 1.0, type: 'ui', p: 0.2 }, { t: 1.4, type: 'ui', p: 0.7 }];
+    const wk = (t) => { const pw = F.clamp((t - TA) / (TB - TA)); return WEEKS * (0.25 * pw + 0.75 * F.E.inOutQuad(pw)); };
+    const at = (target) => { for (let t = TA; t <= TB; t += 1 / 120) if (wk(t) >= target) return t; return TB; };
+    for (let b = 0; b < WEEKS; b++) c.push({ t: at(b + 0.5), type: 'block', p: b / (WEEKS - 1) });
+    [6, 16, 27, 38, 50].forEach((w, i) => c.push({ t: at(w + 0.3), type: 'tag', p: i / 4 }));
+    for (let t = 1.0; t < TB + 0.5; t += 0.5) c.push({ t, type: 'swipe' });
+    c.push({ t: TB + 0.3, type: 'climax' }, { t: 16.2, type: 'drop' }, { t: 16.5, type: 'punch' }, { t: 17.8, type: 'hit' }, { t: 20.2, type: 'end' });
+    return { music: { bpm: 140, grid0: TA, climax: TB + 0.3, punch: 16.5, end: 20.2, prog: 'dm', drums: 'full' }, cues: c };
+  },
   draw(ctx, t, F) {
     const { W, H, CONFIG: C, E, prog, clamp, lerp } = F;
     const TA = 2.2, TB = 14.2, WEEKS = 52;
@@ -32,7 +42,7 @@ Reel({
     ctx.save(); ctx.translate(W / 2, 290); ctx.scale(lerp(0.85, 1, kT), lerp(0.85, 1, kT));
     F.revealLine(ctx, 'GÜNDE *4 SAAT.*', 0, 0, prog(t, 0, 0.7), { size: 90, weight: 900, stagger: 0.3, accent: C.cyan });
     ctx.restore();
-    F.text(ctx, 'BİR YILDA NEREYE GİDER?', W / 2, 372, { size: 28, weight: 700, color: C.dim, ls: 6, alpha: prog(t, 0.5, 1.1) });
+    F.text(ctx, 'SENİN 4 SAATİN NEREYE GİDİYOR?', W / 2, 372, { size: 28, weight: 700, color: C.dim, ls: 6, alpha: prog(t, 0.5, 1.1) });
 
     // ---- HUD panelleri ----
     const kh = E.outCubic(prog(t, 0.9, 1.5));
@@ -164,8 +174,8 @@ Reel({
     if (t > 16.2) {
       const k = E.outCubic(prog(t, 16.2, 17.0));
       ctx.save(); ctx.fillStyle = `rgba(5,6,8,${0.82 * k})`; ctx.fillRect(0, 0, W, H); ctx.restore();
-      F.revealLine(ctx, 'Aynı 24 saat.', W / 2, 900, prog(t, 16.5, 17.4), { size: 76, weight: 800 });
-      F.revealLine(ctx, '*Farklı* hayatlar.', W / 2, 1030, prog(t, 17.8, 18.7), { size: 96, weight: 900, hiGlow: 40, stagger: 0.4 });
+      F.revealLine(ctx, '61 GÜNÜ ÇÖPE ATTIN.', W / 2, 900, prog(t, 16.5, 17.3), { size: 80, weight: 900 });
+      F.revealLine(ctx, 'SONRA *"ŞANSSIZIM"* DİYORSUN.', W / 2, 1030, prog(t, 17.8, 18.6), { size: 80, weight: 900, accent: C.red, hiGlow: 40, stagger: 0.4 });
     }
     F.handleTag(ctx, 1 - prog(t, 19.6, 20));
     F.endCard(ctx, t, 20.2);

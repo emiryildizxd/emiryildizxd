@@ -16,6 +16,16 @@
 Reel({
   title: 'Yarın Başlarım',
   duration: 23,
+  cues() {
+    const TA = 2.4, SD = 1, N = 12, TB = 14.4, c = [{ t: 0, type: 'title' }, { t: 1.0, type: 'ui', p: 0.3 }, { t: 1.6, type: 'ui', p: 0.6 }];
+    for (let k = 0; k < N; k++) {
+      c.push({ t: TA + k * SD + 0.7, type: 'step', p: k / (N - 1) });
+      c.push({ t: TA + k * SD + 0.2, type: 'bubble' });
+    }
+    c.push({ t: TB + 0.6, type: 'door' }, { t: TB + 1.0, type: 'climax' }, { t: 16.2, type: 'drop' }, { t: 16.5, type: 'punch' },
+      { t: 17.9, type: 'hit' }, { t: 20.2, type: 'end' });
+    return { music: { bpm: 120, grid0: TA + 0.7, climax: TB + 1.0, punch: 16.5, end: 20.2, prog: 'em', drums: 'full' }, cues: c };
+  },
   draw(ctx, t, F) {
     const { W, H, CONFIG: C, E, prog, clamp, lerp } = F;
     const N = 12, TA = 2.4, TB = 14.4, SD = (TB - TA) / N;       // basamak sayısı & zamanlama
@@ -31,7 +41,7 @@ Reel({
     ctx.save(); ctx.translate(W / 2, 290); ctx.scale(lerp(0.85, 1, kT), lerp(0.85, 1, kT));
     F.revealLine(ctx, '"YARIN *BAŞLARIM."*', 0, 0, prog(t, 0, 0.7), { size: 84, weight: 900, stagger: 0.3, accent: C.red });
     ctx.restore();
-    F.text(ctx, 'AYNI MERDİVEN. 30 GÜN. İKİ İNSAN.', W / 2, 372, { size: 28, weight: 700, color: C.dim, ls: 5, alpha: prog(t, 0.5, 1.1) });
+    F.text(ctx, '30 GÜN. AYNI MERDİVEN. BİRİ ZİRVEDE.', W / 2, 372, { size: 28, weight: 700, color: C.dim, ls: 5, alpha: prog(t, 0.5, 1.1) });
 
     // ---- takvim HUD ----
     const day = clamp(Math.floor(1 + 29.999 * prog(t, TA - 0.3, TB)), 1, 30);
@@ -170,8 +180,8 @@ Reel({
     if (t > 16.2) {
       const k = E.outCubic(prog(t, 16.2, 17.0));
       ctx.save(); ctx.fillStyle = `rgba(5,6,8,${0.8 * k})`; ctx.fillRect(0, 0, W, H); ctx.restore();
-      F.revealLine(ctx, '"Yarın" bir gün değil.', W / 2, 900, prog(t, 16.5, 17.5), { size: 70, weight: 800 });
-      F.revealLine(ctx, 'Bir *bahane.*', W / 2, 1030, prog(t, 17.9, 18.7), { size: 100, weight: 900, accent: C.red, hiGlow: 40, stagger: 0.4 });
+      F.revealLine(ctx, '30 GÜN. 30 BAHANE.', W / 2, 900, prog(t, 16.5, 17.3), { size: 80, weight: 900 });
+      F.revealLine(ctx, '*SIFIR ADIM.*', W / 2, 1040, prog(t, 17.9, 18.5), { size: 120, weight: 900, accent: C.red, hiGlow: 40, stagger: 0.4 });
     }
     F.handleTag(ctx, 1 - prog(t, 19.6, 20));
     F.endCard(ctx, t, 20.2);

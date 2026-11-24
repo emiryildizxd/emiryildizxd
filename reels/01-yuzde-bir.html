@@ -16,6 +16,17 @@
 Reel({
   title: '%1 Kuralı',
   duration: 23,
+  cues() {
+    const c = [{ t: 0, type: 'title' }, { t: 1.0, type: 'ui', p: 0.2 }, { t: 1.3, type: 'ui', p: 0.5 }, { t: 1.7, type: 'ui', p: 0.8 },
+      { t: 3.6, type: 'whoosh' }, { t: 9.6, type: 'whoosh' }, { t: 9.0, type: 'riser', d: 4.6 }, { t: 13.6, type: 'climax' },
+      { t: 14.6, type: 'drop' }, { t: 15.0, type: 'punch' }, { t: 16.2, type: 'hit' }, { t: 17.2, type: 'hit' }, { t: 20.2, type: 'end' }];
+    let last = -1;
+    for (let t = 2.2; t <= 13.6; t += 1 / 60) {
+      const p = (t - 2.2) / 11.4, day = 365 * (0.72 * p ** 3 + 0.28 * F.E.inOutQuad(p)), b = Math.floor(day / 12);
+      if (b !== last) { if (last >= 0) c.push({ t, type: 'tick', p: day / 365 }); last = b; }
+    }
+    return { music: { bpm: 140, grid0: 2.2, climax: 13.6, punch: 15.0, end: 20.2, prog: 'am', drums: 'full' }, cues: c };
+  },
   draw(ctx, t, F) {
     const { W, H, CONFIG: C, E, prog, clamp, lerp } = F;
     F.background(ctx, t, { grid: true, tint: 'rgba(244,183,64,0.05)', tintY: 900 });
@@ -32,7 +43,7 @@ Reel({
     ctx.save(); ctx.translate(W / 2, 300); ctx.scale(lerp(0.85, 1, kT), lerp(0.85, 1, kT));
     F.revealLine(ctx, 'HER GÜN *%1.*', 0, 0, prog(t, 0, 0.7), { size: 92, weight: 900, ls: 1, stagger: 0.3 });
     ctx.restore();
-    F.text(ctx, '365 GÜN SONRA FARK NE OLUR?', W / 2, 382, { size: 28, weight: 700, color: C.dim, ls: 6, alpha: prog(t, 0.5, 1.1) });
+    F.text(ctx, '365 GÜN. BİRİ YÜKSELİR. BİRİ ÇÜRÜR.', W / 2, 382, { size: 28, weight: 700, color: C.dim, ls: 4, alpha: prog(t, 0.5, 1.1) });
 
     // ---- gün sayacı ----
     const kc = E.outCubic(prog(t, 0.9, 1.5));
@@ -140,17 +151,17 @@ Reel({
 
     // ---- ara yazı: "İlk aylarda fark yok gibi..." ----
     const kq = prog(t, 3.6, 4.2) * (1 - prog(t, 6.4, 6.9));
-    if (kq > 0) F.text(ctx, 'İlk aylarda fark yok gibi...', W / 2, 590, { size: 30, weight: 600, color: C.ink, alpha: kq * 0.85 });
+    if (kq > 0) F.text(ctx, 'İLK 3 AY: HİÇBİR ŞEY DEĞİŞMİYOR.', W / 2, 590, { size: 30, weight: 600, color: C.ink, alpha: kq * 0.85 });
     const kq2 = prog(t, 9.6, 10.1) * (1 - prog(t, 13.2, 13.6));
-    if (kq2 > 0) F.text(ctx, '...sonra bileşik etki devreye girer.', W / 2, 590, { size: 30, weight: 600, color: C.gold, alpha: kq2 });
+    if (kq2 > 0) F.text(ctx, 'SONRA FARK ACIMASIZLAŞIR.', W / 2, 590, { size: 30, weight: 600, color: C.gold, alpha: kq2 });
 
     // ---- final ----
     if (t > 14.6) {
       const k = E.outCubic(prog(t, 14.6, 15.4));
       ctx.save(); ctx.fillStyle = `rgba(5,6,8,${0.82 * k})`; ctx.fillRect(0, 0, W, H); ctx.restore();
-      F.revealLine(ctx, 'Bugün fark etmez.', W / 2, 850, prog(t, 15.0, 16.0), { size: 72, weight: 800 });
-      F.revealLine(ctx, 'Bir yıl sonra', W / 2, 990, prog(t, 16.4, 17.2), { size: 72, weight: 800 });
-      F.revealLine(ctx, '*37 kat* fark eder.', W / 2, 1090, prog(t, 17.0, 18.0), { size: 92, weight: 900, hiGlow: 40 });
+      F.revealLine(ctx, 'AYNI 365 GÜN.', W / 2, 840, prog(t, 15.0, 15.8), { size: 76, weight: 900 });
+      F.revealLine(ctx, '*BİRİ KRAL.*', W / 2, 990, prog(t, 16.2, 16.8), { size: 110, weight: 900, hiGlow: 40, stagger: 0.2 });
+      F.revealLine(ctx, '*BİRİ ENKAZ.*', W / 2, 1120, prog(t, 17.2, 17.8), { size: 110, weight: 900, accent: C.red, hiGlow: 40, stagger: 0.2 });
     }
     F.handleTag(ctx, 1 - prog(t, 19.6, 20));
     F.endCard(ctx, t, 20.2);

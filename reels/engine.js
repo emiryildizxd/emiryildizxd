@@ -118,6 +118,10 @@
      p: 0..1 ilerleme. Ortalanmış tek satır. */
   function revealLine(ctx, str, cx, cy, p, o = {}) {
     const words = str.split(' ');
+    // satır taşarsa otomatik küçült
+    const maxW = o.maxW || 960;
+    const fullW = measure(ctx, str.replace(/\*/g, ''), o);
+    if (fullW > maxW && !o._fit) return revealLine(ctx, str, cx, cy, p, { ...o, size: (o.size || 64) * maxW / fullW, _fit: true });
     const size = o.size || 64, gap = size * 0.28;
     let inHi = false; // *birden fazla kelime* vurgusunu destekler
     const parts = words.map((w) => {
@@ -319,7 +323,7 @@
     const ctx = canvas.getContext('2d');
     const draw = (t) => { ctx.save(); def.draw(ctx, t, window.F); ctx.restore(); finish(ctx, t); };
 
-    window.__reel = { duration: def.duration, fps };
+    window.__reel = { duration: def.duration, fps, cues: def.cues ? def.cues() : null };
     window.__render = (t) => draw(t);
 
     const freeze = params.get('t');

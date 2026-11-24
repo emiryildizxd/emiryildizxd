@@ -4,7 +4,10 @@
      node render.cjs 01-yuzde-bir.html                  -> out/01-yuzde-bir.mp4
      node render.cjs 01-yuzde-bir.html --handle @ad     -> sayfa adını değiştir
      node render.cjs 01-yuzde-bir.html --snap 1,5,10    -> sadece o saniyelerin PNG'leri (önizleme)
-   Gerekenler: Node, Playwright (chromium), ffmpeg */
+     node render.cjs 01-yuzde-bir.html --audio-only     -> görüntüyü yeniden üretmeden sadece sesi yenile
+     node render.cjs 01-yuzde-bir.html --no-audio       -> sessiz video
+   Ses: reel'in cues() listesi -> audio.py (sentetik müzik + efekt) -> MP4'e eklenir.
+   Gerekenler: Node, Playwright (chromium), ffmpeg, Python3 + numpy */
 const { chromium } = require('playwright');
 const { spawn } = require('child_process');
 const path = require('path');
@@ -44,6 +47,27 @@ const fs = require('fs');
   }
 
   const out = path.join(outDir, `${name}.mp4`);
+  const silentDir = path.join(outDir, '_silent');
+  fs.mkdirSync(silentDir, { recursive: true });
+  const silent = path.join(silentDir, `${name}.mp4`);
+  const cues = await page.evaluate(() => window.__reel.cues);
+
+  if (!args.includes('--audio-only')) await renderVideo(silent);
+  await browser.close();
+
+  if (args.includes('--no-audio') || !cues) { fs.copyFileSync(silent, out); console.log(`${name}: sessiz -> ${out}`); return; }
+  const cueFile = path.join(silentDir, `${name}.cues.json`), wav = path.join(silentDir, `${name}.wav`);
+  fs.writeFileSync(cueFile, JSON.stringify({ duration, ...cues }, null, 1));
+  run('python3', [path.join(__dirname, 'audio.py'), cueFile, wav]);
+  run('ffmpeg', ['-y', '-v', 'error', '-i', silent, '-i', wav, '-map', '0:v', '-map', '1:a', '-c:v', 'copy',
+    '-af', 'loudnorm=I=-14:TP=-1.0:LRA=9', '-ar', '44100', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', out]);
+  console.log(`${name}: sesli -> ${out}`);
+
+  function run(cmd, a) {
+    const r = require('child_process').spawnSync(cmd, a, { stdio: 'inherit' });
+    if (r.status !== 0) { console.error(cmd + ' başarısız'); process.exit(1); }
+  }
+  async function renderVideo(out) {
   const ff = spawn('ffmpeg', ['-y', '-v', 'error', '-f', 'image2pipe', '-framerate', String(fps), '-c:v', 'mjpeg', '-i', '-',
     '-c:v', 'libx264', '-preset', 'slow', '-crf', '17', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', out], { stdio: ['pipe', 'inherit', 'inherit'] });
   const total = Math.round(duration * fps);
@@ -54,6 +78,6 @@ const fs = require('fs');
   }
   ff.stdin.end();
   await new Promise((r) => ff.on('close', r));
-  console.log(`\r${name}: bitti -> ${out}`);
-  await browser.close();
+  console.log(`\r${name}: görüntü bitti`);
+  }
 })();

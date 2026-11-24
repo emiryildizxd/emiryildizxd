@@ -73,14 +73,30 @@ Gönderdiğin 4 reels'ten çıkardığım "formül", sayfanın görsel kimliği,
 
 | # | Dosya | Mesaj | Punchline |
 |---|---|---|---|
-| 01 | `reels/01-yuzde-bir.html` | Her gün %1 daha iyi ya da daha kötü. 365 gün sonra ×37,8 ve ×0,03. | "Bugün fark etmez. Bir yıl sonra **37 kat** fark eder." |
-| 02 | `reels/02-yarin.html` | Biri her gün bir basamak çıkar, diğeri telefonda "yarın" der. | "'Yarın' bir gün değil. Bir **bahane.**" |
-| 03 | `reels/03-dort-saat.html` | Günde 4 saat = yılda 1.460 saat ≈ 61 gün. Biri kaydırır, diğeri kule inşa eder. | "Aynı 24 saat. **Farklı** hayatlar." |
-| 04 | `reels/04-bir-vurus.html` | İki madenci aynı duvarı kazar. Hızlı başlayan yavaşlar ve elmasa 1 vuruş kala bırakır, sabit tempoda giden duvarı yıkar. | "Vazgeçtiğin an, belki **son vuruştu.**" |
+| 01 | `reels/01-yuzde-bir.html` | Her gün %1 daha iyi ya da daha kötü. 365 gün sonra ×37,8 ve ×0,03. | "AYNI 365 GÜN. **BİRİ KRAL. BİRİ ENKAZ.**" |
+| 02 | `reels/02-yarin.html` | Biri her gün bir basamak çıkar, diğeri telefonda "yarın" der. | "30 GÜN. 30 BAHANE. **SIFIR ADIM.**" |
+| 03 | `reels/03-dort-saat.html` | Günde 4 saat = yılda 1.460 saat ≈ 61 gün. Biri kaydırır, diğeri kule inşa eder. | "61 GÜNÜ ÇÖPE ATTIN. SONRA **\"ŞANSSIZIM\"** DİYORSUN." |
+| 04 | `reels/04-bir-vurus.html` | İki madenci aynı duvarı kazar. Hızlı başlayan yavaşlar ve elmasa 1 vuruş kala bırakır, sabit tempoda giden duvarı yıkar. | "1 VURUŞ UZAKTAYDI. **VE SEN BIRAKTIN.**" |
 
-Render edilmiş videolar: `reels/out/*.mp4` (1080×1920, 30 fps, sessiz. Müziği Instagram'da trend bir sesten ekle).
+Render edilmiş videolar: `reels/out/*.mp4` (1080×1920, 30 fps, **sesli**: kendi ürettiğimiz telifsiz müzik ve efektler, -14 LUFS).
 
 ---
+
+## 3b. Yazı dili (agresif ton)
+
+Referanslardaki gibi: **kısa, kesik, büyük harf, nokta ile biten** cümleler. Açıklama yapma, hüküm ver.
+- Kalıp 1, zıtlık: "BİRİ KRAL. BİRİ ENKAZ." / "AYNI DUVAR. FARKLI SON."
+- Kalıp 2, sayı ve yüzleşme: "30 GÜN. 30 BAHANE. SIFIR ADIM."
+- Kalıp 3, doğrudan suçlama ("sen"): "VE SEN BIRAKTIN." / "61 GÜNÜ ÇÖPE ATTIN."
+- Yasak: "belki", "biraz", "denemek", "umarım" gibi yumuşak kelimeler, uzun açıklamalar, emoji.
+
+## 3c. Ses ve müzik
+
+`reels/audio.py` her reel için telifsiz ses üretir: karanlık trap/phonk altyapısı (808 bas, kick, clap, hi-hat ruloları, phonk cowbell melodisi, karanlık pad) ve olaylara senkron efektler (başlık patlaması, sayaç tıkları, kazma vuruşu, basamak, blok düşüşü, riser, climax patlaması, punch "boom", final pırıltısı).
+- Her reel'deki `cues()` fonksiyonu olayların zamanlarını verir. Görüntü ve ses aynı koddan senkron gelir.
+- Reel 04'te müzik temposu kazma vuruşlarına kilitli (127,7 BPM), vuruşlar ritme oturuyor.
+- Sadece sesi yenilemek için: `node render.cjs 04-bir-vurus.html --audio-only`
+- Trend bir ses kullanmak istersen: `--no-audio` ile sessiz video al, sesi Instagram'da ekle.
 
 ## 4. Sonraki 30 fikir
 

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kaçış Hızı</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="reel.css">
+</head>
+<body>
+<script src="engine.js"></script>
+<script>
+/* REEL 16 — "KAÇIŞ HIZI"
+   Adam "KONFOR" gezegeninin yüzeyinde. Kaçış hızı 11,2 km/s.
+   1. ve 2. deneme: kısa, parlak yanmalar (motivasyon). Yükselir... çekim geri çeker.
+   3. deneme: sönmeyen, sabit yanma (disiplin). Hız 11,2'yi geçer, çekim kopar.
+   Giriş yok: ilk karede adam fırlamak üzere. */
+(function () {
+  const { lerp, clamp, E, prog, rng } = F;
+  const SURF = 1220, PCX = 540, PCY = 2600, PR = 1380;
+  const A1 = [0.4, 2.9, 380, 0.9], A2 = [3.9, 7.4, 640, 1.4];     // başlangıç, iniş, tepe, yanma süresi
+  const T3 = 7.9, ESC = 12.5;
+  const arc = (t, a) => { const u = (t - a[0]) / (a[1] - a[0]); return u < 0 || u > 1 ? 0 : 4 * a[2] * u * (1 - u); };
+  const h = (t) => t < A2[0] ? arc(t, A1) : t < T3 ? arc(t, A2) : 130 * (t - T3) ** 2;
+  const cam = (t) => Math.max(0, h(t) - 340);
+  const burning = (t) => (t >= A1[0] && t < A1[0] + A1[3]) || (t >= A2[0] && t < A2[0] + A2[3]) || t >= T3;
+  const speed = (t) => {
+    const at = (a, peak) => { const tb = a[0] + a[3], tp = (a[0] + a[1]) / 2; if (t < tb) return peak * prog(t, a[0], tb); if (t < tp) return peak * (1 - prog(t, tb, tp)); return -peak * prog(t, tp, a[1]); };
+    if (t >= A1[0] && t < A1[1]) return at(A1, 5.6);
+    if (t >= A2[0] && t < A2[1]) return at(A2, 8.3);
+    if (t >= T3) return 2.4 * (t - T3);
+    return 0;
+  };
+  const r = rng(16);
+  const STARS = Array.from({ length: 160 }, () => ({ x: r() * 1080, y: r() * 1920, s: 0.6 + r() * 2.2, tw: r() * 6 }));
+
+  Reel({
+    title: 'Kaçış Hızı',
+    duration: 20,
+    cues() {
+      return {
+        music: { bpm: 120, grid0: T3, climax: ESC, punch: 13.3, end: 17.3, prog: 'dm', drums: 'full' },
+        cues: [{ t: 0, type: 'hit' },
+          { t: A1[0], type: 'whoosh' }, { t: A1[0], type: 'riser', d: A1[3] }, { t: A1[1], type: 'hit' }, { t: A1[1] + 0.05, type: 'block', p: 0 },
+          { t: A2[0], type: 'whoosh' }, { t: A2[0], type: 'riser', d: A2[3] }, { t: A2[1], type: 'hit' }, { t: A2[1] + 0.05, type: 'block', p: 0 }, { t: A2[1] + 0.2, type: 'sad' },
+          { t: T3, type: 'hit' }, { t: T3, type: 'riser', d: ESC - T3 }, { t: ESC, type: 'climax' }, { t: ESC + 0.05, type: 'whoosh' },
+          { t: 13.0, type: 'drop' }, { t: 13.3, type: 'punch' }, { t: 14.5, type: 'hit' }, { t: 17.3, type: 'end' }],
+      };
+    },
+    draw(ctx, t, F) {
+      const { W, H, CONFIG: C } = F;
+      const c = cam(t), cv = (cam(t + 0.03) - c) / 0.03, esc = prog(t, ESC, ESC + 0.6);
+      ctx.fillStyle = '#04050a'; ctx.fillRect(0, 0, W, H);
+
+      // ---- yıldızlar (paralaks, hızlanınca iz bırakır) ----
+      STARS.forEach((s) => {
+        const y = ((s.y + c * 0.35 * s.s) % H + H) % H;
+        const a = 0.35 + 0.5 * Math.abs(Math.sin(t * 1.5 + s.tw));
+        const len = Math.min(220, cv * 0.04 * s.s);
+        ctx.strokeStyle = `rgba(255,255,255,${a})`; ctx.fillStyle = ctx.strokeStyle;
+        if (len > 3) { ctx.lineWidth = s.s; ctx.beginPath(); ctx.moveTo(s.x, y); ctx.lineTo(s.x, y - len); ctx.stroke(); }
+        else { ctx.beginPath(); ctx.arc(s.x, y, s.s, 0, Math.PI * 2); ctx.fill(); }
+      });
+      // kaçınca altın güneş
+      if (t > ESC - 0.5) F.glowCircle(ctx, W / 2, 260, 900, C.gold, 0.9 * prog(t, ESC - 0.5, ESC + 1.2));
+
+      // ---- KONFOR gezegeni ----
+      const py = PCY + c;
+      if (py - PR < H + 200) {
+        const atm = ctx.createRadialGradient(PCX, py, PR * 0.95, PCX, py, PR * 1.12);
+        atm.addColorStop(0, F.hexA('#ff3fa4', 0.45)); atm.addColorStop(1, 'rgba(255,63,164,0)');
+        ctx.fillStyle = atm; ctx.beginPath(); ctx.arc(PCX, py, PR * 1.12, 0, Math.PI * 2); ctx.fill();
+        const g = ctx.createLinearGradient(0, py - PR, 0, py);
+        g.addColorStop(0, '#3a1640'); g.addColorStop(1, '#12061a');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(PCX, py, PR, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = F.hexA('#ff3fa4', 0.12); ctx.lineWidth = 6;
+        for (let i = 1; i < 5; i++) { ctx.beginPath(); ctx.arc(PCX, py, PR - i * 70, Math.PI * 1.15, Math.PI * 1.85); ctx.stroke(); }
+        F.text(ctx, 'K O N F O R', PCX, SURF + 190 + c, { size: 64, weight: 900, color: F.hexA('#ff3fa4', 0.28), ls: 10 });
+        // çekim halkaları (kaçışta kopar)
+        if (esc < 1) for (let i = 0; i < 3; i++) {
+          const q = ((t * 0.6 + i / 3) % 1);
+          ctx.strokeStyle = F.hexA('#ff3fa4', 0.25 * (1 - q) * (1 - esc)); ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.arc(PCX, py, PR + 60 + q * 520, Math.PI * 1.2, Math.PI * 1.8); ctx.stroke();
+        }
+      }
+
+      // ---- adam ----
+      const y = SURF - h(t) + c;
+      const fly = { lean: 0, hipL: 0.06, kneeL: 0.12, hipR: -0.04, kneeR: 0.08, shL: -2.95, elL: -0.05, shR: 2.95, elR: 0.05, head: -0.1 };
+      const crouch = { lean: 0.35, hipL: 0.9, kneeL: 1.7, hipR: 0.7, kneeR: 1.6, shL: -0.4, elL: 0.3, shR: 0.5, elR: 0.3, head: 0.2 };
+      const fall = { lean: -0.1, hipL: 0.4 + Math.sin(t * 12) * 0.3, kneeL: 0.6, hipR: -0.3, kneeR: 0.7, shL: -1.9 + Math.sin(t * 14) * 0.6, elL: -0.6, shR: 1.9 - Math.sin(t * 14) * 0.6, elR: 0.6, head: 0.3 };
+      let pose = F.P.stand(t), air = h(t) > 2;
+      const pre = (ts) => t > ts - 0.35 && t < ts;
+      if (pre(A1[0]) || pre(A2[0]) || pre(T3)) pose = crouch;
+      else if (air) pose = burning(t) || speed(t) > 0 ? fly : fall;
+      else if ((t > A1[1] && t < A1[1] + 0.4) || (t > A2[1] && t < A2[1] + 0.5)) pose = crouch;
+      const glow = t >= T3 ? lerp(14, 40, prog(t, T3, ESC)) : 14;
+      // alev
+      if (burning(t) && air) {
+        const fl = 110 + 30 * Math.sin(t * 50) + (t >= T3 ? 60 : 0);
+        ctx.save(); ctx.globalCompositeOperation = 'lighter';
+        const fg = ctx.createLinearGradient(0, y, 0, y + fl);
+        fg.addColorStop(0, 'rgba(255,255,255,0.95)'); fg.addColorStop(0.3, F.hexA(C.gold, 0.9)); fg.addColorStop(1, 'rgba(255,77,94,0)');
+        ctx.fillStyle = fg; ctx.beginPath(); ctx.moveTo(PCX - 22, y - 6); ctx.quadraticCurveTo(PCX, y + fl * 1.1, PCX + 22, y - 6); ctx.closePath(); ctx.fill();
+        ctx.restore();
+        F.glowCircle(ctx, PCX, y + 30, 160, C.gold, 0.7);
+      }
+      // iniş tozu
+      [A1[1], A2[1]].forEach((tl) => { const d = t - tl; if (d < 0 || d > 0.7) return; for (let i = -3; i <= 3; i++) { ctx.fillStyle = `rgba(255,140,200,${0.5 * (1 - d / 0.7)})`; ctx.beginPath(); ctx.arc(PCX + i * 30 * (1 + d * 4), SURF + c - 10 - d * 30 * (1 - Math.abs(i) / 4), 10 * (1 - d), 0, Math.PI * 2); ctx.fill(); } });
+      if (t >= T3 + 1) F.embers(ctx, t, { x: PCX, y: y + 60, w: 50, h: -260, n: 24, color: C.gold, seed: 3 });
+      F.stickman(ctx, { x: PCX, y, s: 1.15, dir: 1, pose, glow, glowColor: C.gold });
+
+      // ---- HUD ----
+      const v = speed(t), pv = clamp(Math.abs(v) / 11.2);
+      const attempt = t < A2[0] - 0.4 ? 1 : t < T3 - 0.4 ? 2 : 3;
+      const vc = v < 0 ? C.red : attempt === 3 ? C.gold : C.ink;
+      F.panel(ctx, 80, 230, 920, 230);
+      F.text(ctx, 'DENEME ' + attempt, 112, 272, { size: 22, weight: 800, align: 'left', color: C.dim, ls: 4 });
+      F.text(ctx, attempt < 3 ? 'KISA YANMA · MOTİVASYON' : 'SÖNMEYEN YANMA · DİSİPLİN', 968, 272, { size: 22, weight: 800, align: 'right', color: attempt < 3 ? '#ff7fc0' : C.gold, ls: 2 });
+      F.text(ctx, (v < 0 ? '↓ ' : '') + Math.abs(v).toFixed(1).replace('.', ','), 112, 345, { size: 78, weight: 700, font: C.mono, align: 'left', color: vc, glow: v >= 11.2 ? 24 : 0 });
+      F.text(ctx, 'KM/S', 112 + F.measure(ctx, (v < 0 ? '↓ ' : '') + Math.abs(v).toFixed(1).replace('.', ','), { size: 78, weight: 700, font: C.mono }) + 18, 360, { size: 26, weight: 700, font: C.mono, align: 'left', color: C.dim });
+      // kaçış barı
+      ctx.fillStyle = 'rgba(255,255,255,0.08)'; F.rrect(ctx, 112, 400, 856, 22, 11); ctx.fill();
+      ctx.save(); ctx.fillStyle = v < 0 ? C.red : v >= 11.2 ? C.gold : '#ff7fc0'; ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 14;
+      F.rrect(ctx, 112, 400, Math.max(22, 856 * pv), 22, 11); ctx.fill(); ctx.restore();
+      F.text(ctx, 'KAÇIŞ HIZI 11,2', 968, 345, { size: 24, weight: 700, font: C.mono, align: 'right', color: v >= 11.2 ? C.gold : C.dim });
+
+      // ---- minimal yazılar ----
+      [[A1[1] + 0.1, A2[0] - 0.4], [A2[1] + 0.1, T3 - 0.4]].forEach(([a, b]) => {
+        const k = prog(t, a, a + 0.25) * (1 - prog(t, b - 0.3, b));
+        if (k > 0) F.text(ctx, 'YETMEDİ.', W / 2, SURF - 330 + c, { size: 48, weight: 900, color: C.red, alpha: k, glow: 20 });
+      });
+      if (t > ESC) F.text(ctx, 'ÇEKİM KOPTU.', W / 2, 1180, { size: 56, weight: 900, color: C.gold, alpha: prog(t, ESC, ESC + 0.3) * (1 - prog(t, 12.9, 13.1)), glow: 30 });
+
+      // ---- final ----
+      if (t > 13.0) {
+        const k = E.outCubic(prog(t, 13.0, 13.7));
+        ctx.save(); ctx.fillStyle = `rgba(5,6,8,${0.84 * k})`; ctx.fillRect(0, 0, W, H); ctx.restore();
+        F.revealLine(ctx, 'ÇEKİMDEN KURTULMAK İÇİN', W / 2, 870, prog(t, 13.3, 14.0), { size: 78, weight: 900 });
+        F.revealLine(ctx, '*YANMAYA DEVAM ET.*', W / 2, 1010, prog(t, 14.5, 15.1), { size: 100, weight: 900, accent: C.gold, hiGlow: 46, stagger: 0.3 });
+      }
+      F.handleTag(ctx, 1 - prog(t, 16.7, 17.1));
+      F.endCard(ctx, t, 17.3, 'SEN KAÇINCI DENEMEDESİN?');
+    },
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tek Kuyu</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="reel.css">
+</head>
+<body>
+<script src="engine.js"></script>
+<script>
+/* REEL 17 — "TEK KUYU"  (kesit görünümü, sessiz anlatım)
+   Toprağın altında, derinde su var. Soldaki her yeni hevese yeni bir kuyu açar:
+   10 sığ kuyu. Sağdaki tek bir kuyu kazar. İkisi de aynı toplam emeği harcar (40 m).
+   Su sadece derinde. Giriş yok: ilk karede ikisi de kazıyor. */
+(function () {
+  const { lerp, clamp, E, prog, rng } = F;
+  const G = 720, WT = 1460, M = 18.5;                          // yüzey, su tablası, px/metre
+  const NH = 10, HS = 1.15, HD = 0.88;                         // delik sayısı, aralık, kazma süresi
+  const hx = (i) => 72 + i * 46;
+  const r = rng(17);
+  const DEP = Array.from({ length: NH }, () => 64 + r() * 22);
+  const TAGS = ['YOUTUBE', 'KRİPTO', 'DİYET', 'GİTAR', 'DROPSHIP', 'İNGİLİZCE', 'PODCAST', 'KİTAP', 'SPOR', 'YAZILIM'];
+  const BX = 800, TB = 11.4, TW = 12.2;
+  const dB = (t) => (WT - G) * clamp(t / TB);
+  const holeD = (i, t) => DEP[i] * E.outQuad(clamp((t - i * HS) / HD));
+  const STONES = Array.from({ length: 90 }, () => ({ x: r() * 1080, y: G + 40 + r() * 1150, rx: 4 + r() * 14, ry: 3 + r() * 9, a: r() * 3 }));
+
+  function shovelPose(k) {
+    return { lean: lerp(0.15, 0.6, k), hipL: 0.35, kneeL: lerp(0.2, 0.6, k), hipR: -0.2, kneeR: lerp(0.1, 0.4, k),
+      shL: lerp(0.3, 0.75, k), elL: lerp(0.5, 0.1, k), shR: lerp(0.45, 0.9, k), elR: lerp(0.4, 0.05, k), head: 0.35 };
+  }
+  function shovel(ctx, hand, ang, s) {
+    const vx = Math.sin(ang), vy = Math.cos(ang);
+    const b = [hand[0] + vx * 70 * s, hand[1] + vy * 70 * s];
+    ctx.save(); ctx.lineCap = 'round'; ctx.strokeStyle = '#9a7650'; ctx.lineWidth = 6 * s;
+    ctx.beginPath(); ctx.moveTo(hand[0] - vx * 20 * s, hand[1] - vy * 20 * s); ctx.lineTo(b[0], b[1]); ctx.stroke();
+    ctx.fillStyle = '#cfd3da'; ctx.translate(b[0], b[1]); ctx.rotate(-Math.atan2(vx, vy));
+    F.rrect(ctx, -12 * s, 0, 24 * s, 26 * s, 6 * s); ctx.fill(); ctx.restore();
+  }
+
+  Reel({
+    title: 'Tek Kuyu',
+    duration: 20,
+    cues() {
+      const c = [{ t: 0, type: 'hit' }];
+      for (let i = 0; i < NH; i++) { for (let s = 0; s < 3; s++) c.push({ t: i * HS + 0.15 + s * 0.28, type: 'block', p: 0.1 }); c.push({ t: i * HS + HD + 0.05, type: 'swipe' }); }
+      for (let t = 0.2; t < TB; t += 0.34) c.push({ t, type: 'block', p: 0.3 + 0.5 * t / TB });
+      c.push({ t: TB - 2.2, type: 'riser', d: 2.2 }, { t: TB, type: 'climax' }, { t: TB + 0.1, type: 'blup', p: 0.2, g: 0.7 }, { t: TB + 0.4, type: 'blup', p: 0.5, g: 0.6 },
+        { t: TW, type: 'whoosh' }, { t: TW + 0.1, type: 'blup', p: 0.9, g: 0.7 }, { t: 12.4, type: 'sad' }, { t: 7.5, type: 'whoosh' },
+        { t: 13.0, type: 'drop' }, { t: 13.3, type: 'punch' }, { t: 14.5, type: 'hit' }, { t: 17.3, type: 'end' });
+      return { music: { bpm: 118, grid0: 0.0, climax: TB, punch: 13.3, end: 17.3, prog: 'em', drums: 'full' }, cues: c };
+    },
+    draw(ctx, t, F) {
+      const { W, H, CONFIG: C } = F;
+      const water = prog(t, TB, TW);                 // şaftta su yükselir
+      F.background(ctx, t, { tint: F.hexA('#38d6f5', 0.1 * water), tintY: G });
+
+      // ---- etiketler + HUD (sessiz) ----
+      F.labels(ctx, '10 KUYU', '1 KUYU', C.red, C.gold);
+      const nDone = clamp(Math.floor(t / HS) + 1, 1, NH);
+      let totA = 0, maxA = 0;
+      for (let i = 0; i < NH; i++) { const d = holeD(i, t); totA += d; maxA = Math.max(maxA, d); }
+      const dBm = dB(t);
+      F.text(ctx, 'EN DERİN ' + Math.round(maxA / M) + ' M', W * 0.27, 310, { size: 24, weight: 700, font: C.mono, color: C.dim });
+      F.text(ctx, 'DERİNLİK ' + Math.round(dBm / M) + ' M', W * 0.73, 310, { size: 24, weight: 700, font: C.mono, color: C.gold });
+      F.text(ctx, 'EMEK ' + Math.round(totA / M) + ' M', W * 0.27, 352, { size: 22, weight: 600, font: C.mono, color: C.dim });
+      F.text(ctx, 'EMEK ' + Math.round(dBm / M) + ' M', W * 0.73, 352, { size: 22, weight: 600, font: C.mono, color: C.dim });
+
+      // ---- toprak kesiti ----
+      const sg = ctx.createLinearGradient(0, G, 0, H);
+      sg.addColorStop(0, '#221a14'); sg.addColorStop(1, '#0c0907');
+      ctx.fillStyle = sg; ctx.fillRect(0, G, W, H - G);
+      ctx.strokeStyle = 'rgba(255,255,255,0.04)'; ctx.lineWidth = 3;
+      [900, 1080, 1260].forEach((y, i) => { ctx.beginPath(); for (let x = 0; x <= W; x += 20) ctx.lineTo(x, y + Math.sin(x / 90 + i) * 10); ctx.stroke(); });
+      STONES.forEach((s) => { if (s.y > WT - 20 && s.y < WT + 100) return; ctx.fillStyle = 'rgba(255,255,255,0.05)'; ctx.beginPath(); ctx.ellipse(s.x, s.y, s.rx, s.ry, s.a, 0, Math.PI * 2); ctx.fill(); });
+      // su tablası
+      {
+        const g = ctx.createLinearGradient(0, WT, 0, WT + 90);
+        g.addColorStop(0, F.hexA('#38d6f5', 0.55 + 0.3 * water)); g.addColorStop(1, F.hexA('#1b5fd1', 0.15));
+        ctx.save(); ctx.fillStyle = g; ctx.shadowColor = '#38d6f5'; ctx.shadowBlur = 20 + 30 * water;
+        ctx.beginPath(); ctx.moveTo(0, WT + 90);
+        for (let x = 0; x <= W; x += 15) ctx.lineTo(x, WT + Math.sin(x / 50 + t * 2) * 5);
+        ctx.lineTo(W, WT + 90); ctx.closePath(); ctx.fill(); ctx.restore();
+        F.text(ctx, 'S U', 540, WT + 50, { size: 26, weight: 800, color: F.hexA('#d9f7ff', 0.5), ls: 10 });
+      }
+      // yüzey çizgisi
+      ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(0, G); ctx.lineTo(W, G); ctx.stroke();
+
+      // ---- SOL: 10 sığ kuyu ----
+      for (let i = 0; i < NH; i++) {
+        const d = holeD(i, t); if (d <= 0) continue;
+        ctx.fillStyle = '#050403'; F.rrect(ctx, hx(i) - 19, G - 2, 38, d + 2, [0, 0, 10, 10]); ctx.fill();
+        // toprak yığını + bayrak
+        const pile = d / DEP[i];
+        ctx.fillStyle = '#3a2c20'; ctx.beginPath(); ctx.ellipse(hx(i) + 4, G, 22 * pile, 12 * pile, 0, Math.PI, 0); ctx.fill();
+        if (t > i * HS + HD) {
+          const ty = G - 46 - (i % 2) * 40;
+          ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(hx(i), G); ctx.lineTo(hx(i), ty + 10); ctx.stroke();
+          F.text(ctx, TAGS[i], hx(i), ty, { size: 14, weight: 800, color: t > TB ? F.hexA(C.red, 0.7) : C.dim, ls: 1 });
+        }
+      }
+      {
+        const i = clamp(Math.floor(t / HS), 0, NH - 1);
+        const u = t - i * HS;
+        const digging = u < HD && t < NH * HS;
+        const x = digging ? hx(i) : lerp(hx(i), hx(Math.min(NH - 1, i + 1)), E.inOutQuad(clamp((u - HD) / (HS - HD))));
+        const y = digging ? G + holeD(i, t) : G;
+        let pose = digging ? shovelPose(0.5 + 0.5 * Math.sin(t * 22)) : F.P.walk(t * 12, 0.8);
+        const late = t > NH * HS - 0.2;
+        if (late) pose = F.mixPose(F.P.stand(t), F.P.slump(t), prog(t, TW, TW + 0.8));
+        const res = F.stickman(ctx, { x: late ? hx(NH - 1) + 20 : x, y: late ? G : y, s: 0.95, dir: 1, pose, color: late ? F.mixHex('#f4f2ee', '#77726c', prog(t, TW, TW + 1)) : '#e8e4dd', glow: 6 });
+        if (!late) shovel(ctx, res.handR, digging ? 0.15 + 0.35 * (0.5 + 0.5 * Math.sin(t * 22)) : 0.9, 0.95);
+      }
+
+      // ---- SAĞ: tek kuyu ----
+      const db = dB(t);
+      ctx.fillStyle = '#050403'; ctx.fillRect(BX - 44, G - 2, 88, db + 2);
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 2;
+      for (let y = G + 30; y < G + db; y += 60) { ctx.beginPath(); ctx.moveTo(BX - 44, y); ctx.lineTo(BX - 30, y + 14); ctx.stroke(); }
+      // toprak yığını
+      const pileB = clamp(db / (WT - G));
+      ctx.fillStyle = '#3a2c20'; ctx.beginPath(); ctx.moveTo(BX + 60, G); ctx.quadraticCurveTo(BX + 130, G - 160 * pileB, BX + 220 + 40 * pileB, G); ctx.closePath(); ctx.fill();
+      // şaftta yükselen su
+      if (water > 0) {
+        const wy = lerp(WT, G, E.inOutQuad(water));
+        ctx.save(); ctx.fillStyle = F.hexA('#38d6f5', 0.75); ctx.shadowColor = '#38d6f5'; ctx.shadowBlur = 30;
+        ctx.fillRect(BX - 44, wy, 88, WT - wy + 10); ctx.restore();
+      }
+      // fıskiye
+      if (t > TW - 0.1) {
+        const rr = rng(4);
+        for (let i = 0; i < 46; i++) {
+          const life = 0.9 + rr() * 0.6, ph = ((t - TW + rr() * life) % life) / life, ang = -Math.PI / 2 + (rr() - 0.5) * 0.9, sp = 520 + rr() * 300;
+          const x = BX + Math.cos(ang) * sp * ph, y = G - 10 + Math.sin(ang) * sp * ph + 700 * ph * ph;
+          ctx.fillStyle = F.hexA('#7fe6ff', 0.85 * (1 - ph)); ctx.beginPath(); ctx.arc(x, y, 6 * (1 - ph) + 2, 0, Math.PI * 2); ctx.fill();
+        }
+        F.glowCircle(ctx, BX, G - 120, 380, '#38d6f5', 0.6 * prog(t, TW - 0.1, TW + 0.5));
+      }
+      {
+        let x = BX, y = G + db, pose = shovelPose(0.5 + 0.5 * Math.sin(t * 19));
+        if (water > 0) { y = lerp(WT, G, E.inOutQuad(water)); pose = F.mixPose(pose, F.P.celebrate(t), water); }
+        if (t > TW) { x = BX - 120; y = G; pose = F.P.celebrate(t); }
+        const glow = lerp(10, 36, clamp(t / TB));
+        const res = F.stickman(ctx, { x, y, s: 0.95, dir: 1, pose, glow, glowColor: water > 0 ? '#38d6f5' : C.gold });
+        if (water <= 0) shovel(ctx, res.handR, 0.15 + 0.35 * (0.5 + 0.5 * Math.sin(t * 19)), 0.95);
+      }
+
+      // ---- tek satır ----
+      const kc = prog(t, 7.5, 7.9) * (1 - prog(t, 10.8, 11.2));
+      if (kc > 0) F.revealLine(ctx, 'AYNI *EMEK.*', W / 2, 560, prog(t, 7.5, 8.1), { size: 48, weight: 900, alpha: kc, accent: C.gold });
+
+      // ---- final ----
+      if (t > 13.0) {
+        const k = E.outCubic(prog(t, 13.0, 13.7));
+        ctx.save(); ctx.fillStyle = `rgba(5,6,8,${0.84 * k})`; ctx.fillRect(0, 0, W, H); ctx.restore();
+        F.revealLine(ctx, '10 KUYU AÇAN', W / 2, 870, prog(t, 13.3, 13.9), { size: 104, weight: 900 });
+        F.revealLine(ctx, '*SUSUZ KALIR.*', W / 2, 1020, prog(t, 14.5, 15.1), { size: 112, weight: 900, accent: '#38d6f5', hiGlow: 46, stagger: 0.3 });
+      }
+      F.handleTag(ctx, 1 - prog(t, 16.7, 17.1));
+      F.endCard(ctx, t, 17.3, 'ŞU AN KAÇ KUYU KAZIYORSUN?');
+    },
+  });
+})();
+</script>
+</body>
+</html>

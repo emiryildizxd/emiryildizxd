@@ -89,6 +89,9 @@ Gönderdiğin 4 reels'ten çıkardığım "formül", sayfanın görsel kimliği,
 | 13 | `reels/13-nabiz.html` | Hasta monitörü 52 BPM; adam UYU → ÇALIŞ → KAYDIR döngüsünde "AYNI GÜN ×217". Telefonu fırlatır, koşar: EKG altın, 148 BPM. | "NEFES ALMAK **YAŞAMAK DEĞİL.**" |
 | 14 | `reels/14-bataklik.html` | Mor konfor bataklığı ("5 DK DAHA", "YARIN" yüzer). Telefona bakan yavaşça batar; debelenen kıyıya tırmanır. | "KONFOR SENİ **SESSİZCE ÖLDÜRÜR.**" |
 | 15 | `reels/15-takvim.html` | Her hafta iki adamın üstüne takvim yaprağı düşer. Biri basamak yapıp yükselir, diğeri aynı yaprakların altında kalır. | "GÜNLER YA BASAMAK OLUR **YA MEZAR.**" |
+| 16 | `reels/16-kacis-hizi.html` | Uzay. "KONFOR" gezegeninden kaçış hızı 11,2 km/s. İki kısa yanma (motivasyon) geri düşer; sönmeyen yanma (disiplin) çekimi koparır. | "ÇEKİMDEN KURTULMAK İÇİN **YANMAYA DEVAM ET.**" |
+| 17 | `reels/17-tek-kuyu.html` | Toprak kesiti. 10 hevese 10 sığ kuyu vs tek derin kuyu; ikisinin emeği de 40 m. Su sadece derinde, fışkırır. | "10 KUYU AÇAN **SUSUZ KALIR.**" |
+| 18 | `reels/18-ertele.html` | Alarm → ertele döngüsü hızlanır (×847), pencereden günler akar. Son alarmda yorganı atar, kapıyı açar. | "ERTELE TUŞU **HAYATINI ERTELİYOR.**" |
 
 **Giriş kuralı:** Hiçbir video siyah ekranda yazıyla açılmaz. İlk kare doğrudan sahne ve hareket. Eski reel'lerde girişi `skip: 2.0` atlıyor (motor sesi ve müziği de kaydırıyor), yeni reel'ler zaten 0. saniyede aksiyonla başlıyor.
 
@@ -121,6 +124,15 @@ Referanslardaki gibi: **kısa, kesik, büyük harf, nokta ile biten** cümleler.
 
 Yeniden üretmek için: `node render.cjs profil.html --snap 0,1,2`
 
+## 3e. İkinci referans setinden alınan TEKNİKLER (fikirler bizim)
+
+- **Sessiz anlatım:** Ara yazı yerine üstte iki karşıt etiket (`F.labels(ctx, '10 KUYU', '1 KUYU')`). Hikâyeyi görüntü anlatır.
+- **Kesit görünümü:** Yerin, suyun, duvarın içini göster; görünmeyen emek görünür olur (17 Tek kuyu).
+- **Zamanı mekânla göster:** Pencereden gece/gündüz, takvim, saat (18 Ertele).
+- **Döngü / geri sarma:** "◀◀ TEKRAR" ile aynı anı tekrar oynat; döngü hızlanır, sonra kırılır.
+- **Kamera takibi + paralaks:** Hızlanınca yıldızlar iz bırakır (16 Kaçış hızı).
+- **Yorum getiren soru:** Kapanış kartında soru ve "YORUMLARA YAZ ↓" (`F.endCard(ctx, t, t0, 'SORU?')`). Yorum = algoritma.
+
 ## 4a. Özgün fikir havuzu (referanslardan türetilmemiş)
 
 | # | Fikir | Sahne | Punchline |
@@ -137,6 +149,15 @@ Yeniden üretmek için: `node render.cjs profil.html --snap 0,1,2`
 | ✅ | **BATAKLIK** | Konfor bataklığı yavaşça yutar. Kıpırdamayan batar, hareket eden çıkar. | KONFOR SENİ YAVAŞ ÖLDÜRÜR. |
 | ✅ | **TAKVİM MERDİVENİ** | Takvim yaprakları dökülür. Biri onları üst üste koyup merdiven yapar, diğeri altında kalır. | GÜNLER YA BASAMAK YA MEZAR. |
 | 10 | **İKİ SES** | Kafada iki hoparlör: "YARIN" sesi büyür, "ŞİMDİ" sesi kısık. Adam düğmeyi çevirir. | SESİNİ AÇ. |
+| ✅ | **KAÇIŞ HIZI** | KONFOR gezegeninden kaçış: kısa yanmalar düşer, sönmeyen yanma kurtarır. | YANMAYA DEVAM ET. |
+| ✅ | **TEK KUYU** | 10 sığ kuyu vs 1 derin kuyu, aynı emek. | 10 KUYU AÇAN SUSUZ KALIR. |
+| ✅ | **ERTELE** | Alarm döngüsü ×847, pencereden günler akar. | ERTELE TUŞU HAYATINI ERTELİYOR. |
+| 11 | **MUM** | İki eşit mum. Biri boş ekranı aydınlatarak eriyor, diğeri kitabı/masayı. İkisi de aynı hızda bitiyor. | ZATEN YANIYORSUN. NEYİ AYDINLATTIĞINA BAK. |
+| 12 | **KAPILAR** | Koridorda fırsat kapıları 1,5 sn açılıp kapanır. "Hazırlanan" (%87 HAZIR) hepsini kaçırır; diğeri bağcığı çözük dalar. | HAZIR OLDUĞUNDA KAPI KAPANMIŞ OLUR. |
+| 13 | **HEYKEL** | İki dev taş blok. Biri her gün bir parça yontar, heykel belirir. Diğeri bloğa bakıp "yeteneğim yok" der. | YETENEK YONTULUR. |
+| 14 | **KUM TORBALARI** | Balonun sepetinde KORKU, ONAY, GEÇMİŞ, "NE DERLER" torbaları. Bıraktıkça yükselir; diğeri yenilerini ekler. | YÜKSELMEK İÇİN BIRAKMAN GEREKEN ŞEYLER VAR. |
+| 15 | **KÖPRÜ** | Uçurumun üstünde her gün bir tahta. Yarıda bırakan yürüyemez; biten köprüden karşıya geçilir. | YARIM KÖPRÜ, KÖPRÜ DEĞİLDİR. |
+| 16 | **MIKNATIS** | Dev telefon mıknatısı adamı çekiyor. Adam ayağına ağırlıklar bağlıyor: UYKU SAATİ, ÇEKMECE, PLAN. | ÇEKİMİ YENEMEZSEN AĞIRLIK EKLE. |
 
 ## 4. Sonraki 30 fikir
 

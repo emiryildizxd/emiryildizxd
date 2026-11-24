@@ -290,7 +290,7 @@
   function handleTag(ctx, alpha = 1) {
     text(ctx, CONFIG.handle, W / 2, H - 150, { size: 26, weight: 500, color: CONFIG.dim, alpha, ls: 2 });
   }
-  function endCard(ctx, t, t0) { // t0'dan itibaren kararıp hesap adı gelir
+  function endCard(ctx, t, t0, ask) { // t0'dan itibaren kararıp hesap adı gelir; ask: yorum getiren soru
     const k = prog(t, t0, t0 + 0.7);
     if (k <= 0) return;
     ctx.save(); ctx.fillStyle = `rgba(4,5,7,${E.outCubic(k)})`; ctx.fillRect(0, 0, W, H); ctx.restore();
@@ -307,11 +307,21 @@
     const pw = 300, ph = 72;
     panel(ctx, W / 2 - pw / 2, cy + 185, pw, ph, { r: 36, alpha: k3, fill: 'rgba(244,183,64,0.10)', stroke: hexA(CONFIG.gold, 0.5) });
     text(ctx, 'Takip et →', W / 2, cy + 185 + ph / 2, { size: 30, weight: 700, color: CONFIG.gold, alpha: k3 });
+    if (ask) {
+      const k4 = prog(t, t0 + 1.2, t0 + 1.7);
+      text(ctx, ask, W / 2, cy + 340, { size: 32, weight: 700, color: CONFIG.ink, alpha: k4 * 0.9 });
+      text(ctx, 'YORUMLARA YAZ ↓', W / 2, cy + 392, { size: 22, weight: 700, color: CONFIG.dim, ls: 4, alpha: k4 });
+    }
+  }
+  // üstte iki karşıt etiket (sessiz anlatım)
+  function labels(ctx, a, b, ca, cb, alpha = 1) {
+    text(ctx, a, W * 0.27, 250, { size: 28, weight: 800, font: CONFIG.mono, color: ca || CONFIG.ink, ls: 6, alpha });
+    text(ctx, b, W * 0.73, 250, { size: 28, weight: 800, font: CONFIG.mono, color: cb || CONFIG.ink, ls: 6, alpha });
   }
 
   // ---------- oynatıcı ----------
   window.F = { W, H, CONFIG, clamp, lerp, prog, E, rng, hexA, mixHex, background, finish, text, measure, revealLine,
-    rrect, panel, glowCircle, stickman, P, mixPose, embers, handleTag, endCard };
+    rrect, panel, glowCircle, stickman, P, mixPose, embers, handleTag, endCard, labels };
 
   const TR = 'AaZz09 ĞğŞşİıÜüÖöÇç→×%';
   window.Reel = function (def) {

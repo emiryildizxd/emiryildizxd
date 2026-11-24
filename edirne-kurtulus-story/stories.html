@@ -3,224 +3,354 @@
 <head>
 <meta charset="utf-8">
 <title>Edirne Kurtuluş Story</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Cinzel:wght@500;700;900&family=Montserrat:wght@300;500;700;900&family=Bebas+Neue&family=Great+Vibes&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Cinzel:wght@400;500;600&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  /* ==== FİRMA BİLGİLERİNİ AŞAĞIDAKİ "FIRMALAR" LİSTESİNDEN DEĞİŞTİR ==== */
-  :root{--red:#c8102e;--dred:#8a0a1f;--cream:#f7f1e6;--gold:#d4af6a;--navy:#0d1630}
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:#222;display:flex;flex-wrap:wrap;gap:40px;padding:40px}
-  .story{width:1080px;height:1920px;position:relative;overflow:hidden;font-family:Montserrat,sans-serif}
-  .abs{position:absolute}
-  .logo{width:150px;height:150px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:44px;letter-spacing:2px}
-  .logo img{width:100%;height:100%;object-fit:contain;border-radius:50%}
-  .firm{font-weight:700;font-size:44px;letter-spacing:6px;text-transform:uppercase}
-  .sub{font-weight:500;font-size:26px;letter-spacing:8px;text-transform:uppercase;opacity:.8}
+:root{
+  --bordo:#6d0f1c; --bordo2:#4a0812; --kirmizi:#b3122a; --fildisi:#f4ede0; --kagit:#efe6d4;
+  --altin:#c9a46a; --altin2:#e2c891; --murekkep:#1d1a17; --gece:#0f1626;
+  --kobalt:#1c3f8f; --turkuaz:#2b8c8c; --mercan:#b8322a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#1a1a1a;display:flex;flex-wrap:wrap;gap:40px;padding:40px}
+.story{font-variant-numeric:lining-nums;width:1080px;height:1920px;position:relative;overflow:hidden;font-family:Manrope,sans-serif;-webkit-font-smoothing:antialiased}
+.abs{position:absolute}
+.grain{inset:0;pointer-events:none;mix-blend-mode:multiply;opacity:.16}
+.kicker{font-family:Cinzel;font-weight:500;font-size:24px;letter-spacing:.42em;text-transform:uppercase}
+.serif{font-family:'Cormorant Garamond',serif}
 
-  /* ---------- 1. KLASİK BAYRAK ---------- */
-  #s1{background:radial-gradient(circle at 50% 30%,#e0193a 0%,#a50d24 55%,#5e0614 100%);color:#fff}
-  #s1 .flag{left:-200px;top:40px;width:1500px;opacity:.12;transform:rotate(-6deg)}
-  #s1 .date{top:150px;width:100%;text-align:center;font-family:Cinzel;font-size:40px;letter-spacing:14px}
-  #s1 .big{top:300px;width:100%;text-align:center;font-family:'Playfair Display';font-weight:900;font-size:430px;line-height:1;text-shadow:0 20px 60px rgba(0,0,0,.35)}
-  #s1 .yil{top:760px;width:100%;text-align:center;font-family:Cinzel;font-weight:700;font-size:58px;letter-spacing:10px}
-  #s1 .msg{top:880px;width:100%;text-align:center;font-family:'Playfair Display';font-style:italic;font-size:88px;line-height:1.1}
-  #s1 .mosque{left:0;bottom:360px;width:1080px}
-  #s1 .ground{left:0;bottom:0;width:100%;height:370px;background:linear-gradient(#fff0,#3c030c 30%)}
-  #s1 .brand{bottom:110px;width:100%;display:flex;flex-direction:column;align-items:center;gap:22px}
-  #s1 .logo{background:#fff;color:var(--red)}
+/* Marka bloğu (hepsinde aynı kurumsal yapı) */
+.brand{display:flex;align-items:center;gap:30px}
+.brand .lg{width:120px;height:120px;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond';font-weight:600;font-size:46px;letter-spacing:.04em;border:1.5px solid currentColor}
+.brand .lg img{max-width:100%;max-height:100%;object-fit:contain}
+.brand .nm{font-family:Manrope;font-weight:700;font-size:32px;letter-spacing:.22em;text-transform:uppercase;line-height:1.2}
+.brand .sb{font-family:Manrope;font-weight:400;font-size:20px;letter-spacing:.32em;text-transform:uppercase;opacity:.7;margin-top:10px}
+.brand.center{flex-direction:column;text-align:center;gap:24px}
 
-  /* ---------- 2. MİNİMAL KREM ---------- */
-  #s2{background:var(--cream);color:var(--dred)}
-  #s2 .frame{inset:50px;border:3px solid var(--red)}
-  #s2 .frame2{inset:66px;border:1px solid var(--red);opacity:.5}
-  #s2 .top{top:170px;width:100%;text-align:center}
-  #s2 .num{top:330px;width:100%;text-align:center;font-family:'Bebas Neue';font-size:640px;line-height:.9;color:transparent;-webkit-text-stroke:5px var(--red)}
-  #s2 .num span{color:var(--red);-webkit-text-stroke:0}
-  #s2 .t1{top:930px;width:100%;text-align:center;font-family:'Great Vibes';font-size:150px;color:var(--red)}
-  #s2 .t2{top:1110px;width:100%;text-align:center;font-family:Cinzel;font-weight:700;font-size:50px;letter-spacing:8px;line-height:1.5;color:#2a1a1a}
-  #s2 .line{top:1370px;left:390px;width:300px;height:3px;background:var(--red)}
-  #s2 .flagmini{top:1345px;left:505px;width:70px}
-  #s2 .brand{bottom:150px;width:100%;display:flex;flex-direction:column;align-items:center;gap:18px}
-  #s2 .logo{border:3px solid var(--red);color:var(--red);background:#fff}
-  #s2 .firm{color:#2a1a1a}
+/* ============ 1 · SELİMİYE (gravür) ============ */
+#s1{background:var(--fildisi);color:var(--murekkep)}
+#s1 .mark{top:150px;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:26px;color:var(--kirmizi)}
+#s1 .mark .kicker{color:var(--murekkep)}
+#s1 .disc{top:460px;left:190px;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle at 50% 45%,#c8283c,#8c0d1f 70%);opacity:.95}
+#s1 .ill{top:470px;left:40px;width:1000px}
+#s1 .rule{top:1130px;left:90px;right:90px;height:1px;background:var(--murekkep);opacity:.5}
+#s1 .h{top:1185px;left:0;right:0;text-align:center;font-family:'Cormorant Garamond';font-weight:500;font-size:96px;line-height:1.02;letter-spacing:-.01em}
+#s1 .h i{color:var(--kirmizi);font-weight:500}
+#s1 .p{top:1420px;left:150px;right:150px;text-align:center;font-size:27px;line-height:1.65;color:#4a433b;font-weight:400}
+#s1 .b{bottom:110px;left:0;right:0;display:flex;justify-content:center}
 
-  /* ---------- 3. GECE / ALTIN ---------- */
-  #s3{background:linear-gradient(#060b1c 0%,#0d1630 45%,#2a0a16 100%);color:var(--gold)}
-  #s3 .stars{inset:0}
-  #s3 .moon{top:170px;right:120px;width:240px}
-  #s3 .head{top:260px;left:90px;font-family:Cinzel;font-size:34px;letter-spacing:12px}
-  #s3 .h1{top:340px;left:90px;font-family:'Playfair Display';font-weight:900;font-size:150px;line-height:1;color:#f4e3bd}
-  #s3 .h1 i{color:var(--gold)}
-  #s3 .p{top:860px;left:90px;width:820px;font-size:38px;line-height:1.55;font-weight:300;color:#e8dcc4}
-  #s3 .mosque{left:0;bottom:430px;width:1080px}
-  #s3 .glow{left:140px;bottom:430px;width:800px;height:300px;background:radial-gradient(ellipse at 50% 100%,rgba(212,175,106,.35),transparent 70%)}
-  #s3 .brand{bottom:120px;left:90px;right:90px;display:flex;align-items:center;gap:36px;border-top:1px solid rgba(212,175,106,.5);padding-top:60px}
-  #s3 .logo{border:2px solid var(--gold);color:var(--gold)}
-  #s3 .firm{color:#f4e3bd}
+/* ============ 2 · EDİRNEKÂRİ ============ */
+#s2{background:radial-gradient(ellipse at 50% 35%,#7c1322 0%,#560a16 55%,#330510 100%);color:var(--altin2)}
+#s2 .frame{inset:56px;border:1.5px solid var(--altin);opacity:.85}
+#s2 .frame2{inset:72px;border:.75px solid var(--altin);opacity:.5}
+#s2 .orn{inset:0}
+#s2 .kick{top:690px;left:0;right:0;text-align:center;color:var(--altin)}
+#s2 .num{top:740px;left:0;right:0;text-align:center;font-family:'Cormorant Garamond';font-weight:500;font-size:330px;line-height:1;color:var(--altin2);letter-spacing:-.02em}
+#s2 .yil{top:1080px;left:0;right:0;text-align:center;font-family:'Cormorant Garamond';font-style:italic;font-size:56px;color:#f1e2c3}
+#s2 .p{top:1190px;left:170px;right:170px;text-align:center;font-size:27px;line-height:1.7;color:#ead9b8;opacity:.88}
+#s2 .b{bottom:150px;left:0;right:0;display:flex;justify-content:center;color:var(--altin2)}
 
-  /* ---------- 4. TİPOGRAFİK BÖLÜNMÜŞ ---------- */
-  #s4{background:#fff;color:#111}
-  #s4 .redside{left:0;top:0;width:100%;height:1120px;background:var(--red);clip-path:polygon(0 0,100% 0,100% 82%,0 100%)}
-  #s4 .vert{top:80px;left:70px;font-family:'Bebas Neue';font-size:380px;line-height:1;color:#fff;letter-spacing:6px}
-  #s4 .flag{top:120px;right:-60px;width:560px;transform:rotate(90deg);transform-origin:center;opacity:.0}
-  #s4 .crescent{top:470px;left:40px;width:420px}
-  #s4 .date{top:640px;right:80px;text-align:right;font-family:'Bebas Neue';font-size:120px;color:#fff;line-height:.95}
-  #s4 .date small{display:block;font-family:Montserrat;font-weight:500;font-size:28px;letter-spacing:6px}
-  #s4 .t{top:1180px;left:70px;right:70px;font-weight:900;font-size:92px;line-height:1.05;text-transform:uppercase}
-  #s4 .t span{color:var(--red)}
-  #s4 .p{top:1500px;left:70px;width:700px;font-size:32px;line-height:1.5;color:#444}
-  #s4 .brand{bottom:100px;right:70px;display:flex;align-items:center;gap:28px;flex-direction:row-reverse;text-align:right}
-  #s4 .logo{background:#111;color:#fff;width:130px;height:130px;font-size:38px}
-  #s4 .firm{font-size:38px}
-  #s4 .sub{font-size:22px;letter-spacing:5px}
+/* ============ 3 · MERİÇ ============ */
+#s3{background:linear-gradient(180deg,#0c1424 0%,#1b2540 30%,#55394a 52%,#c37a4f 64%,#e9b77a 69%,#3a2e35 69.2%,#121a2b 100%);color:#f6ead6}
+#s3 .sun{left:330px;top:960px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,#ffe2a8,#f2b56a 60%,rgba(242,181,106,0) 72%);opacity:.9}
+#s3 .sky{inset:0}
+#s3 .scene{left:0;top:980px;width:1080px}
+#s3 .kick{top:170px;left:100px;color:var(--altin2)}
+#s3 .h{top:240px;left:96px;right:96px;font-family:'Cormorant Garamond';font-weight:500;font-size:112px;line-height:1.0;letter-spacing:-.01em}
+#s3 .h i{color:#f0c58a}
+#s3 .p{top:735px;left:100px;width:640px;font-size:27px;line-height:1.65;color:#e3d6c4;opacity:.9}
+#s3 .b{bottom:110px;left:100px;right:100px;padding-top:56px;border-top:1px solid rgba(246,234,214,.35);color:#f6ead6}
 
-  /* ---------- 5. MODERN LALE / KÖPRÜ ---------- */
-  #s5{background:linear-gradient(160deg,#fff 0%,#fdecef 40%,#f6c9d0 100%);color:#5a0614}
-  #s5 .bigflag{top:0;left:0;width:1080px;height:760px;background:var(--red);border-radius:0 0 540px 540px/0 0 200px 200px}
-  #s5 .fl{top:120px;left:290px;width:500px}
-  #s5 .label{top:810px;width:100%;text-align:center;font-family:Cinzel;font-weight:700;font-size:34px;letter-spacing:12px;color:var(--red)}
-  #s5 .h{top:850px;width:100%;text-align:center;font-family:'Playfair Display';font-weight:900;font-size:104px;line-height:1.05}
-  #s5 .p{top:1195px;left:210px;right:210px;text-align:center;font-size:30px;line-height:1.55;color:#6b2a33}
-  #s5 .bridge{left:0;bottom:330px;width:1080px}
-  #s5 .tulipL{left:40px;bottom:560px;width:140px;transform:rotate(-12deg)}
-  #s5 .tulipR{right:40px;bottom:560px;width:140px;transform:rotate(12deg) scaleX(-1)}
-  #s5 .brand{bottom:0;width:100%;height:330px;background:#5a0614;color:#fff;display:flex;align-items:center;justify-content:center;gap:40px}
-  #s5 .logo{background:#fff;color:#5a0614}
+/* ============ 4 · EDİTORYAL ============ */
+#s4{background:var(--kagit);color:var(--murekkep)}
+#s4 .col{top:0;right:0;width:380px;height:100%;background:var(--bordo)}
+#s4 .min{top:120px;right:30px;width:320px}
+#s4 .kick{top:150px;left:90px;color:var(--kirmizi)}
+#s4 .y1{top:230px;left:84px;font-family:'Cormorant Garamond';font-weight:500;font-size:150px;line-height:1;color:#a39887}
+#s4 .y2{top:390px;left:84px;font-family:'Cormorant Garamond';font-weight:500;font-size:150px;line-height:1}
+#s4 .bar{top:385px;left:90px;width:520px;height:1px;background:var(--murekkep)}
+#s4 .big{top:560px;left:70px;font-family:'Cormorant Garamond';font-weight:600;font-size:420px;line-height:.85;color:var(--kirmizi);letter-spacing:-.04em}
+#s4 .lbl{top:930px;left:90px;width:560px;font-family:Cinzel;font-size:30px;letter-spacing:.3em;line-height:1.6}
+#s4 .h{top:1110px;left:90px;width:600px;font-family:'Cormorant Garamond';font-style:italic;font-weight:500;font-size:68px;line-height:1.1}
+#s4 .p{top:1360px;left:90px;width:560px;font-size:26px;line-height:1.7;color:#4a433b}
+#s4 .b{bottom:110px;left:90px;width:560px;padding-top:50px;border-top:1px solid rgba(0,0,0,.3)}
+#s4 .vt{bottom:120px;right:190px;transform:translateX(50%) rotate(-90deg);transform-origin:center;color:var(--altin2);white-space:nowrap}
+
+/* ============ 5 · ÇİNİ ============ */
+#s5{background:#f7f3ea;color:var(--murekkep)}
+#s5 .tiles{inset:0}
+#s5 .card{left:110px;right:110px;top:300px;bottom:300px;background:#fbf8f1;box-shadow:0 30px 80px rgba(20,30,60,.25)}
+#s5 .card::before{content:"";position:absolute;inset:22px;border:1px solid var(--kobalt);opacity:.45}
+#s5 .em{top:390px;left:0;right:0;display:flex;justify-content:center}
+#s5 .kick{top:600px;left:0;right:0;text-align:center;color:var(--kobalt)}
+#s5 .h{top:660px;left:150px;right:150px;text-align:center;font-family:'Cormorant Garamond';font-weight:500;font-size:100px;line-height:1.02}
+#s5 .h i{color:var(--mercan)}
+#s5 .orn{top:1010px;left:390px;width:300px}
+#s5 .p{top:1085px;left:200px;right:200px;text-align:center;font-size:26px;line-height:1.7;color:#4a433b}
+#s5 .b{top:1360px;left:0;right:0;display:flex;justify-content:center;color:var(--kobalt)}
 </style>
 </head>
 <body>
 
 <script>
-/* ===================== DÜZENLE ===================== *
- * name: firma adı, sub: alt satır (sektör / şehir),
- * logo: logo dosya yolu (örn. "logolar/firma1.png") — boş bırakılırsa baş harfler görünür
- * ================================================== */
+/* ======================= DÜZENLE =======================
+ * name : firma adı
+ * sub  : alt satır (sektör · şehir)
+ * logo : logo dosyası yolu (örn. "logolar/firma1.png", şeffaf PNG/SVG önerilir).
+ *        Boş bırakılırsa baş harfler görünür.
+ * ======================================================= */
 const FIRMALAR = [
-  {name:"FİRMA ADI 1", sub:"Edirne", logo:""},
-  {name:"FİRMA ADI 2", sub:"Edirne", logo:""},
-  {name:"FİRMA ADI 3", sub:"Edirne", logo:""},
-  {name:"FİRMA ADI 4", sub:"Edirne", logo:""},
-  {name:"FİRMA ADI 5", sub:"Edirne", logo:""},
+  {name:"Firma Adı 1", sub:"Edirne", logo:""},
+  {name:"Firma Adı 2", sub:"Edirne", logo:""},
+  {name:"Firma Adı 3", sub:"Edirne", logo:""},
+  {name:"Firma Adı 4", sub:"Edirne", logo:""},
+  {name:"Firma Adı 5", sub:"Edirne", logo:""},
 ];
 </script>
 
-<!-- 1 -->
+<!-- 1 · SELİMİYE -->
 <div class="story" id="s1">
-  <svg class="abs flag" data-flag viewBox="0 0 1500 1000"></svg>
-  <div class="abs date">25 KASIM 1922</div>
-  <div class="abs big">104</div>
-  <div class="abs yil">YIL ÖNCE BUGÜN</div>
-  <div class="abs msg">Edirne'mizin<br>Kurtuluşu<br>Kutlu Olsun</div>
-  <div class="abs ground"></div>
-  <svg class="abs mosque" data-mosque="#3c030c" viewBox="0 0 1080 420"></svg>
-  <div class="abs brand" data-brand="0"></div>
+  <div class="abs mark"><svg width="74" height="50" viewBox="0 0 1500 1000" data-cres="#b3122a"></svg><div class="kicker">Edirne · 25 Kasım 1922</div></div>
+  <div class="abs disc"></div>
+  <svg class="abs ill" viewBox="0 0 1000 640" data-selimiye="#1d1a17|#f4ede0"></svg>
+  <div class="abs rule"></div>
+  <div class="abs h">Bir şehrin hafızası,<br><i>bir milletin hürriyeti.</i></div>
+  <div class="abs p">Edirne'mizin kurtuluşunun 104. yıl dönümünde, bu kadim şehri bize yurt eden kahramanlarımızı rahmet ve minnetle anıyoruz.</div>
+  <div class="abs b"><div class="brand center" data-brand="0"></div></div>
+  <svg class="abs grain" data-grain></svg>
 </div>
 
-<!-- 2 -->
+<!-- 2 · EDİRNEKÂRİ -->
 <div class="story" id="s2">
   <div class="abs frame"></div><div class="abs frame2"></div>
-  <div class="abs top"><div class="sub" style="color:var(--red);opacity:1">1922 — 2026</div></div>
-  <div class="abs num">1<span>0</span>4</div>
-  <div class="abs t1">daima hürriyet</div>
-  <div class="abs t2">EDİRNE'NİN<br>KURTULUŞ YIL DÖNÜMÜ<br>KUTLU OLSUN</div>
-  <div class="abs line"></div>
-  <svg class="abs flagmini" data-flag viewBox="0 0 1500 1000" style="border:6px solid var(--cream)"></svg>
-  <div class="abs brand" data-brand="1"></div>
+  <svg class="abs orn" id="edk" viewBox="0 0 1080 1920"></svg>
+  <div class="abs kick kicker">Kurtuluşun</div>
+  <div class="abs num">104</div>
+  <div class="abs yil">yılında Edirne</div>
+  <div class="abs p">Lalesiyle, gülüyle, karanfiliyle;<br>Edirnekâri bir zarafetle işlenmiş bu şehrin hürriyeti, bizim en kıymetli mirasımızdır.<br><span style="font-family:Cinzel;letter-spacing:.3em;font-size:22px;color:var(--altin)">25 Kasım 1922</span></div>
+  <div class="abs b"><div class="brand center" data-brand="1"></div></div>
+  <svg class="abs grain" data-grain style="opacity:.22"></svg>
 </div>
 
-<!-- 3 -->
+<!-- 3 · MERİÇ -->
 <div class="story" id="s3">
-  <svg class="abs stars" id="stars" viewBox="0 0 1080 1920"></svg>
-  <svg class="abs moon" data-cres="#d4af6a" viewBox="0 0 1000 1000"></svg>
-  <div class="abs head">25 KASIM 1922</div>
-  <div class="abs h1">Hürriyetin<br><i>104.</i><br>Yılı</div>
-  <div class="abs p">Selimiye'nin gölgesinde, Meriç'in kıyısında… Edirne'mizin düşman işgalinden kurtuluşunun 104. yıl dönümünü gururla kutluyoruz.</div>
-  <div class="abs glow"></div>
-  <svg class="abs mosque" data-mosque="#d4af6a" data-outline viewBox="0 0 1080 420"></svg>
-  <div class="abs brand" data-brand="2"></div>
+  <svg class="abs sky" id="sky" viewBox="0 0 1080 1920"></svg>
+  <div class="abs sun"></div>
+  <svg class="abs scene" id="meric" viewBox="0 0 1080 940"></svg>
+  <div class="abs kick kicker">25 Kasım 1922 — 2026</div>
+  <div class="abs h">Meriç hep böyle aksın,<br><i>Edirne hep böyle<br>hür kalsın.</i></div>
+  <div class="abs p">Kurtuluşunun 104. yılında, Edirne'mizin her taşına, her köprüsüne, her sabahına selam olsun.</div>
+  <div class="abs b"><div class="brand" data-brand="2"></div></div>
+  <svg class="abs grain" data-grain style="opacity:.2;mix-blend-mode:overlay"></svg>
 </div>
 
-<!-- 4 -->
+<!-- 4 · EDİTORYAL -->
 <div class="story" id="s4">
-  <div class="abs redside"></div>
-  <div class="abs vert">EDİRNE</div>
-  <svg class="abs crescent" data-cres="#ffffff" viewBox="0 0 1000 1000"></svg>
-  <div class="abs date"><small>KURTULUŞUN</small>104.<br>YILI</div>
-  <div class="abs t">Bir gün değil,<br><span>nesillere</span><br>kalan miras.</div>
-  <div class="abs p">25 Kasım 1922'den bugüne, Edirne'nin özgürlüğü yüreğimizde. Kurtuluş yıl dönümümüz kutlu olsun.</div>
-  <div class="abs brand" data-brand="3"></div>
+  <div class="abs col"></div>
+  <svg class="abs min" id="minare" viewBox="0 0 320 1700"></svg>
+  <div class="abs kick kicker">Edirne'nin Kurtuluşu</div>
+  <div class="abs y1">1922</div>
+  <div class="abs bar"></div>
+  <div class="abs y2">2026</div>
+  <div class="abs big">104</div>
+  <div class="abs lbl">Yıllık hürriyet</div>
+  <div class="abs h">“Bir gün değil, nesillere kalan bir miras.”</div>
+  <div class="abs p">Selimiye'nin minarelerinden Meriç'in kıyısına, bu şehrin her köşesinde hürriyetin izi var. Kurtuluş yıl dönümümüz kutlu olsun.</div>
+  <div class="abs b"><div class="brand" data-brand="3"></div></div>
+  <div class="abs vt kicker" style="font-size:20px">Selimiye · Mimar Sinan · 1575</div>
+  <svg class="abs grain" data-grain></svg>
 </div>
 
-<!-- 5 -->
+<!-- 5 · ÇİNİ -->
 <div class="story" id="s5">
-  <div class="abs bigflag"></div>
-  <svg class="abs fl" data-cres="#ffffff" viewBox="0 0 1000 1000"></svg>
-  <div class="abs label">25 KASIM 1922 · 2026</div>
-  <div class="abs h">Edirne<br>104 Yıldır<br>Özgür</div>
-  <div class="abs p">Edirne'mizin kurtuluşunun 104. yıl dönümünü büyük bir gurur ve coşkuyla kutluyoruz.</div>
-  <svg class="abs tulipL" data-tulip viewBox="0 0 100 200"></svg>
-  <svg class="abs tulipR" data-tulip viewBox="0 0 100 200"></svg>
-  <svg class="abs bridge" id="bridge" viewBox="0 0 1080 260"></svg>
-  <div class="abs brand" data-brand="4"></div>
+  <svg class="abs tiles" id="cini" viewBox="0 0 1080 1920"></svg>
+  <div class="abs card"></div>
+  <div class="abs em"><svg width="180" height="180" viewBox="0 0 200 200" id="rozet"></svg></div>
+  <div class="abs kick kicker">25 Kasım 1922</div>
+  <div class="abs h">Çinisinde lale,<br><i>yüreğinde hürriyet.</i></div>
+  <svg class="abs orn" id="ayrac" viewBox="0 0 300 40"></svg>
+  <div class="abs p">Edirne'mizin düşman işgalinden kurtuluşunun 104. yıl dönümünü gurur ve coşkuyla kutluyoruz.</div>
+  <div class="abs b"><div class="brand center" data-brand="4"></div></div>
+  <svg class="abs grain" data-grain style="opacity:.1"></svg>
 </div>
 
 <script>
-const NS='http://www.w3.org/2000/svg';
-function star(cx,cy,R,r,rot){let p=[];for(let i=0;i<10;i++){const a=rot+i*Math.PI/5,rr=i%2?r:R;p.push((cx+rr*Math.cos(a)).toFixed(1)+','+(cy+rr*Math.sin(a)).toFixed(1))}return p.join(' ')}
-// Türk bayrağı (oranlar yaklaşık resmî ölçülere göre)
-function crescentStar(cx,cy,G,fg,bg){
-  const r1=G*.25, r2=G*.2, off=G*.0625, sR=G*.125, sx=cx+off+r2+G*(1/3)-G*.125+sR*.2;
-  return `<circle cx="${cx}" cy="${cy}" r="${r1}" fill="${fg}"/><circle cx="${cx+off}" cy="${cy}" r="${r2}" fill="${bg}"/>
-  <polygon fill="${fg}" points="${star(sx,cy,sR,sR*.382,Math.PI)}"/>`;
-}
-document.querySelectorAll('[data-flag]').forEach(s=>s.innerHTML=`<rect width="1500" height="1000" fill="#e30a17"/>`+crescentStar(500,500,1000,'#fff','#e30a17'));
-// sadece hilal-yıldız (arka planla aynı renkte iç daire maskesi)
-document.querySelectorAll('[data-cres]').forEach(s=>{
-  const c=s.dataset.cres,id='m'+Math.random().toString(36).slice(2);
-  s.innerHTML=`<defs><mask id="${id}"><rect width="1000" height="1000" fill="#fff"/><circle cx="${330+62.5}" cy="500" r="200" fill="#000"/></mask></defs>
-  <circle cx="330" cy="500" r="250" fill="${c}" mask="url(#${id})"/><polygon fill="${c}" points="${star(752,500,125,48,Math.PI)}"/>`;
-});
-// Selimiye silueti
-function mosque(fill,outline){
-  const st=outline?`fill="none" stroke="${fill}" stroke-width="4"`:`fill="${fill}"`;
-  let s='';
-  const mins=[250,330,750,830];
-  // gövde
-  s+=`<rect x="330" y="300" width="420" height="120" ${st}/>`;
-  s+=`<path d="M380 300 L380 260 L700 260 L700 300" ${st}/>`;
-  s+=`<path d="M410 260 Q410 140 540 140 Q670 140 670 260 Z" ${st}/>`;
-  s+=`<path d="M540 140 L540 100" stroke="${fill}" stroke-width="5"/><circle cx="540" cy="96" r="5" fill="${fill}"/>`;
-  s+=`<path d="M340 300 Q340 250 390 250 Q440 250 440 300 Z" ${st}/><path d="M640 300 Q640 250 690 250 Q740 250 740 300 Z" ${st}/>`;
-  // küçük kubbeler
-  for(let x of [450,500,580,630]) s+=`<path d="M${x-18} 262 Q${x-18} 236 ${x} 236 Q${x+18} 236 ${x+18} 262 Z" ${st}/>`;
-  mins.forEach(x=>{
-    s+=`<rect x="${x-9}" y="60" width="18" height="360" ${st}/>`;
-    s+=`<polygon points="${x-11},62 ${x},0 ${x+11},62" ${st}/>`;
-    for(const y of [150,220,290]) s+=`<rect x="${x-15}" y="${y}" width="30" height="8" ${st}/>`;
-  });
-  // ağaç/şehir zemini
-  if(!outline) s+=`<path d="M0 420 L0 380 Q60 340 120 375 Q170 330 230 370 L330 370 L330 420 Z M750 370 L850 370 Q900 330 960 372 Q1020 340 1080 380 L1080 420 Z" fill="${fill}"/>`;
-  else s+=`<line x1="60" y1="420" x2="1020" y2="420" stroke="${fill}" stroke-width="3"/>`;
+/* ---------- yardımcılar ---------- */
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+function star(cx,cy,R,r,rot){let p=[];for(let i=0;i<10;i++){const a=rot+i*Math.PI/5,q=i%2?r:R;p.push((cx+q*Math.cos(a)).toFixed(1)+','+(cy+q*Math.sin(a)).toFixed(1))}return p.join(' ')}
+// Ay-yıldız (bayrak oranları, viewBox 1500x1000)
+$$('[data-cres]').forEach(s=>{const c=s.dataset.cres,id='m'+Math.random().toString(36).slice(2);
+  s.innerHTML=`<defs><mask id="${id}"><rect width="1500" height="1000" fill="#fff"/><circle cx="562.5" cy="500" r="200" fill="#000"/></mask></defs>
+  <circle cx="500" cy="500" r="250" fill="${c}" mask="url(#${id})"/><polygon fill="${c}" points="${star(854,500,125,47.7,Math.PI)}"/>`});
+// Kâğıt dokusu
+$$('[data-grain]').forEach(s=>{const id='g'+Math.random().toString(36).slice(2);s.setAttribute('viewBox','0 0 1080 1920');
+  s.innerHTML=`<filter id="${id}"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .9 0"/></filter><rect width="1080" height="1920" filter="url(#${id})"/>`});
+
+/* ---------- SELİMİYE (gravür çizimi) ---------- */
+function selimiye(ink,paper,o={}){
+  const sw=o.sw||2, F=`fill="${paper}" stroke="${ink}" stroke-width="${sw}" stroke-linejoin="round"`;
+  const id='h'+Math.random().toString(36).slice(2);
+  let s=`<defs><pattern id="${id}" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><line x1="0" y1="0" x2="0" y2="7" stroke="${ink}" stroke-width="1.1"/></pattern></defs>`;
+  const G=590; // zemin
+  const arch=(x,y,w,h)=>`M${x} ${y+h} L${x} ${y+w*.6} Q${x} ${y} ${x+w/2} ${y-w*.25} Q${x+w} ${y} ${x+w} ${y+w*.6} L${x+w} ${y+h}`;
+  const dome=(cx,by,r,h)=>`M${cx-r} ${by} C${cx-r} ${by-h*.62} ${cx-r*.55} ${by-h} ${cx} ${by-h} C${cx+r*.55} ${by-h} ${cx+r} ${by-h*.62} ${cx+r} ${by} Z`;
+  const alem=(x,y,k=1)=>`<line x1="${x}" y1="${y}" x2="${x}" y2="${y-16*k}" stroke="${ink}" stroke-width="${sw}"/><circle cx="${x}" cy="${y-6*k}" r="${3*k}" fill="${ink}"/><circle cx="${x}" cy="${y-13*k}" r="${2.2*k}" fill="${ink}"/>`;
+  // ARKA MİNARELER
+  const minare=(x,top,w,back)=>{let m='';const op=back?' opacity=".9"':'';
+    m+=`<g${op}><rect x="${x-w/2}" y="${top+70}" width="${w}" height="${G-top-70}" ${F}/>`;
+    for(let k=-1;k<=1;k+=2) m+=`<line x1="${x+k*w*.22}" y1="${top+80}" x2="${x+k*w*.22}" y2="${G}" stroke="${ink}" stroke-width=".8"/>`;
+    [0,1,2].forEach(i=>{const y=top+150+i*85;
+      m+=`<path d="M${x-w/2} ${y+16} L${x-w/2-7} ${y+4} L${x+w/2+7} ${y+4} L${x+w/2} ${y+16} Z" ${F}/>`;
+      m+=`<rect x="${x-w/2-9}" y="${y-6}" width="${w+18}" height="10" ${F}/>`;
+      for(let j=0;j<5;j++) m+=`<line x1="${x-w/2-6+j*(w+12)/4}" y1="${y-6}" x2="${x-w/2-6+j*(w+12)/4}" y2="${y+4}" stroke="${ink}" stroke-width=".8"/>`;});
+    m+=`<rect x="${x-w*.4}" y="${top+60}" width="${w*.8}" height="12" ${F}/>`;
+    m+=`<path d="M${x-w*.45} ${top+62} L${x} ${top} L${x+w*.45} ${top+62} Z" fill="url(#${id})" stroke="${ink}" stroke-width="${sw}"/>`;
+    m+=alem(x,top,1)+'</g>'; return m};
+  s+=minare(392,62,16,1)+minare(808,62,16,1);
+  // AVLU (sol) — kubbeli revaklar
+  s+=`<rect x="70" y="482" width="300" height="${G-482}" ${F}/>`;
+  for(let i=0;i<7;i++){const cx=92+i*40;s+=`<path d="${dome(cx,482,17,24)}" ${F}/>`+alem(cx,458,.5)}
+  for(let i=0;i<7;i++) s+=`<path d="${arch(80+i*40,520,22,60)}" fill="none" stroke="${ink}" stroke-width="1.2"/>`;
+  s+=`<rect x="190" y="455" width="62" height="${G-455}" ${F}/><path d="${arch(203,485,36,105)}" fill="url(#${id})" stroke="${ink}" stroke-width="${sw}"/>`;
+  // HARİM gövdesi
+  s+=`<rect x="370" y="392" width="460" height="${G-392}" ${F}/>`;
+  s+=`<rect x="370" y="392" width="460" height="14" ${F}/>`;
+  for(let r=0;r<3;r++)for(let i=0;i<10;i++){const x=388+i*44,y=420+r*56;s+=`<path d="${arch(x,y,20,36)}" fill="${r==2?'url(#'+id+')':'none'}" stroke="${ink}" stroke-width="1.2"/>`}
+  // gölge (sağ cephe)
+  s+=`<rect x="740" y="406" width="90" height="${G-406}" fill="url(#${id})" opacity=".55"/>`;
+  // köşe kubbeleri
+  [[430,46],[770,46]].forEach(([cx,r])=>{s+=`<rect x="${cx-r-4}" y="372" width="${2*r+8}" height="20" ${F}/><path d="${dome(cx,372,r,46)}" ${F}/>`+alem(cx,326,.6)});
+  // kasnak + payanda kuleleri
+  s+=`<rect x="462" y="300" width="276" height="92" ${F}/>`;
+  for(let i=0;i<9;i++) s+=`<path d="${arch(474+i*29,322,14,40)}" fill="none" stroke="${ink}" stroke-width="1.1"/>`;
+  s+=`<rect x="660" y="300" width="78" height="92" fill="url(#${id})" opacity=".55"/>`;
+  [470,546,654,730].forEach(x=>{s+=`<rect x="${x-13}" y="262" width="26" height="130" ${F}/><path d="${dome(x,262,15,22)}" ${F}/>`+alem(x,240,.45)+`<path d="${arch(x-5,290,10,22)}" fill="none" stroke="${ink}" stroke-width="1"/>`});
+  // ANA KUBBE
+  s+=`<rect x="476" y="282" width="248" height="20" ${F}/>`;
+  for(let i=0;i<20;i++) s+=`<path d="${arch(482+i*12,286,7,14)}" fill="none" stroke="${ink}" stroke-width=".9"/>`;
+  const D=dome(600,282,128,150);
+  s+=`<path d="${D}" ${F}/>`;
+  s+=`<clipPath id="${id}c"><path d="${D}"/></clipPath><g clip-path="url(#${id}c)"><rect x="620" y="120" width="120" height="170" fill="url(#${id})"/>`;
+  for(let k=-6;k<=6;k++){const x=600+k*20;s+=`<path d="M${x} 282 Q${600+k*13} 175 600 132" fill="none" stroke="${ink}" stroke-width=".8"/>`}
+  s+=`</g>`+alem(600,132,1.25);
+  // ÖN MİNARELER
+  s+=minare(358,40,18)+minare(842,40,18);
+  // zemin & selvi ağaçları
+  s+=`<line x1="20" y1="${G}" x2="980" y2="${G}" stroke="${ink}" stroke-width="${sw}"/>`;
+  const selvi=(x,h)=>`<path d="M${x} ${G} C${x-16} ${G-h*.4} ${x-10} ${G-h*.8} ${x} ${G-h} C${x+10} ${G-h*.8} ${x+16} ${G-h*.4} ${x} ${G} Z" fill="url(#${id})" stroke="${ink}" stroke-width="1.4"/>`;
+  s+=selvi(40,150)+selvi(905,170)+selvi(945,120)+selvi(70,100);
+  for(let i=0;i<4;i++) s+=`<line x1="${90+i*230}" y1="${G+14+i%2*8}" x2="${200+i*230}" y2="${G+14+i%2*8}" stroke="${ink}" stroke-width=".8" opacity=".6"/>`;
   return s;
 }
-document.querySelectorAll('[data-mosque]').forEach(s=>s.innerHTML=mosque(s.dataset.mosque,s.hasAttribute('data-outline')));
-// yıldızlar
-(()=>{let s='',seed=7;const rnd=()=>(seed=(seed*9301+49297)%233280)/233280;for(let i=0;i<140;i++)s+=`<circle cx="${rnd()*1080}" cy="${rnd()*1100}" r="${rnd()*2.4+.4}" fill="#fff" opacity="${rnd()*.7+.2}"/>`;document.getElementById('stars').innerHTML=s})();
-// Meriç köprüsü
-(()=>{let s=`<rect x="0" y="80" width="1080" height="22" fill="#5a0614"/>`;
-  for(let i=0;i<9;i++){const x=i*120+10;s+=`<path d="M${x} 102 L${x+120} 102 L${x+120} 260 L${x+105} 260 Q${x+105} 150 ${x+60} 150 Q${x+15} 150 ${x+15} 260 L${x} 260 Z" fill="#5a0614"/>`}
-  s+=`<rect x="520" y="20" width="40" height="62" fill="#5a0614"/><polygon points="514,22 540,0 566,22" fill="#5a0614"/>`;
-  s+=`<rect x="0" y="230" width="1080" height="30" fill="#5a0614" opacity=".15"/>`;
-  document.getElementById('bridge').innerHTML=s})();
-// lale
-document.querySelectorAll('[data-tulip]').forEach(s=>s.innerHTML=`<path d="M50 95 Q52 150 48 200" stroke="#2f6b3a" stroke-width="5" fill="none"/><path d="M49 170 Q20 140 15 110 Q40 125 49 160Z" fill="#2f6b3a"/><path d="M50 100 Q15 90 18 40 Q30 10 30 10 Q38 40 50 30 Q62 40 70 10 Q82 40 82 40 Q85 90 50 100Z" fill="#c8102e"/>`);
-// marka blokları
-function initials(n){return n.split(/\s+/).filter(w=>!/^\d+$/.test(w)).slice(0,2).map(w=>w[0]).join('')}
-document.querySelectorAll('[data-brand]').forEach(b=>{
-  const f=FIRMALAR[+b.dataset.brand];
-  const logo=f.logo?`<img src="${f.logo}">`:initials(f.name);
-  b.innerHTML=`<div class="logo">${logo}</div><div><div class="firm">${f.name}</div><div class="sub">${f.sub}</div></div>`;
-  if(b.closest('#s1,#s2')) b.querySelector('div:last-child').style.textAlign='center';
-});
+$$('[data-selimiye]').forEach(e=>{const[i,p]=e.dataset.selimiye.split('|');e.innerHTML=selimiye(i,p)});
+
+/* ---------- EDİRNEKÂRİ motifleri ---------- */
+const lale=(c,c2)=>`<path d="M0 0 C-22 -10 -26 -44 -18 -82 C-12 -58 -6 -54 -3 -50 C-4 -70 -2 -88 0 -100 C2 -88 4 -70 3 -50 C6 -54 12 -58 18 -82 C26 -44 22 -10 0 0Z" fill="${c}"/><path d="M0 -4 C-8 -20 -8 -40 -3 -50 M0 -4 C8 -20 8 -40 3 -50" stroke="${c2}" stroke-width="2" fill="none"/>`;
+const karanfil=(c,c2)=>`<path d="M0 0 C-16 -6 -30 -22 -34 -44 L-24 -38 L-28 -56 L-16 -46 L-14 -66 L-5 -50 L0 -70 L5 -50 L14 -66 L16 -46 L28 -56 L24 -38 L34 -44 C30 -22 16 -6 0 0Z" fill="${c}"/><path d="M-10 4 L0 -16 L10 4 Z" fill="${c2}"/>`;
+const gul=(c,c2)=>{let g=`<circle r="30" fill="${c}"/>`;for(let i=0;i<10;i++){const a=i*Math.PI/5;g+=`<circle cx="${26*Math.cos(a)}" cy="${26*Math.sin(a)}" r="9" fill="${c}"/>`}
+  return g+`<circle r="19" fill="none" stroke="${c2}" stroke-width="2"/><circle r="10" fill="none" stroke="${c2}" stroke-width="2"/><circle r="3" fill="${c2}"/>`};
+const yaprak=(c,c2,L=110)=>`<path d="M0 0 C${L*.25} ${-L*.28} ${L*.7} ${-L*.3} ${L} ${-L*.08} C${L*.65} ${-L*.02} ${L*.3} ${L*.06} 0 0Z" fill="${c}"/><path d="M4 -2 C${L*.4} ${-L*.12} ${L*.7} ${-L*.13} ${L*.92} ${-L*.08}" stroke="${c2}" stroke-width="1.5" fill="none"/>`;
+const bud=(c)=>`<path d="M0 0 C-8 -6 -8 -18 0 -28 C8 -18 8 -6 0 0Z" fill="${c}"/>`;
+const T=(x,y,r=0,s=1,inner)=>`<g transform="translate(${x} ${y}) rotate(${r}) scale(${s})">${inner}</g>`;
+
+function vazoBuket(cx,by,s,A,B,C,D){ // Edirnekâri vazoda çiçek
+  let g='';
+  const stem=(x2,y2,cx1,cy1)=>`<path d="M0 0 Q${cx1} ${cy1} ${x2} ${y2}" stroke="${A}" stroke-width="2.4" fill="none"/>`;
+  const sap=[[0,-250,0,-120],[-110,-200,-20,-120],[110,-200,20,-120],[-160,-110,-60,-60],[160,-110,60,-60],[-60,-150,-10,-80],[60,-150,10,-80]];
+  sap.forEach(([x,y,a,b])=>g+=stem(x,y,a,b));
+  g+=T(-14,-60,-150,.9,yaprak(D,B,120))+T(14,-60,-30,.9,yaprak(D,B,120)).replace('scale(0.9)','scale(.9 -.9)');
+  g+=T(-8,-170,-120,.7,yaprak(D,B,110))+T(8,-170,-60,.7,yaprak(D,B,110)).replace('scale(0.7)','scale(.7 -.7)');
+  g+=T(-90,-80,-175,.6,yaprak(D,B,110))+T(90,-80,-5,.6,yaprak(D,B,110)).replace('scale(0.6)','scale(.6 -.6)');
+  g+=T(0,-250,0,1.15,lale(C,B))+T(-110,-200,-25,.9,karanfil(C,B))+T(110,-200,25,.9,karanfil(C,B));
+  g+=T(-160,-110,0,.9,gul(C,B))+T(160,-110,0,.9,gul(C,B));
+  g+=T(-60,-150,-15,.75,lale(D,B))+T(60,-150,15,.75,lale(D,B));
+  g+=T(-130,-30,-60,1,bud(C))+T(130,-30,60,1,bud(C));
+  // vazo
+  g+=`<path d="M-30 0 L30 0 C34 14 60 26 62 60 C64 100 34 118 30 126 L-30 126 C-34 118 -64 100 -62 60 C-60 26 -34 14 -30 0Z" fill="${A}"/>
+      <path d="M-46 50 C-20 64 20 64 46 50 M-48 80 C-20 94 20 94 48 80" stroke="${B}" stroke-width="2" fill="none"/>
+      <rect x="-38" y="-8" width="76" height="12" rx="3" fill="${A}"/><rect x="-36" y="126" width="72" height="12" rx="3" fill="${A}"/>`;
+  g+=T(0,70,0,.55,gul(C,B));
+  return T(cx,by,0,s,g);
+}
+function koseMotif(x,y,r,A,B,C,D){ // köşe çiçek demeti
+  let g=`<path d="M0 0 Q60 10 150 90 M0 0 Q10 60 90 150" stroke="${A}" stroke-width="2" fill="none"/>`;
+  g+=T(150,90,35,.7,lale(C,B))+T(90,150,55,.7,lale(C,B))+T(70,70,0,.7,gul(C,B))+T(40,10,15,.6,yaprak(D,B,100))+T(10,40,75,.6,yaprak(D,B,100)).replace('scale(0.6)','scale(.6 -.6)');
+  return T(x,y,r,1,g);
+}
+(()=>{const A='#c9a46a',B='#5a0a16',C='#e2c891',D='#b08c52';let s='';
+  s+=vazoBuket(540,520,1.22,A,B,C,D);
+  s+=koseMotif(90,90,0,A,B,C,D)+koseMotif(990,90,90,A,B,C,D)+koseMotif(990,1830,180,A,B,C,D)+koseMotif(90,1830,270,A,B,C,D);
+  // ayraç
+  s+=`<line x1="300" y1="1470" x2="500" y2="1470" stroke="${A}" stroke-width="1"/><line x1="580" y1="1470" x2="780" y2="1470" stroke="${A}" stroke-width="1"/>`+T(540,1488,0,.5,lale(C,B));
+  // logo üstü ince çizgi
+  $('#edk').innerHTML=s})();
+
+/* ---------- MERİÇ: gökyüzü + köprü + siluet ---------- */
+(()=>{let s='',sd=11;const r=()=>(sd=(sd*9301+49297)%233280)/233280;
+  for(let i=0;i<120;i++) s+=`<circle cx="${r()*1080}" cy="${r()*800}" r="${r()*1.8+.3}" fill="#fff" opacity="${r()*.6+.15}"/>`;
+  $('#sky').innerHTML=s;
+  // sahne: ufuk y=344 (1920*.69-980=345)
+  const H=345,ink='#151a29';let m='';
+  // uzakta Selimiye silueti
+  m+=`<g transform="translate(285 ${H-372}) scale(.52)" opacity=".9">${selimiye('#2c2535','#2c2535',{sw:3})}</g>`;
+  m+=`<path d="M0 ${H} L0 ${H-30} Q120 ${H-60} 240 ${H-34} Q300 ${H-50} 340 ${H-24} L760 ${H-24} Q820 ${H-56} 900 ${H-30} Q980 ${H-58} 1080 ${H-34} L1080 ${H} Z" fill="#2c2535"/>`;
+  // Meriç köprüsü (12 kemer + köşk)
+  const top=H-120, n=9, aw=1080/n;
+  let br=`<rect x="-10" y="${top}" width="1100" height="34" fill="${ink}"/><rect x="-10" y="${top-14}" width="1100" height="16" fill="${ink}"/>`;
+  for(let i=0;i<n;i++){const x=i*aw;br+=`<path d="M${x} ${top+30} L${x+aw} ${top+30} L${x+aw} ${H} L${x+aw-16} ${H} L${x+aw-16} ${H-34} Q${x+aw-16} ${top+48} ${x+aw/2} ${top+44} Q${x+16} ${top+48} ${x+16} ${H-34} L${x+16} ${H} L${x} ${H} Z" fill="${ink}"/>`;
+    br+=`<path d="M${x-6} ${H} L${x} ${H-40} L${x+6} ${H} Z" fill="${ink}"/>`;}
+  for(let i=0;i<54;i++) br+=`<rect x="${i*20+4}" y="${top-26}" width="9" height="13" fill="${ink}"/>`;
+  // köşk
+  const kx=540;br+=`<rect x="${kx-58}" y="${top-96}" width="116" height="84" fill="${ink}"/><path d="M${kx-72} ${top-96} L${kx} ${top-150} L${kx+72} ${top-96} Z" fill="${ink}"/>`;
+  for(let k=-1;k<=1;k++) br+=`<path d="M${kx+k*34-11} ${top-24} L${kx+k*34-11} ${top-66} Q${kx+k*34} ${top-82} ${kx+k*34+11} ${top-66} L${kx+k*34+11} ${top-24} Z" fill="#e9b77a" opacity=".85"/>`;
+  br+=`<line x1="${kx}" y1="${top-150}" x2="${kx}" y2="${top-172}" stroke="${ink}" stroke-width="4"/>`;
+  m+=br;
+  // yansıma
+  m+=`<g transform="translate(0 ${2*H}) scale(1 -1)" opacity=".35"><g>${br}</g></g>`;
+  m+=`<rect x="0" y="${H}" width="1080" height="${940-H}" fill="url(#wfade)"/>`;
+  for(let i=0;i<60;i++){const y=H+8+r()*300,x=r()*1080,w=40+r()*160;m+=`<line x1="${x}" y1="${y}" x2="${x+w}" y2="${y}" stroke="#f2c48a" stroke-width="${r()*1.5+.5}" opacity="${(1-(y-H)/320)*.45}"/>`}
+  $('#meric').innerHTML=`<defs><linearGradient id="wfade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#121a2b" stop-opacity="0"/><stop offset=".7" stop-color="#121a2b" stop-opacity=".9"/><stop offset="1" stop-color="#121a2b"/></linearGradient></defs>`+m;
+})();
+
+/* ---------- EDİTORYAL: tek minare çizimi ---------- */
+(()=>{const ink='#e2c891',bg='#6d0f1c',x=160,w=70;let s='';const F=`fill="${bg}" stroke="${ink}" stroke-width="2"`;
+  s+=`<rect x="${x-w/2}" y="330" width="${w}" height="1400" ${F}/>`;
+  for(let k=-2;k<=2;k++) s+=`<line x1="${x+k*12}" y1="340" x2="${x+k*12}" y2="1700" stroke="${ink}" stroke-width=".8" opacity=".7"/>`;
+  [560,860,1160].forEach(y=>{
+    s+=`<path d="M${x-w/2} ${y+70} L${x-w/2-30} ${y+20} L${x+w/2+30} ${y+20} L${x+w/2} ${y+70} Z" ${F}/>`;
+    for(let j=0;j<4;j++) s+=`<path d="M${x-w/2-24+j*0} ${y+20} " />`;
+    for(let j=0;j<6;j++){const xx=x-w/2-22+j*(w+44)/5;s+=`<path d="M${xx} ${y+22} L${xx} ${y+36} Q${xx+ (w+44)/10} ${y+56} ${xx+(w+44)/5} ${y+36}" fill="none" stroke="${ink}" stroke-width="1"/>`}
+    s+=`<rect x="${x-w/2-38}" y="${y-22}" width="${w+76}" height="42" ${F}/>`;
+    for(let j=0;j<10;j++) s+=`<line x1="${x-w/2-30+j*(w+60)/9}" y1="${y-22}" x2="${x-w/2-30+j*(w+60)/9}" y2="${y+20}" stroke="${ink}" stroke-width="1"/>`;});
+  s+=`<rect x="${x-w*.42}" y="290" width="${w*.84}" height="40" ${F}/>`;
+  s+=`<path d="M${x-w*.48} 292 L${x} 40 L${x+w*.48} 292 Z" ${F}/>`;
+  for(let k=1;k<8;k++){const y=40+k*32,hw=(y-40)/252*w*.48;s+=`<line x1="${x-hw}" y1="${y}" x2="${x+hw}" y2="${y}" stroke="${ink}" stroke-width=".7" opacity=".7"/>`}
+  s+=`<line x1="${x}" y1="40" x2="${x}" y2="-30" stroke="${ink}" stroke-width="3"/>`;
+  $('#minare').setAttribute('viewBox','0 -60 320 1760');
+  $('#minare').innerHTML=s})();
+
+/* ---------- ÇİNİ deseni ---------- */
+(()=>{const K='#1c3f8f',Tq='#2b8c8c',M='#b8322a',W='#f7f3ea';const S=180;let tile='';
+  tile+=`<rect width="${S}" height="${S}" fill="${W}"/><rect x="2" y="2" width="${S-4}" height="${S-4}" fill="none" stroke="${K}" stroke-width="1" opacity=".35"/>`;
+  // dört köşeden çeyrek rozet + ortada lale
+  const yildiz8=(cx,cy,R)=>{let p=[];for(let i=0;i<16;i++){const a=i*Math.PI/8,q=i%2?R*.62:R;p.push((cx+q*Math.cos(a)).toFixed(1)+','+(cy+q*Math.sin(a)).toFixed(1))}return p.join(' ')};
+  for(const [cx,cy] of [[0,0],[S,0],[0,S],[S,S]]) tile+=`<polygon points="${yildiz8(cx,cy,46)}" fill="${K}"/><polygon points="${yildiz8(cx,cy,30)}" fill="${W}" transform="rotate(22.5 ${cx} ${cy})"/><circle cx="${cx}" cy="${cy}" r="11" fill="${Tq}"/>`;
+  tile+=T(S/2,S/2+52,0,.85,lale(M,W))+T(S/2-8,S/2+48,-55,.4,yaprak(Tq,W,110))+T(S/2+8,S/2+48,-125,.4,yaprak(Tq,W,110)).replace('scale(0.4)','scale(.4 -.4)');
+  tile+=T(S/2,S/2-78,0,.32,gul(K,W));
+  for(const [x,y,r] of [[S/2,4,180],[S/2,S-4,0],[4,S/2,90],[S-4,S/2,270]]) tile+=T(x,y,r,.32,bud(Tq));
+  let s=`<defs><pattern id="tl" width="${S}" height="${S}" patternUnits="userSpaceOnUse" x="0" y="0">${tile}</pattern></defs><rect width="1080" height="1920" fill="url(#tl)"/>`;
+  $('#cini').innerHTML=s;
+  // rozet (ay-yıldız + çini halka)
+  let r=`<circle cx="100" cy="100" r="96" fill="none" stroke="${K}" stroke-width="2"/><circle cx="100" cy="100" r="86" fill="none" stroke="${K}" stroke-width="1" opacity=".5"/>`;
+  for(let i=0;i<16;i++){const a=i*Math.PI/8;r+=`<circle cx="${100+91*Math.cos(a)}" cy="${100+91*Math.sin(a)}" r="3" fill="${i%2?Tq:M}"/>`}
+  r+=`<circle cx="100" cy="100" r="70" fill="#c8102e"/><g transform="translate(23 48) scale(.105)"><mask id="rm"><rect width="1500" height="1000" fill="#fff"/><circle cx="562.5" cy="500" r="200" fill="#000"/></mask><circle cx="500" cy="500" r="250" fill="#fff" mask="url(#rm)"/><polygon fill="#fff" points="${star(854,500,125,47.7,Math.PI)}"/></g>`;
+  $('#rozet').innerHTML=r;
+  $('#ayrac').innerHTML=`<line x1="0" y1="20" x2="120" y2="20" stroke="${K}"/><line x1="180" y1="20" x2="300" y2="20" stroke="${K}"/>`+T(150,34,0,.3,lale(M,W));
+})();
+
+/* ---------- Marka blokları ---------- */
+const ini=n=>n.split(/\s+/).filter(w=>!/^\d+$/.test(w)&&w.length>1).slice(0,2).map(w=>w[0].toLocaleUpperCase('tr')).join('');
+$$('[data-brand]').forEach(b=>{const f=FIRMALAR[+b.dataset.brand];
+  b.innerHTML=`<div class="lg">${f.logo?`<img src="${f.logo}">`:ini(f.name)}</div><div><div class="nm">${f.name}</div><div class="sb">${f.sub}</div></div>`});
 </script>
 </body>
 </html>

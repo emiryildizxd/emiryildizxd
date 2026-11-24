@@ -324,6 +324,20 @@ def applause(dur, p=1.0):
     return np.tanh(y * e * 0.8) * 0.8
 
 
+def beep(p=0.0):
+    """Hasta monitörü bip sesi."""
+    t = T(0.16)
+    f = 960 + 240 * p
+    return (np.sin(2 * np.pi * f * t) + 0.2 * np.sin(4 * np.pi * f * t)) * np.minimum(1, t / 0.004) * np.clip((0.13 - t) / 0.02, 0, 1) * 0.45
+
+
+def blup(p=0.0):
+    """Bataklık kabarcığı."""
+    t = T(0.25)
+    f = 140 + 260 * np.minimum(1, t / 0.12) + 80 * p
+    return osc_sweep(f) * np.minimum(1, t / 0.01) * np.exp(-t / 0.06) * 0.6
+
+
 # ------------------------------------------------------------------ mikser
 class Bus:
     def __init__(self, dur):
@@ -503,6 +517,10 @@ def sfx(cues, dur):
             fx.add_st(reverb(metal_hit(0.7, 0.6), 0.3), t + 0.45, 0.55)
             fx.add(thud(0.0), t + 0.5, 0.6)
             fx.add_st(reverb(sad_tone(2.0), 0.5), t + 0.4, 0.7)
+        elif k == "beep":
+            fx.add(beep(p), t, c.get("g", 0.5))
+        elif k == "blup":
+            fx.add_st(reverb(blup(p), 0.3), t, c.get("g", 0.45))
         elif k == "applause":
             fx.add_st(reverb(applause(c["d"], p), 0.35), t, 0.6)
         elif k == "sad":

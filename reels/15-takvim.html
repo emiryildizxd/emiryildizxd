@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Takvim Merdiveni</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="reel.css">
+</head>
+<body>
+<script src="engine.js"></script>
+<script>
+/* REEL 15 — "TAKVİM MERDİVENİ"
+   Her hafta iki adamın üstüne birer takvim yaprağı düşer. 52 hafta, aynı yapraklar.
+   Biri her yaprağa basıp yükselir: yapraklar merdiven olur. Diğeri telefondan kafasını
+   kaldırmaz: aynı yapraklar üstüne yığılır, altında kalır. Giriş yok: ilk karede yaprak düşüyor. */
+(function () {
+  const { lerp, clamp, E, prog, rng } = F;
+  const ground = 1420, NW = 52, T0 = 0.1, TE = 11.6, SL = 14, PW = 170;
+  const drop = (k) => T0 + k * (TE - T0) / NW, land = (k) => drop(k) + 0.45;
+  const AX0 = 130, BX = 820;
+  const slabA = (k) => ({ x: AX0 + k * 7, y: ground - (k + 1) * SL });
+  const r = rng(15);
+  const JIT = Array.from({ length: NW }, () => ({ dx: (r() - 0.5) * 70, rot: (r() - 0.5) * 0.35 }));
+  const slabB = (k) => ({ x: BX + JIT[k].dx, y: ground - (k + 1) * SL * 0.95, rot: JIT[k].rot });
+  const MON = ['OCA', 'ŞUB', 'MAR', 'NİS', 'MAY', 'HAZ', 'TEM', 'AĞU', 'EYL', 'EKİ', 'KAS', 'ARA'];
+
+  function sheet(ctx, x, y, rot, k, sc = 1) {           // düşen takvim yaprağı (önden)
+    ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.scale(sc, sc);
+    ctx.fillStyle = '#ece7dd'; ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 12; F.rrect(ctx, -60, -50, 120, 100, 8); ctx.fill();
+    ctx.shadowBlur = 0; ctx.fillStyle = '#e0414f'; F.rrect(ctx, -60, -50, 120, 26, [8, 8, 0, 0]); ctx.fill();
+    ctx.restore();
+    ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.scale(sc, sc);
+    F.text(ctx, MON[Math.floor(k / 52 * 12)], 0, -37, { size: 15, weight: 800, color: '#fff', ls: 2 });
+    F.text(ctx, String(k + 1), 0, 12, { size: 40, weight: 900, color: '#1b1b1f' });
+    ctx.restore();
+  }
+  function slab(ctx, x, y, rot, glow) {                   // yere oturmuş yaprak (yandan)
+    ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
+    ctx.fillStyle = '#d9d3c8'; if (glow) { ctx.shadowColor = F.CONFIG.gold; ctx.shadowBlur = glow; }
+    F.rrect(ctx, -PW / 2, -SL / 2, PW, SL - 2, 3); ctx.fill();
+    ctx.shadowBlur = 0; ctx.fillStyle = '#e0414f'; ctx.fillRect(-PW / 2, -SL / 2, PW, 3);
+    ctx.restore();
+  }
+
+  Reel({
+    title: 'Takvim Merdiveni',
+    duration: 20,
+    cues() {
+      const c = [{ t: 0, type: 'hit' }];
+      for (let k = 0; k < NW; k++) { c.push({ t: land(k), type: 'block', p: k / NW }); if (k % 2 === 0) c.push({ t: land(k) + 0.08, type: 'step', p: 0.2 + 0.6 * k / NW }); }
+      for (let t = 0.3; t < 12; t += 0.5) c.push({ t, type: 'swipe' });
+      c.push({ t: land(NW - 1) + 0.2, type: 'climax' }, { t: land(NW - 1) + 0.3, type: 'sad' },
+        { t: 0.6, type: 'whoosh' }, { t: 3.8, type: 'whoosh' }, { t: 7.2, type: 'whoosh' }, { t: 10.7, type: 'whoosh' },
+        { t: 13.0, type: 'drop' }, { t: 13.3, type: 'punch' }, { t: 14.5, type: 'hit' }, { t: 17.3, type: 'end' });
+      return { music: { bpm: 132, grid0: 0.0, climax: land(NW - 1) + 0.2, punch: 13.3, end: 17.3, prog: 'am', drums: 'full' }, cues: c };
+    },
+    draw(ctx, t, F) {
+      const { W, H, CONFIG: C } = F;
+      const nL = Array.from({ length: NW }, (_, k) => k).filter((k) => t >= land(k)).length;
+      const done = nL === NW;
+      const up = prog(t, land(NW - 1), land(NW - 1) + 0.8);
+      F.background(ctx, t, { tint: F.hexA(C.gold, 0.04 + 0.08 * up), tintY: 700 });
+
+      // ---- HUD ----
+      F.text(ctx, 'HAFTA', W / 2, 250, { size: 26, weight: 800, color: C.dim, ls: 6 });
+      F.text(ctx, String(Math.max(1, nL)).padStart(2, '0') + ' / 52', W / 2, 315, { size: 70, weight: 700, font: C.mono, glow: 14, glowColor: C.gold });
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(60, ground); ctx.lineTo(W - 60, ground); ctx.stroke();
+
+      // ---- B: altında kalan (önce adam, sonra yığın) ----
+      const phoneCols = ['#ff3fa4', '#3d8bff', '#3ee08f', '#ff8a3d'];
+      const sitP = { lean: 0.6, hipL: 2.15, kneeL: 1.95, hipR: 2.0, kneeR: 1.85, shL: 0.55, elL: 1.75, shR: 0.45, elR: 1.9, head: 0.7, phone: true };
+      F.stickman(ctx, { x: BX - 20, y: ground, s: 1.15, dir: 1, pose: sitP, phoneColor: phoneCols[Math.floor(t / 0.5) % 4], color: '#a9a39d' });
+      for (let k = 0; k < NW; k++) {
+        if (t < land(k)) continue;
+        const p = slabB(k);
+        slab(ctx, p.x, p.y, p.rot, 0);
+      }
+      if (done) F.glowCircle(ctx, BX, ground - 40, 160, '#ff3fa4', 0.4 + 0.2 * Math.sin(t * 5));
+
+      // ---- A: üstüne basan ----
+      for (let k = 0; k < NW; k++) {
+        if (t < land(k)) continue;
+        const p = slabA(k);
+        slab(ctx, p.x, p.y, 0, k >= nL - 3 ? 16 : 6);
+      }
+      {
+        const k = nL - 1;
+        let x = AX0 - 20, y = ground, pose = F.P.stand(t);
+        if (k >= 0) {
+          const cur = slabA(k), prev = k > 0 ? slabA(k - 1) : { x: AX0 - 20, y: ground + SL / 2 };
+          const q = E.inOutQuad(clamp((t - land(k)) / 0.2));
+          x = lerp(prev.x, cur.x, q); y = lerp(prev.y - SL / 2, cur.y - SL / 2, q);
+          pose = q < 1 ? F.P.walk(t * 14, 0.8) : F.P.stand(t);
+        }
+        if (done) pose = F.mixPose(F.P.stand(t), F.P.celebrate(t), E.outCubic(up));
+        if (nL > 20) F.embers(ctx, t, { x, y: y - 100, w: 70, h: 200, n: Math.floor(lerp(4, 30, prog(nL, 20, 52))), color: C.gold, seed: 8 });
+        F.stickman(ctx, { x, y, s: 1.15, dir: 1, pose, glow: lerp(10, 36, nL / NW), glowColor: C.gold });
+      }
+
+      // ---- düşen yapraklar ----
+      for (let k = 0; k < NW; k++) {
+        const d0 = drop(k), d1 = land(k);
+        if (t < d0 || t >= d1) continue;
+        const q = (t - d0) / (d1 - d0);
+        const a = slabA(k), b = slabB(k);
+        ctx.save(); ctx.globalAlpha = clamp(q * 6);
+        sheet(ctx, a.x + Math.sin(q * 9 + k) * 20 * (1 - q), lerp(420, a.y - 40, E.inQuad(q)), Math.sin(q * 7 + k) * 0.5 * (1 - q), k, lerp(1, 0.7, q));
+        sheet(ctx, b.x + Math.sin(q * 8 + k * 2) * 20 * (1 - q), lerp(420, b.y - 40, E.inQuad(q)), Math.sin(q * 6 + k) * 0.5 * (1 - q), k, lerp(1, 0.7, q));
+        ctx.restore();
+      }
+
+      // etiketler
+      const kl = 1 - prog(t, 3.5, 4.0);
+      if (kl > 0) {
+        F.text(ctx, 'BASAN', 250, ground + 50, { size: 22, weight: 800, color: C.gold, ls: 4, alpha: kl });
+        F.text(ctx, 'KAYDIRAN', BX, ground + 50, { size: 22, weight: 800, color: C.red, ls: 4, alpha: kl });
+      }
+
+      // ---- ara yazılar ----
+      const cap = (str, a, bb, col) => { const k = prog(t, a, a + 0.4) * (1 - prog(t, bb - 0.4, bb)); if (k > 0) F.revealLine(ctx, str, W / 2, 1540, prog(t, a, a + 0.6), { size: 38, weight: 800, alpha: k, accent: col }); };
+      cap('HER HAFTA ÜSTÜNE *BİR SAYFA* DÜŞER.', 0.6, 3.6, C.gold);
+      cap('BİRİ *ÜSTÜNE BASAR.*', 3.8, 7.0, C.gold);
+      cap('BİRİ *ALTINDA KALIR.*', 7.2, 10.5, C.red);
+      cap('AYNI *52 HAFTA.*', 10.7, 12.9, C.gold);
+
+      // ---- final ----
+      if (t > 13.0) {
+        const k = E.outCubic(prog(t, 13.0, 13.7));
+        ctx.save(); ctx.fillStyle = `rgba(5,6,8,${0.84 * k})`; ctx.fillRect(0, 0, W, H); ctx.restore();
+        F.revealLine(ctx, 'GÜNLER YA BASAMAK OLUR', W / 2, 870, prog(t, 13.3, 14.0), { size: 80, weight: 900, accent: C.gold });
+        F.revealLine(ctx, '*YA MEZAR.*', W / 2, 1030, prog(t, 14.5, 15.0), { size: 140, weight: 900, accent: C.red, hiGlow: 50, stagger: 0.3 });
+      }
+      F.handleTag(ctx, 1 - prog(t, 16.7, 17.1));
+      F.endCard(ctx, t, 17.3);
+    },
+  });
+})();
+</script>
+</body>
+</html>

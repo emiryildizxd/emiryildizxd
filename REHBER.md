@@ -86,6 +86,9 @@ Gönderdiğin 4 reels'ten çıkardığım "formül", sayfanın görsel kimliği,
 | 10 | `reels/10-yuzde-99.html` | İki "HAYALİN" çubuğu %99'da takılır. Biri bekler (sayaç 1.000+ gün), diğeri kalkıp son %1'i kendi eliyle iter. | "SON %1 HİÇBİR ZAMAN **KENDİ KENDİNE YÜKLENMEZ.**" |
 | 11 | `reels/11-alkis.html` | Sahnede alkışla coşan adam, alkış ve seyirci gidince biter. İkinci spot yanar: karanlıkta biri 1.233 tekrardır hiç durmamış. | "ALKIŞLA ÇALIŞIYORSAN **OYUNCUSUN.**" |
 | 12 | `reels/12-faiz.html` | Ertelenen her iş (SPOR, DERS, PROJE...) sırta taş olur ve haftalık %6 faizle büyür. Adam diz çöker, kule devrilir. | "ERTELEDİĞİN HER ŞEY **FAİZİYLE GERİ GELİR.**" |
+| 13 | `reels/13-nabiz.html` | Hasta monitörü 52 BPM; adam UYU → ÇALIŞ → KAYDIR döngüsünde "AYNI GÜN ×217". Telefonu fırlatır, koşar: EKG altın, 148 BPM. | "NEFES ALMAK **YAŞAMAK DEĞİL.**" |
+| 14 | `reels/14-bataklik.html` | Mor konfor bataklığı ("5 DK DAHA", "YARIN" yüzer). Telefona bakan yavaşça batar; debelenen kıyıya tırmanır. | "KONFOR SENİ **SESSİZCE ÖLDÜRÜR.**" |
+| 15 | `reels/15-takvim.html` | Her hafta iki adamın üstüne takvim yaprağı düşer. Biri basamak yapıp yükselir, diğeri aynı yaprakların altında kalır. | "GÜNLER YA BASAMAK OLUR **YA MEZAR.**" |
 
 **Giriş kuralı:** Hiçbir video siyah ekranda yazıyla açılmaz. İlk kare doğrudan sahne ve hareket. Eski reel'lerde girişi `skip: 2.0` atlıyor (motor sesi ve müziği de kaydırıyor), yeni reel'ler zaten 0. saniyede aksiyonla başlıyor.
 
@@ -130,9 +133,9 @@ Yeniden üretmek için: `node render.cjs profil.html --snap 0,1,2`
 | ✅ | **%99** | Hayalinin yükleme çubuğu %99'da takılı, adam bekliyor. Diğeri son %1'i kendi eliyle itiyor. | KİMSE SENİN YERİNE YÜKLEMEYECEK. |
 | ✅ | **ALKIŞ** | Sahnede çalışan adam alkış gelince hızlanır, alkış bitince durur. Diğeri boş salonda çalışır. | ALKIŞLA DURUYORSAN OYUNCUSUN. |
 | ✅ | **FAİZ** | Ertelenen her iş sırta taş olur. Taşlar faiz gibi büyür, adam ezilir. | ERTELEDİĞİN HER ŞEY FAİZİYLE GELİR. |
-| 7 | **NABIZ** | EKG monitörü: rutin günlerde düz çizgi, hedefe saldırınca zıplar. | NEFES ALIYORSUN. YAŞAMIYORSUN. |
-| 8 | **BATAKLIK** | Konfor bataklığı yavaşça yutar. Kıpırdamayan batar, hareket eden çıkar. | KONFOR SENİ YAVAŞ ÖLDÜRÜR. |
-| 9 | **TAKVİM MERDİVENİ** | Takvim yaprakları dökülür. Biri onları üst üste koyup merdiven yapar, diğeri altında kalır. | GÜNLER YA BASAMAK YA MEZAR. |
+| ✅ | **NABIZ** | EKG monitörü: rutin günlerde düz çizgi, hedefe saldırınca zıplar. | NEFES ALIYORSUN. YAŞAMIYORSUN. |
+| ✅ | **BATAKLIK** | Konfor bataklığı yavaşça yutar. Kıpırdamayan batar, hareket eden çıkar. | KONFOR SENİ YAVAŞ ÖLDÜRÜR. |
+| ✅ | **TAKVİM MERDİVENİ** | Takvim yaprakları dökülür. Biri onları üst üste koyup merdiven yapar, diğeri altında kalır. | GÜNLER YA BASAMAK YA MEZAR. |
 | 10 | **İKİ SES** | Kafada iki hoparlör: "YARIN" sesi büyür, "ŞİMDİ" sesi kısık. Adam düğmeyi çevirir. | SESİNİ AÇ. |
 
 ## 4. Sonraki 30 fikir

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bataklık</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="reel.css">
+</head>
+<body>
+<script src="engine.js"></script>
+<script>
+/* REEL 14 — "BATAKLIK"
+   İki adam mor bir konfor bataklığında. Yüzeyde "5 DK DAHA", "YARIN", "RAHAT" yüzüyor.
+   Telefona bakan kıpırdamaz, yavaşça batar; sadece telefon ışığı kalır, o da gider.
+   Diğeri debelenir, acıyla çıkar, kıyıya tırmanır. Giriş yok: ilk karede ikisi de bataklıkta. */
+(function () {
+  const { lerp, clamp, E, prog, rng } = F;
+  const S0 = 1190, BANK_X = 830, BANK_Y = 1110, AX = 280;
+  const TU = 12.3, TS = 3.0, TO = 9.2, TC = 10.4;         // A batar | B debelenmeye başlar | kıyıya varır | ayağa kalkar
+  const dA = (t) => 40 + 310 * E.inCubic(prog(t, 0, TU));
+  const WORDS = ['5 DK DAHA', 'YARIN', 'RAHAT', 'NETFLIX', 'SONRA', 'BİR BÖLÜM DAHA'];
+  const surf = (x, t) => S0 + 7 * Math.sin(x / 60 + t * 2) + 4 * Math.sin(x / 23 - t * 3);
+
+  function bState(t) {
+    if (t < TS) return { x: 590, d: lerp(40, 100, prog(t, 0, TS)), mode: 'sink' };
+    if (t < TO) { const k = E.inOutQuad(prog(t, TS, TO)); return { x: lerp(590, 760, k), d: lerp(100, 50, k), mode: 'fight' }; }
+    if (t < TC) { const k = E.inOutCubic(prog(t, TO, TC)); return { x: lerp(760, 900, k), d: 0, y: lerp(S0 + 50, BANK_Y, k), mode: 'climb', k }; }
+    return { x: 900, d: 0, y: BANK_Y, mode: 'up' };
+  }
+
+  Reel({
+    title: 'Bataklık',
+    duration: 20,
+    cues() {
+      const c = [{ t: 0, type: 'hit' }];
+      for (let t = 0.3; t < TU; t += 0.7) c.push({ t, type: 'blup', p: t / TU, g: 0.35 });
+      for (let t = TS; t < TO; t += 0.36) c.push({ t, type: 'step', p: 0.2 }, { t: t + 0.05, type: 'blup', p: 0.8, g: 0.25 });
+      c.push({ t: TO + 0.4, type: 'step', p: 0.5 }, { t: TO + 0.8, type: 'step', p: 0.7 }, { t: TO, type: 'riser', d: TC - TO }, { t: TC, type: 'climax' },
+        { t: TU, type: 'blup', p: 0, g: 0.8 }, { t: TU + 0.1, type: 'sad' },
+        { t: 0.6, type: 'whoosh' }, { t: 3.8, type: 'whoosh' }, { t: 7.0, type: 'whoosh' }, { t: 10.8, type: 'whoosh' },
+        { t: 13.0, type: 'drop' }, { t: 13.3, type: 'punch' }, { t: 14.5, type: 'hit' }, { t: 17.3, type: 'end' });
+      return { music: { bpm: 110, grid0: 0.0, climax: TC, punch: 13.3, end: 17.3, prog: 'em', drums: 'full' }, cues: c };
+    },
+    draw(ctx, t, F) {
+      const { W, H, CONFIG: C } = F;
+      const b = bState(t);
+      const out = prog(t, TC, TC + 0.6);
+      F.background(ctx, t, { tint: F.hexA(C.violet, 0.06), tintY: 1100 });
+
+      // ---- HUD ----
+      const sinkPct = Math.min(100, Math.round((dA(t) - 40) / 310 * 100));
+      const outPct = t < TS ? 0 : Math.min(100, Math.round(prog(t, TS, TC) * 100));
+      F.panel(ctx, 80, 250, 440, 140, { stroke: F.hexA(C.red, 0.4) }); F.panel(ctx, 560, 250, 440, 140, { stroke: F.hexA(C.gold, 0.4) });
+      F.text(ctx, 'BATMA', 112, 290, { size: 24, weight: 800, align: 'left', color: C.red, ls: 4 });
+      F.text(ctx, 'ÇIKIŞ', 592, 290, { size: 24, weight: 800, align: 'left', color: C.gold, ls: 4 });
+      F.text(ctx, '%' + sinkPct, 488, 350, { size: 56, weight: 700, font: C.mono, align: 'right', color: C.red, glow: sinkPct > 80 ? 18 : 0 });
+      F.text(ctx, '%' + outPct, 968, 350, { size: 56, weight: 700, font: C.mono, align: 'right', color: C.gold, glow: outPct === 100 ? 20 : 0 });
+
+      // ---- kıyı (sağda sağlam zemin) ----
+      ctx.save();
+      ctx.fillStyle = '#16181d'; ctx.beginPath(); ctx.moveTo(BANK_X, BANK_Y); ctx.lineTo(W + 20, BANK_Y); ctx.lineTo(W + 20, H); ctx.lineTo(BANK_X - 40, H); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = out > 0 ? C.gold : 'rgba(255,255,255,0.3)'; ctx.lineWidth = 4; if (out > 0) { ctx.shadowColor = C.gold; ctx.shadowBlur = 16; }
+      ctx.beginPath(); ctx.moveTo(BANK_X - 10, BANK_Y); ctx.lineTo(W + 20, BANK_Y); ctx.stroke();
+      ctx.restore();
+      F.glowCircle(ctx, 960, BANK_Y - 120, 380, C.gold, 0.25 + 0.6 * out);
+
+      // ---- A: telefona bakan, batan ----
+      const phoneCols = ['#ff3fa4', '#3d8bff', '#3ee08f', '#ff8a3d'];
+      const dA0 = dA(t);
+      if (t < TU + 0.4) {
+        const pose = { ...F.P.standPhone(t), phone: true, head: lerp(0.6, 0.2, prog(t, 8, TU)), shR: lerp(0.42, 1.4, prog(t, 9, TU)), elR: lerp(1.95, 1.2, prog(t, 9, TU)) };
+        F.stickman(ctx, { x: AX, y: S0 + dA0, s: 1.25, dir: 1, pose, phoneColor: phoneCols[Math.floor(t / 0.5) % 4], color: '#a9a39d' });
+      }
+
+      // ---- B: debelenen, çıkan ----
+      {
+        let pose, y = b.y ?? S0 + b.d;
+        if (b.mode === 'sink') pose = { ...F.P.stand(t), head: 0.3, shL: -0.4, shR: 0.4 };
+        else if (b.mode === 'fight') {
+          const w = F.P.walk(t * 9, 1);
+          pose = { ...w, hipL: w.hipL * 1.6 + 0.4, kneeL: w.kneeL + 0.6, hipR: w.hipR * 1.6 + 0.4, kneeR: w.kneeR + 0.6, shL: -1.2 + Math.sin(t * 9) * 0.9, shR: 1.2 - Math.sin(t * 9) * 0.9, elL: 0.6, elR: 0.6, lean: 0.35 + Math.sin(t * 18) * 0.04, head: -0.1 };
+        } else if (b.mode === 'climb') pose = F.mixPose({ lean: 0.7, hipL: 1.3, kneeL: 1.8, hipR: 0.3, kneeR: 0.4, shL: 1.6, elL: 0.3, shR: 1.5, elR: 0.3, head: -0.2 }, F.P.stand(t), E.inOutQuad(b.k));
+        else pose = t < TC + 0.9 ? F.mixPose(F.P.stand(t), F.P.celebrate(t), E.outCubic(prog(t, TC, TC + 0.5))) : { ...F.P.stand(t), head: -0.2, shL: -0.3, shR: 0.3, lean: -0.04 };
+        const mud = 1 - out;
+        if (out > 0.3) F.embers(ctx, t, { x: b.x, y: BANK_Y - 120, w: 80, h: 220, n: 28, color: C.gold, seed: 5 });
+        F.stickman(ctx, { x: b.x, y, s: 1.25, dir: 1, pose, color: F.mixHex('#b79bd8', '#f4f2ee', out), glow: lerp(8, 36, out), glowColor: mud > 0.5 ? C.violet : C.gold });
+        // çamur damlaları
+        if (b.mode === 'climb' || (b.mode === 'up' && t < TC + 1.5)) {
+          const rr = rng(9);
+          for (let i = 0; i < 10; i++) { const life = 0.6 + rr() * 0.5, ph = ((t + rr()) % life) / life; ctx.fillStyle = F.hexA('#6b4a8f', 1 - ph); ctx.beginPath(); ctx.arc(b.x + (rr() - 0.5) * 60, y - 60 + ph * 120, 5, 0, Math.PI * 2); ctx.fill(); }
+        }
+      }
+
+      // ---- bataklık yüzeyi (önde; batan kısımları örter) ----
+      ctx.save();
+      ctx.beginPath(); ctx.moveTo(-20, H);
+      for (let x = -20; x <= BANK_X + 10; x += 10) ctx.lineTo(x, surf(x, t));
+      ctx.lineTo(BANK_X - 30, H); ctx.closePath();
+      const g = ctx.createLinearGradient(0, S0, 0, H); g.addColorStop(0, '#2a1a3a'); g.addColorStop(1, '#0b0810');
+      ctx.fillStyle = g; ctx.fill();
+      ctx.beginPath(); for (let x = -20; x <= BANK_X; x += 10) { const y = surf(x, t); x === -20 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
+      ctx.strokeStyle = F.hexA(C.violet, 0.6); ctx.lineWidth = 4; ctx.shadowColor = C.violet; ctx.shadowBlur = 16; ctx.stroke();
+      ctx.restore();
+      // halkalar
+      [[AX, 0.6], [b.x, b.mode === 'fight' ? 1.4 : 0]].forEach(([x, k], i) => {
+        if (!k || (i === 1 && b.mode !== 'fight')) return;
+        for (let j = 0; j < 2; j++) { const q = ((t * k + j * 0.5) % 1); ctx.strokeStyle = F.hexA(C.violet, 0.5 * (1 - q)); ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(x, surf(x, t) + 4, 40 + q * 90, 8 + q * 10, 0, 0, Math.PI * 2); ctx.stroke(); }
+      });
+      // kabarcıklar (A'nın etrafında)
+      for (let i = 0; i < 12; i++) {
+        const tb = 0.3 + i * 0.7 + (i % 3) * 0.13, d = t - tb; if (d < 0 || d > 0.5) continue;
+        const x = AX + ((i * 37) % 90) - 45, y = surf(x, t) - 4, q = d / 0.5;
+        ctx.strokeStyle = F.hexA('#b79bd8', 0.8 * (1 - q)); ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, 6 + q * 14, Math.PI, 0); ctx.stroke();
+      }
+      // batış anı: son telefon ışığı ve büyük kabarcık
+      if (t > TU - 0.6 && t < TU + 1.2) {
+        const q = prog(t, TU - 0.6, TU + 1.2);
+        F.glowCircle(ctx, AX + 40, surf(AX, t) + 10, 140, '#ff3fa4', 0.6 * (1 - q));
+      }
+      // yüzen kelimeler
+      WORDS.forEach((w, i) => {
+        const x = ((i * 190 - t * 30) % (BANK_X + 200) + BANK_X + 200) % (BANK_X + 200) - 100;
+        const y = surf(x, t) + 40 + (i % 3) * 70;
+        F.text(ctx, w, x, y, { size: 22, weight: 800, color: F.hexA('#b79bd8', 0.45), ls: 2 });
+      });
+
+      // ---- ara yazılar ----
+      const cap = (str, a, bb, col) => { const k = prog(t, a, a + 0.4) * (1 - prog(t, bb - 0.4, bb)); if (k > 0) F.revealLine(ctx, str, W / 2, 1610, prog(t, a, a + 0.6), { size: 38, weight: 800, alpha: k, accent: col }); };
+      cap('KONFOR SENİ *YAVAŞ* YUTAR.', 0.6, 3.6, C.violet);
+      cap('KIPIRDAMAZSAN *BATARSIN.*', 3.8, 6.8, C.red);
+      cap('ÇIKMAK *ACITIR.*', 7.0, 10.5, C.gold);
+      cap('BATMAK ACITMAZ. *SORUN DA BU.*', 10.8, 12.9, C.red);
+
+      // ---- final ----
+      if (t > 13.0) {
+        const k = E.outCubic(prog(t, 13.0, 13.7));
+        ctx.save(); ctx.fillStyle = `rgba(5,6,8,${0.84 * k})`; ctx.fillRect(0, 0, W, H); ctx.restore();
+        F.revealLine(ctx, 'KONFOR SENİ', W / 2, 870, prog(t, 13.3, 13.9), { size: 100, weight: 900 });
+        F.revealLine(ctx, '*SESSİZCE ÖLDÜRÜR.*', W / 2, 1020, prog(t, 14.5, 15.1), { size: 100, weight: 900, accent: C.red, hiGlow: 46, stagger: 0.3 });
+      }
+      F.handleTag(ctx, 1 - prog(t, 16.7, 17.1));
+      F.endCard(ctx, t, 17.3);
+    },
+  });
+})();
+</script>
+</body>
+</html>
